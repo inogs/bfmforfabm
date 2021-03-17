@@ -24,6 +24,9 @@ module ogs_bfm_shared
    real(rk),parameter :: SEC_PER_DAY   = 86400.0_rk
    real(rk),parameter :: SUNQ          = 24.0_rk
    real(rk),parameter :: HOURS_PER_DAY = 24.0_rk
+   real(rk),parameter :: MW_C          = 12.0_rk
+
+   real(rk)           :: flPTN6r       = 0.0_rk
 
 #ifdef IRON
    logical,parameter :: use_iron = .true.
@@ -33,6 +36,7 @@ module ogs_bfm_shared
 
    ! Aggregate diagnostics for e.g., carbon budgets.
    type (type_bulk_standard_variable),parameter :: total_chlorophyll = type_bulk_standard_variable(name='total_chlorophyll',units='mg/m^3',aggregate_variable=.true.)
+   type (type_bulk_standard_variable),parameter :: total_oxygen = type_bulk_standard_variable(name='total_oxygen',units='mmolO2/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_calcite_in_biota = type_bulk_standard_variable(name='total_calcite_in_biota',units='mg C/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: secchi_depth = type_bulk_standard_variable(name='secchi_depth',units='m')
 
@@ -98,6 +102,18 @@ module ogs_bfm_shared
         if (x > ZERO ) INSW=ONE 
 
     end function INSW
+
+    ! Michaelis-Menten saturation curve at power
+    elemental FUNCTION MM_POWER(x, m, p)
+
+        IMPLICIT NONE
+        real(rk),intent(IN) :: x, m
+        integer   ,intent(IN) :: p
+        real(rk)            :: MM_POWER
+
+        MM_POWER = x**p / ( x**p+ m**p)
+
+    end function MM_POWER
 
 
 

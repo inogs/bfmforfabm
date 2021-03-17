@@ -5,6 +5,7 @@ module ogs_model_library
    use ogs_bfm_shared
    use ogs_bfm_pelagic_base
    use bfm_Phyto 
+   use bfm_PelBac
    use ogs_bfm_light
 
 
@@ -41,8 +42,8 @@ contains
          ! Add case statements for new models here
          case ('bfm_pelagic_base'); allocate(type_ogs_bfm_pelagic_base::model)
          case ('Phyto'); allocate(type_ogs_bfm_primary_producer::model)
+         case ('PelBac'); allocate(type_ogs_bfm_pelagic_bacteria::model)
          case ('light'); allocate(type_ogs_bfm_light::model)
-
       end select
 
    end subroutine create

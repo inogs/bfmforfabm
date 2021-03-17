@@ -592,9 +592,8 @@ end select
  _SET_DIAGNOSTIC_(self%id_rugc,rugc)
 
 !SEAMLESS  call quota_flux( iiPel, ppphytoc ,ppO3c,ppphytoc, rugc, tfluxC )  
-! _SET_ODE_(self%id_c,rugc)
-! _SET_ODE_(self%id_O3c,-rugc)
-!       call flux_vector(self%id_c,self%id_O3c, rugc)
+  _SET_ODE_(self%id_c,rugc)
+  _SET_ODE_(self%id_O3c,-rugc)
 
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1c, 0.98D0 * rr1c, tfluxC ) !  flux is partitioned to non CDOM
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1l, 0.02D0 * rr1c, tfluxC ) !  flux is partitioned to CDOM

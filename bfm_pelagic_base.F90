@@ -12,22 +12,22 @@ module ogs_bfm_pelagic_base
 
    type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
 ! type,extends(type_particle_model),public :: type_ersem_pelagic_base
-      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl
+      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
       type (type_dependency_id)                     :: id_dens
       type (type_horizontal_diagnostic_variable_id) :: id_w_bot
-      type (type_horizontal_diagnostic_variable_id),allocatable,dimension(:) :: id_cdep,id_ndep,id_pdep,id_sdep,id_fdep
+      type (type_horizontal_diagnostic_variable_id),allocatable,dimension(:) :: id_cdep,id_ndep,id_pdep,id_sdep,id_fdep,id_odep
 
       ! Target variables for sedimentation
-      type (type_bottom_state_variable_id),allocatable,dimension(:) :: id_targetc,id_targetn,id_targetp,id_targets,id_targetf
+      type (type_bottom_state_variable_id),allocatable,dimension(:) :: id_targetc,id_targetn,id_targetp,id_targets,id_targetf,id_targeto
 
       real(rk) :: rm = 0.0_rk
       real(rk) :: tdep
       integer :: ndeposition
       logical :: no_river_dilution = .false.
 
-      real(rk),allocatable :: qxc(:),qxn(:),qxp(:),qxs(:),qxf(:)
+      real(rk),allocatable :: qxc(:),qxn(:),qxp(:),qxs(:),qxf(:),qxo(:)
 
    contains
       procedure :: initialize
@@ -90,13 +90,11 @@ contains
       end if
       if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk)
       if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk)
-!     if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk,qnRPIcX*c0) ! background concentrations qnRPIcX not used
-!     if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk,qpRPIcX*c0) ! background concentrations qnRPIcX not used
       if (index(composition,'s')/=0) then 
-!         call self%get_parameter(s0,'s0','mmol Si/m^3','background silicon concentration',default=qsRPIcX*c0)
          call self%add_constituent('s',0.0_rk,s0)
       end if
       if (index(composition,'f')/=0) call self%add_constituent('f',0.0_rk)
+      if (index(composition,'o')/=0) call self%add_constituent('o',0.0_rk)
  
       ! Register model parameters and variables here.
    end subroutine initialize
@@ -111,7 +109,6 @@ contains
       select case (name)
       case ('c')
          call register(self%id_c,'c','mg C','carbon',standard_variables%total_carbon,self%qxc,self%id_cdep,self%id_targetc,1._rk/12.011_rk)
-!        call register(self%id_c,'c','mg C','carbon',standard_variables%total_carbon,self%qxc,self%id_cdep,self%id_targetc,1._rk/CMass)
          if (present(qn)) call self%add_to_aggregate_variable(standard_variables%total_nitrogen, self%id_c,scale_factor=qn)
          if (present(qp)) call self%add_to_aggregate_variable(standard_variables%total_phosphorus,self%id_c,scale_factor=qp)
       case ('n')
@@ -122,6 +119,9 @@ contains
          call register(self%id_s,'s','mmol Si','silicate',standard_variables%total_silicate,self%qxs,self%id_sdep,self%id_targets)
       case ('f')
 !        if (use_iron) call register(self%id_f,'f','umol Fe','iron',standard_variables%total_iron,self%qxf,self%id_fdep,self%id_targetf)
+      case ('o')
+         call register(self%id_o,'o','mmol O2','Oxygen',total_oxygen)
+!        call register(self%id_o,'o','mmol O2','Oxygen',standard_variables%total_oxygen,self%qxo,self%id_odep,self%id_targeto)
       case ('chl')
          call register(self%id_chl,'Chl','mg','chlorophyll a',total_chlorophyll)
       case default
