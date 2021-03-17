@@ -472,7 +472,6 @@ select case ( self%p_limnut)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   ! Retrieve environmental dependencies (water temperature, photosynthetically active radation)
-   _GET_(self%id_ETW,ETW)
 
   et  =   eTq(  ETW, self%p_q10)
   et  =   max(ZERO,et - self%p_temp)
@@ -485,7 +484,6 @@ select case ( self%p_limnut)
   ! If Chl is a diagnostic variable the limiting factor has been 
   ! computed in Light/PhotoAvailableRadiation.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  _GET_(self%id_parEIR,parEIR)
 
   _SET_DIAGNOSTIC_(self%id_EIRd,parEIR)
 !SEAMLESS  if (phyto == 1) PAR_phyto(:) = PAR_phyto1(:)
