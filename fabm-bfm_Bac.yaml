@@ -48,7 +48,7 @@ instances:
     parameters:
       composition: o                                       # elemental composition
     initialization:
-      o: 200.0
+      o: 300.0
   R1:
     long_name: Dissolved Organic carbon Labile
     model: ogs/bfm_pelagic_base
@@ -56,31 +56,31 @@ instances:
       composition: cnp                                     # elemental composition
     initialization:
       c: 1.0                                          # Dissolved Organic Carbon (mg C /m^3)
-      n: .01                                          # Dissolved Organic Nitrogen (mmol N /m^3)
-      p: .0001                                        # Dissolved Organic Phosphorus (mmol P /m^3)
+      n: 1.260E-002                                   # Dissolved Organic Nitrogen (mmol N /m^3)
+      p: 7.8620E-004                                  # Dissolved Organic Phosphorus (mmol P /m^3)
   R2:
     long_name: Dissolved Organic carbon semi-Labile
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                   # elemental composition
     initialization:
-      c: 1.0                                           # Dissolved Organic Carbon (mg C /m^3)
+      c: 0.1                                           # Dissolved Organic Carbon (mg C /m^3)
   R3:
     long_name: Dissolved Organic carbon semi-refractory
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                   # elemental composition
     initialization:
-      c: 450.0                                         # Dissolved Organic Carbon (mg C /m^3)
+      c: 1.0                                         # Dissolved Organic Carbon (mg C /m^3)
   R6: 
     long_name: Particulate Organic carbon 
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
     initialization:
-      c: 10.0                                         # POC (mg C   /m^3)
-      n: 10.0                                         # PON (mmol N /m^3)
-      p: 10.0                                         # POP (mmol P /m^3)
+      c: 1.0                                          # POC (mg C   /m^3)
+      n: 1.260E-002                                   # PON (mmol N /m^3)
+      p: 7.8620E-004                                  # POP (mmol P /m^3)
       s: 10.0                                         # POS (mmol S /m^3)
   X1:
     long_name: labile CDOM
@@ -88,21 +88,21 @@ instances:
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c: 3.000000000000000E-002
   X2:
     long_name: semi labile CDOM
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c: 3.000000000000000E-003
   X3:
     long_name: semi refractory CDOM
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c:  3.000000000000000E-002
 #   ---------------------- P1 Diatom ----------------------
   P1:
     long_name: diatoms
@@ -189,6 +189,18 @@ instances:
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       N5s: N5/s                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c
+      R1n: R1/n
+      R1p: R1/p
+      R2c: R2/c
+      R6c: R6/c
+      R6n: R6/n
+      R6s: R6/s
+      R6p: R6/p
+      X1c: X1/c
+      X2c: X2/c
+
 #   ---------------------- P2 Picoplankton ----------------------
   P2:
     long_name: Picoplankton
@@ -265,6 +277,16 @@ instances:
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c 
+      R1n: R1/n 
+      R1p: R1/p 
+      R2c: R2/c 
+      R6c: R6/c 
+      R6n: R6/n 
+      R6p: R6/p 
+      X1c: X1/c 
+      X2c: X2/c 
 #   ---------------------- B1 Pelagic heteretrophyc bacteria ----------------------
 #
   B1:
@@ -304,9 +326,9 @@ instances:
       p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
       p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
     initialization:
-      c: 8.0                                               # carbon (mg C/m^3)
-      n: 0.1008                                            # nitrogen (mmol N/m^3)
-      p: 0.006288                                          # phosphate (mmol N/m^3)
+      c: 1.0                                               # carbon (mg C/m^3)
+      n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
+      p: 1.900000000000000E-003                            # phosphate (mmol N/m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
