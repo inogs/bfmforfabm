@@ -166,61 +166,81 @@ contains
       ! to present parameters to the user for configuration (e.g., through a
       ! GUI)
       call self%get_parameter(self%p_q10,   'p_q10',     '-', 'Characteristic Q10 coefficient')
-      call self%get_parameter(self%p_temp,  'p_temp',    '-', 'Characteristic Q10 coefficient')
-      call self%get_parameter(self%p_sum,   'p_sum',     '1/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_srs,   'p_srs',     '1/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_sdmo,  'p_sdmo',    '1/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_thdo,  'p_thdo',    '-',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_seo,   'p_seo',     '1/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_sheo,  'p_sheo',    'mgC/3',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_pu_ea, 'p_pu_ea',    '-',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_pu_ra, 'p_pu_ra',    '-',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_switchDOC,  'p_switchDOC',    '[1-3]',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_temp,  'p_temp',    '-', ' Cut-off threshold for temperature factor')
+      call self%get_parameter(self%p_sum,   'p_sum',     '1/d',        'Maximal productivity at 10 degrees C')
+      call self%get_parameter(self%p_srs,   'p_srs',     '1/d', 'Respiration rate at 10 degrees C')
+      call self%get_parameter(self%p_sdmo,  'p_sdmo',    '1/d',        ' Max.specific nutrient-stress lysis rate')
+      call self%get_parameter(self%p_thdo,  'p_thdo',    '-',        'Half saturation constant for nutrient stress lysis')
+      call self%get_parameter(self%p_seo,   'p_seo',     '1/d',      'Extra lysis rate (biomass density-dependent)')
+      call self%get_parameter(self%p_sheo,  'p_sheo',    'mgC/3',    'Half saturation constant for extra lysis')
+      call self%get_parameter(self%p_pu_ea, 'p_pu_ea',    '-',        'Excreted fraction of primary production')
+      call self%get_parameter(self%p_pu_ra, 'p_pu_ra',    '-',        'Activity respiration fraction')
+      call self%get_parameter(self%p_switchDOC,  'p_switchDOC',    '[1-3]', 'Switch for the type of DOC excretion')
+!                             This choice must be consistent with bacteria
+!                             1. All DOC is released as R1c (Vichi et al., 2007)
+!                             2. Activity DOC is released as R2c (Vichi et al.,
+!                             2004)
+!                                (there is no nutrient-stress excretion)
+!                             3. All DOC is released as R2c (Polimene et al.,
+!                             2006)
+
 !              --------- Nutrient parameters in phytoplankton -----------------
-      call self%get_parameter(self%p_netgrowth,  'p_netgrowth',    '[T or F]',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_limnut,  'p_limnut',    '[0-2]',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_netgrowth,  'p_netgrowth',    '[T or F]','Logical switch for nutrient-limited growth')
+!                             .T. nutrient-balanced growth (Vichi et al.2004)
+!                             .F. nutrient-stress carbon excretion
+!                               (Baretta-Bekker et al.1995 and Vichi et al.2007)
+
+      call self%get_parameter(self%p_limnut,  'p_limnut',    '[0-2]', 'Switch for N-P co-limitation')
+!                             0. Geometric mean
+!                             1. Threshold (Liebig-like)
+!                             2. Combined
+
 !                   ---- N limitation control ----
-      call self%get_parameter(self%p_qun,    'p_qun'   ,    'm3/mgC/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_lN4,    'p_lN4'   ,    'mmolN/m3',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_qnlc,   'p_qnlc'  ,   'mmolN/mgC',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_qncPPY, 'p_qncPPY', 'mmolN/mgC',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_xqn,    'p_xqn'   ,    '-',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_qun,    'p_qun'   ,'m3/mgC/d', 'Membrane affinity for N')
+      call self%get_parameter(self%p_lN4,    'p_lN4'   ,'mmolN/m3', 'Half saturation constant for NH4 uptake preference over NO3')
+      call self%get_parameter(self%p_qnlc,   'p_qnlc'  ,'mmolN/mgC','Minimum quotum N:C ')
+      call self%get_parameter(self%p_qncPPY, 'p_qncPPY','mmolN/mgC','reference quotum N:C')
+      call self%get_parameter(self%p_xqn,    'p_xqn'   ,'-', 'Multiplication factor for luxury storage')
 !                   ---- P limitation control ----
-      call self%get_parameter(self%p_qup,    'p_qup'   ,    'm3/mgC/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_qplc,   'p_qplc'  ,   'mmolP/mgC',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_qpcPPY, 'p_qpcPPY', 'mmolP/mgC',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_xqp,    'p_xqp'   ,     '-',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_qup,    'p_qup'   ,'m3/mgC/d', 'Membrane affinity for P')
+      call self%get_parameter(self%p_qplc,   'p_qplc'  ,   'mmolP/mgC', ' Minimum quotum P:C')
+      call self%get_parameter(self%p_qpcPPY, 'p_qpcPPY', 'mmolP/mgC', 'reference quotum P:C')
+      call self%get_parameter(self%p_xqp,    'p_xqp'   ,     '-',   'Multiplication factor for luxury storage')
 !                   ---- Si limitation control ----
       call self%get_parameter(self%use_Si,   'use_Si','',          'use silicate',default=.false.)
       if (self%use_Si) then 
-          call self%get_parameter(self%p_switchSi, 'p_switchSi',   '[1-2]',        'maximum specific productivity at reference temperature')
-          call self%get_parameter(self%p_chPs,     'p_chPs',       'mmolSi/m3',        'maximum specific productivity at reference temperature')
-          call self%get_parameter(self%p_Contois,  'p_Contois',    '1/d',        'maximum specific productivity at reference temperature')
-          call self%get_parameter(self%p_qus,      'p_qus',        '1/d',        'maximum specific productivity at reference temperature')
-          call self%get_parameter(self%p_qslc,     'p_qslc',       '1/d',        'maximum specific productivity at reference temperature')
-          call self%get_parameter(self%p_qscPPY,   'p_qscPPY',       '1/d',        'maximum specific productivity at reference temperature')
+          call self%get_parameter(self%p_switchSi, 'p_switchSi',   '[1-2]',    'Switch for Silica limitation')
+!                             1. Si limitation is controlled by external Si
+!                             conc.
+!                             2. Si limitation is controlled by internal quota
+
+          call self%get_parameter(self%p_chPs,'p_chPs', 'mmolSi/m3', 'Half saturation conc. for dissolved Si limitation')
+          call self%get_parameter(self%p_Contois,  'p_Contois', '>=0', ' If >0, use Contois formulation')
+          call self%get_parameter(self%p_qus,      'p_qus',  'm3/mgC/d', 'membrane affinity for Si')
+          call self%get_parameter(self%p_qslc,     'p_qslc', 'mmolSi/mgC','minimum quotum for Si:C')
+          call self%get_parameter(self%p_qscPPY,   'p_qscPPY','mmolSi/mgC',  'reference quotum Si:C')
       endif
 !                   ---- nutrient stressed sinking ----
-      call self%get_parameter(self%p_esNI,  'p_esNI',       '-',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_res,   'p_res',       'm/d',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_esNI,  'p_esNI',       '-', 'Nutrient stress threshold for sinking')
+      call self%get_parameter(self%p_res,   'p_res',       'm/d', 'Maximum Sinking velocity ')
 !                   ---- Calcification ----
-      call self%get_parameter(self%p_caco3r,   'p_caco3r',  '-',        'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_caco3r,   'p_caco3r',  '-',  'reference PIC:POC (rain) ratio')
 !              --------- Chlorophyll parameters -----------
-      call self%get_parameter(self%p_switchChl,   'p_switchChl',  '1-4',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_sdchl,   'p_sdchl',  '1/d',        'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_alpha_chl,   'p_alpha_chl',  'mgC s m2/mgChl/uE',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_EpEk_or,   'p_EpEk_or',  '-',    'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_switchChl,   'p_switchChl',  '1-4', 'Switch for Chla-a synthesis')
+      call self%get_parameter(self%p_sdchl,   'p_sdchl',  '1/d', 'Specific turnover rate for Chla')
+      call self%get_parameter(self%p_alpha_chl,   'p_alpha_chl',  'mgC s m2/mgChl/uE','Initial slope of the P-E curve')
+      call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC','reference quotum Chla:C')
+      call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
+      call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')
+      call self%get_parameter(self%p_EpEk_or,   'p_EpEk_or',  '-',    'Optimal value of E_PAR/E_K')
 !              --------- Light parameters ERSEM-II -----------
-      call self%get_parameter(self%p_iswLtyp,   'p_iswLtyp',  '0-6',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_chELiPPY,   'p_chELiPPY',  'W/m2',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_clELiPPY,   'p_clELiPPY',  'W/m2',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_ruELiPPY,   'p_ruELiPPY',  '1/d',    'maximum specific productivity at reference temperature')
-      call self%get_parameter(self%p_addepth,   'p_addepth',  'm',    'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_iswLtyp,   'p_iswLtyp',  '0-6',    'Shape of the productivity function')
+      call self%get_parameter(self%p_chELiPPY,   'p_chELiPPY',  'W/m2', 'Maximum Iopt')
+      call self%get_parameter(self%p_clELiPPY,   'p_clELiPPY',  'W/m2', 'Minimum Iopt')
+      call self%get_parameter(self%p_ruELiPPY,   'p_ruELiPPY',  '1/d',  'Maximum daily shift in Iopt (1/d)')
+      call self%get_parameter(self%p_addepth,   'p_addepth',  'm', 'Adaptation depth. Meaningless with high-res models')
 !              --------- Sinking parameters -----------
-      call self%get_parameter(self%p_rPIm,   'p_rPIm',  'm/d',    'maximum specific productivity at reference temperature')
+      call self%get_parameter(self%p_rPIm,   'p_rPIm',  'm/d', 'Phytoplankton background sinking rate')
     
 ! Register state variables (handled by type_bfm_pelagic_base)
 !     call self%initialize_ogs_bfm_base(sedimentation=.true.)
