@@ -106,6 +106,12 @@ contains
       real(rk),                        intent(in)            :: initial_value
       real(rk),optional,               intent(in)            :: background_value,qn,qp
 
+      ! Set time unit to d-1
+      ! This implies that all rates (sink/source terms, vertical velocities) are
+      ! given in d-1.
+      self%dt = 86400._rk
+
+
       select case (name)
       case ('c')
          call register(self%id_c,'c','mg C','carbon',standard_variables%total_carbon,self%qxc,self%id_cdep,self%id_targetc,1._rk/12.011_rk)
