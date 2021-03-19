@@ -67,6 +67,7 @@
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
+      type (type_state_variable_id) :: id_X1c,id_X2c                        !  particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
       type (type_dependency_id)            :: id_parEIR,id_ETW   ! PAR and temperature
@@ -258,10 +259,21 @@ contains
 !     if (self%use_Si) call self%add_constituent('s',1.e-6_rk,c0*self%qsc)
       ! Register links to external nutrient pools.
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','dissolved organic carbon')
+      call self%register_state_dependency(self%id_O2o,'O2o','mmolO2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
       if (self%use_Si) call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
+      call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3','labile DOC')
+      call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3','labile DOP')
+      call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
+      call self%register_state_dependency(self%id_R2c,'R2c','mg C/m^3','semi labile DOC')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','POC')
+      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','POP')
+      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','PON')
+      if (self%use_Si) call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','POS')
+      call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
+      call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
@@ -333,7 +345,11 @@ contains
    ! !LOCAL VARIABLES:
       real(rk) :: ETW,et,parEIR
       real(rk) :: phytoc, phytop, phyton, phytol, phytos
-      real(rk) :: N5s,N1p,N3n,N4n
+      real(rk) :: N5s,N1p,N3n,N4n,O2o
+      real(rk) :: R1c,R1n,R1p
+      real(rk) :: R2c
+      real(rk) :: R6c,R6p,R6n,R6s
+      real(rk) :: X1c,X2c
       real(rk) :: iNIn,iN1p,eN5s,iN5s,iNf,iNI
       real(rk) :: iN,tN
       real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY
@@ -370,15 +386,6 @@ contains
          ! Retrieve local biomass (carbon, phosphorus, nitrogen, chlorophyll
          ! concentrations).
 
-         ! Concentrations including background (used in source terms)
-!        _GET_WITH_BACKGROUND_(self%id_c,phytoc) ! --> 
-!        _GET_WITH_BACKGROUND_(self%id_p,phytop)
-!        _GET_WITH_BACKGROUND_(self%id_n,phyton)
-!        _GET_WITH_BACKGROUND_(self%id_chl,phytol)
-!        if (self%use_Si) then
-!           _GET_WITH_BACKGROUND_(self%id_s,phytos)
-!        endif
-
          ! Concentrations excluding background (used in sink terms)
          _GET_(self%id_c,phytoc)
          _GET_(self%id_p,phytop)
@@ -392,6 +399,9 @@ contains
          _GET_(self%id_N1p,N1p)
          _GET_(self%id_N3n,N3n)
          _GET_(self%id_N4n,N4n)
+
+         ! Retrieve ambient oxygen concentrations
+         _GET_(self%id_O2o,O2o)
 
          ! Retrieve environmental dependencies (water temperature,
          ! photosynthetically active radation)
@@ -506,10 +516,6 @@ select case ( self%p_limnut)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   _SET_DIAGNOSTIC_(self%id_EIRd,parEIR)
-!SEAMLESS  if (phyto == 1) PAR_phyto(:) = PAR_phyto1(:)
-!SEAMLESS  if (phyto == 2) PAR_phyto(:) = PAR_phyto2(:)
-!SEAMLESS  if (phyto == 3) PAR_phyto(:) = PAR_phyto3(:)
-!SEAMLESS  if (phyto == 4) PAR_phyto(:) = PAR_phyto4(:)
 
 ! Irradiance EIR is in uE m-2 s-1, 
 ! Irr is  average irradiance in uE m-2 day-1
@@ -612,15 +618,24 @@ end select
 !SEAMLESS  call quota_flux( iiPel, ppphytoc ,ppO3c,ppphytoc, rugc, tfluxC )  
   _SET_ODE_(self%id_c,rugc)
   _SET_ODE_(self%id_O3c,-rugc)
-
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1c, 0.98D0 * rr1c, tfluxC ) !  flux is partitioned to non CDOM
+  _SET_ODE_(self%id_c,-0.98D0 * rr1c)
+  _SET_ODE_(self%id_R1c,0.98D0 * rr1c)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1l, 0.02D0 * rr1c, tfluxC ) !  flux is partitioned to CDOM
-!SEAMLESS! call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1c, rr1c, tfluxC )
+  _SET_ODE_(self%id_c,-0.02D0 * rr1c)
+  _SET_ODE_(self%id_X1c,0.02D0 * rr1c)
+
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR6c, rr6c, tfluxC )
+  _SET_ODE_(self%id_c,-rr6c)
+  _SET_ODE_(self%id_R6c,rr6c)
 !SEAMLESS
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppO3c, rrc, tfluxC )
+  _SET_ODE_(self%id_c,-rrc)
+  _SET_ODE_(self%id_O3c,rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
+  _SET_ODE_(self%id_O2o,-(rrc/MW_C))
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
+  _SET_ODE_(self%id_O2o,rugc/MW_C)
 !SEAMLESS
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Potential-Net prim prod. (mgC /m3/d)
@@ -676,8 +691,11 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
 
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC )
+  _SET_ODE_(self%id_c,-0.98D0 * flPIR2c)
+  _SET_ODE_(self%id_R2c,0.98D0 * flPIR2c)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) !  flux to CDOM
-!SEAMLESS! call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, flPIR2c, tfluxC )
+  _SET_ODE_(self%id_c,-0.02D0 * flPIR2c)
+  _SET_ODE_(self%id_X2c,0.02D0 * flPIR2c)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)
@@ -696,9 +714,16 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   runn3  =   r* runn* rumn3/( p_small+ rumn)  ! actual uptake of Nn
   runn4  =   r* runn* rumn4/( p_small+ rumn)  ! actual uptake of Nn
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppN3n,ppphyton, runn3, tfluxN )  ! source/sink.n
+  _SET_ODE_(self%id_n,runn3)
+  _SET_ODE_(self%id_N3n,-runn3)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppN4n,ppphyton, runn4, tfluxN )  ! source/sink.n
+  _SET_ODE_(self%id_n,runn4)
+  _SET_ODE_(self%id_N4n,-runn4)
   tmp = - runn*( ONE- r)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR1n,tmp, tfluxN)  ! source/sink.n
+  _SET_ODE_(self%id_n,-tmp)
+  _SET_ODE_(self%id_R1n,tmp)
+
  _SET_DIAGNOSTIC_(self%id_misn, misn)
  _SET_DIAGNOSTIC_(self%id_rupn, rupn)
  _SET_DIAGNOSTIC_(self%id_runn, runn)
@@ -724,8 +749,14 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   tmp = runp*r
  _SET_DIAGNOSTIC_(self%id_runp, tmp)
 !SEAMLESS  call quota_flux(iiPel, ppphytop, ppN1p,ppphytop, tmp, tfluxP)  ! source/sink.p
+  _SET_ODE_(self%id_p,tmp)
+  _SET_ODE_(self%id_N1p,-tmp)
+
   tmp = - runp*( ONE- r)
 !SEAMLESS  call quota_flux(iiPel, ppphytop, ppphytop,ppR1p, tmp, tfluxP)  ! source/sink.p
+  _SET_ODE_(self%id_p,-tmp)
+  _SET_ODE_(self%id_R1p,tmp)
+
  _SET_DIAGNOSTIC_(self%id_fR1p, tmp)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
@@ -742,10 +773,17 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rr6p, rr6p)
  _SET_DIAGNOSTIC_(self%id_rr1p, rr1p)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR6n, rr6n, tfluxN )  ! source/sink.n
+  _SET_ODE_(self%id_n,-rr6n)
+  _SET_ODE_(self%id_R6n,rr6n)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR1n, rr1n, tfluxN )  ! source/sink.n
-!SEAMLESS
+  _SET_ODE_(self%id_n,-rr1n)
+  _SET_ODE_(self%id_R1n,rr1n)
 !SEAMLESS  call quota_flux( iiPel, ppphytop, ppphytop,ppR6p, rr6p, tfluxP )  ! source/sink.p
+  _SET_ODE_(self%id_p,-rr6p)
+  _SET_ODE_(self%id_R6p,rr6p)
 !SEAMLESS  call quota_flux( iiPel, ppphytop, ppphytop,ppR1p, rr1p, tfluxP )  ! source/sink.p
+  _SET_ODE_(self%id_p,-rr1p)
+  _SET_ODE_(self%id_R6p,rr1p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: SILICATE
@@ -773,7 +811,12 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
     ! Uptake and Losses of Si (only lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !SEAMLESS    call flux_vector( iiPel, ppN5s,ppphytos, runs)
+  _SET_ODE_(self%id_N5s,-runs)
+  _SET_ODE_(self%id_s,runs)
 !SEAMLESS    call flux_vector( iiPel, ppphytos, ppR6s, sdo*phytos )
+  _SET_ODE_(self%id_s,-sdo*phytos)
+  _SET_ODE_(self%id_R6s,sdo*phytos)
+
  _SET_DIAGNOSTIC_(self%id_rums, rums)
  _SET_DIAGNOSTIC_(self%id_miss, miss)
  _SET_DIAGNOSTIC_(self%id_rups, rups)
@@ -845,6 +888,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
                     -srs * phytol * ONE/(parEIR+ONE)
    end select
 !SEAMLESS    call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
+  _SET_ODE_(self%id_chl,rate_Chl)
 !SEAMLESS end if
 
  _SET_DIAGNOSTIC_(self%id_rho_Chl, rho_Chl)
