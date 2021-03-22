@@ -116,6 +116,7 @@
       real(rk) :: p_suR3, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qncPBA
       real(rk) :: p_qpcPBA, p_qlnc, p_qlpc, p_qun, p_qup, p_chn, p_chp
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
+      real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       integer :: p_version
 
    contains
@@ -177,6 +178,9 @@ contains
       call self%get_parameter(self%p_rec,      'p_rec'  , '1/d', 'Relaxation timescale for semi-labile excretion')
       call self%get_parameter(self%p_pu_ea_R3, 'p_pu_ea_R3'  , '-', 'Excretion of semi-refractory DOC')
       call self%get_parameter(self%p_qro, 'p_qro'  , 'mmolHS-/mmolO2', 'Stoichiometric coefficient for anaerobic reactions')
+      call self%get_parameter(self%p_pe_R1c, 'p_pe_R1c'  , '-', 'Fractional content of C in cytoplasm')
+      call self%get_parameter(self%p_pe_R1n, 'p_pe_R1n'  , '-', 'Fractional content of N in cytoplasm')
+      call self%get_parameter(self%p_pe_R1p, 'p_pe_R1p'  , '-', 'Fractional content of P in cytoplasm')
     
 ! Register state variables (handled by type_bfm_pelagic_base)
 !     call self%initialize_ogs_bfm_base(sedimentation=.true.)
@@ -378,14 +382,26 @@ contains
 
  _SET_DIAGNOSTIC_(self%id_rd,rd)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR6c, rd*(ONE-p_pe_R1c)              , tfluxC)
+  _SET_ODE_(self%id_R6c,rd*(ONE-self%p_pe_R1c))
+  _SET_ODE_(self%id_c,-(rd*(ONE-self%p_pe_R1c)))
 !SEAMLESS call quota_flux(iiPel, ppbacn, ppbacn, ppR6n, rd*qncPBA(bac,:)*(ONE-p_pe_R1n), tfluxN)
+  _SET_ODE_(self%id_R6n,rd*qncPBA*(ONE-self%p_pe_R1n))
+  _SET_ODE_(self%id_n,-(rd*qncPBA*(ONE-self%p_pe_R1n)))
 !SEAMLESS call quota_flux(iiPel, ppbacp, ppbacp, ppR6p, rd*qpcPBA(bac,:)*(ONE-p_pe_R1p), tfluxP)
-
+  _SET_ODE_(self%id_R6p,rd*qpcPBA*(ONE-self%p_pe_R1p))
+  _SET_ODE_(self%id_p,-(rd*qpcPBA*(ONE-self%p_pe_R1p)))
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR1c, 0.98D0*rd*p_pe_R1c , tfluxC)
+  _SET_ODE_(self%id_R1c,0.98D0*rd*self%p_pe_R1c)
+  _SET_ODE_(self%id_c,-0.98D0*rd*self%p_pe_R1c)
 !SEAMLESS call quota_flux(iiPel, ppbacc, ppbacc, ppR1l, 0.02D0*rd*p_pe_R1c , tfluxC) ! flux to CDOM
-
+  _SET_ODE_(self%id_X1c,0.02D0*rd*self%p_pe_R1c)
+  _SET_ODE_(self%id_c,-0.02D0*rd*self%p_pe_R1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppbacn, ppR1n, rd*qncPBA(bac,:)*p_pe_R1n, tfluxN) 
+  _SET_ODE_(self%id_R1n,rd*qncPBA*self%p_pe_R1n)
+  _SET_ODE_(self%id_n,-rd*qncPBA*self%p_pe_R1n)
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppbacp, ppR1p, rd*qpcPBA(bac,:)*p_pe_R1p, tfluxP)
+  _SET_ODE_(self%id_R1p,rd*qpcPBA*self%p_pe_R1p)
+  _SET_ODE_(self%id_p,-rd*qpcPBA*self%p_pe_R1p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Substrate availability

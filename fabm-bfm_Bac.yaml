@@ -325,6 +325,10 @@ instances:
       p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
       p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
       p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
+      p_pe_R1c: 0.60  #[-]           Fractional content of C in cytoplasm
+      p_pe_R1n: 0.72  #[-]           Fractional content of N in cytoplasm
+      p_pe_R1p: 0.832 #[-]           Fractional content of P in cytoplasm
+
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
       n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
