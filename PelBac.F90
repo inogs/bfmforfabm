@@ -68,6 +68,7 @@
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c,id_X3c                 !  CDOM
+      type (type_state_variable_id) :: id_N6r              
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
       type (type_dependency_id)            :: id_ETW   ! temperature
@@ -192,6 +193,7 @@ contains
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
+      call self%register_state_dependency(self%id_N6r,'N6r','mmol Eq/m^3','Reduction Equivalent')
       call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3','labile DOC')
       call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3','labile DOP')
       call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
@@ -267,6 +269,7 @@ contains
       real(rk) :: R3c
       real(rk) :: X1c,X2c,X3c
       real(rk) :: R6c,R6p,R6n
+      real(rk) :: N6r
       real(rk) :: ETW,et,eO2
       real(rk) :: eN4n,eN1p
       real(rk) :: qpcPBA,qncPBA
@@ -314,6 +317,9 @@ contains
          _GET_(self%id_N1p,N1p)
          _GET_(self%id_N3n,N3n)
          _GET_(self%id_N4n,N4n)
+
+         ! Reduction equivalent
+         _GET_(self%id_N6r,N6r)
 
          ! Retrieve ambient organic matter concentrations
          _GET_(self%id_R1c,R1c)
@@ -488,14 +494,26 @@ contains
   ruX3c = rug*ruX3c/rut
 
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR1c, ppbacc, ruR1c, tfluxC)
+  _SET_ODE_(self%id_c,ruR1c)
+  _SET_ODE_(self%id_R1c,-ruR1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR2c, ppbacc, ruR2c, tfluxC)
+  _SET_ODE_(self%id_c,ruR2c)
+  _SET_ODE_(self%id_R2c,-ruR2c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR3c, ppbacc, ruR3c, tfluxC)
+  _SET_ODE_(self%id_c,ruR3c)
+  _SET_ODE_(self%id_R3c,-ruR3c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR6c, ppbacc, ruR6c, tfluxC)
-
+  _SET_ODE_(self%id_c,ruR6c)
+  _SET_ODE_(self%id_R6c,-ruR6c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR1l, ppbacc, ruR1l, tfluxC)
+  _SET_ODE_(self%id_c,ruX1c)
+  _SET_ODE_(self%id_X1c,-ruX1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR2l, ppbacc, ruR2l, tfluxC)
+  _SET_ODE_(self%id_c,ruX2c)
+  _SET_ODE_(self%id_X2c,-ruX2c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR3l, ppbacc, ruR3l, tfluxC)
-
+  _SET_ODE_(self%id_c,ruX3c)
+  _SET_ODE_(self%id_X3c,-ruX3c)
 
  _SET_DIAGNOSTIC_(self%id_ruR1c,ruR1c)
  _SET_DIAGNOSTIC_(self%id_ruR2c,ruR2c)
@@ -514,13 +532,21 @@ contains
   ruR6n = qncR6*ruR6c
 
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppR1n, ppbacn, ruR1n, tfluxN)
+  _SET_ODE_(self%id_n,ruR1n)
+  _SET_ODE_(self%id_R1n,-ruR1n)
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppR6n, ppbacn, ruR6n, tfluxN)
+  _SET_ODE_(self%id_n,ruR6n)
+  _SET_ODE_(self%id_R6n,-ruR6n)
 
   ruR1p = qpcR1*ruR1c
   ruR6p = qpcR6*ruR6c
 
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppR1p, ppbacp, ruR1p, tfluxP)
+  _SET_ODE_(self%id_p,ruR1p)
+  _SET_ODE_(self%id_R1p,-ruR1p)
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppR6p, ppbacp, ruR6p, tfluxP)
+  _SET_ODE_(self%id_p,ruR6p)
+  _SET_ODE_(self%id_R6p,-ruR6p)
 
  _SET_DIAGNOSTIC_(self%id_ruR1n,ruR1n)
  _SET_DIAGNOSTIC_(self%id_ruR6n,ruR6n)
@@ -538,9 +564,14 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rrc = (self%p_pu_ra+ self%p_pu_ra_o*(ONE-eO2) )*rug + self%p_srs* bacc* et
 !SEAMLESS  call quota_flux( iiPel, ppbacc, ppbacc, ppO3c, rrc, tfluxC) 
+  _SET_ODE_(self%id_O3c,rrc)
+  _SET_ODE_(self%id_c,-rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
+  _SET_ODE_(self%id_O2o,-eO2*rrc/MW_C )
+
   flN6rPBA = (ONE- eO2)*rrc/ MW_C* self%p_qro
 !SEAMLESS  call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )
+  _SET_ODE_(self%id_N6r, flN6rPBA )
 
   ! Update the total rate of formation of reduction equivalent
   flPTN6r = flPTN6r + flN6rPBA
@@ -565,7 +596,11 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ren  =  (qncPBA - self%p_qncPBA)*bacc*self%p_ruen
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppbacn, ppN4n,       ren*insw( ren), tfluxN)
+  _SET_ODE_(self%id_N4n,ren*insw( ren))
+  _SET_ODE_(self%id_n, -ren*insw( ren))
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppN4n, ppbacn, -eN4n*ren*insw(-ren), tfluxN)
+  _SET_ODE_(self%id_n,   -eN4n*ren*insw(-ren))
+  _SET_ODE_(self%id_N4n, -(-eN4n*ren*insw(-ren)))
 
  _SET_DIAGNOSTIC_(self%id_ren,ren)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -576,7 +611,11 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       rep  =  (qpcPBA - self%p_qpcPBA)*bacc*self%p_ruep
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppbacp, ppN1p,       rep*insw( rep), tfluxP)
+  _SET_ODE_(self%id_N1p,rep*insw( rep))
+  _SET_ODE_(self%id_p, -rep*insw( rep))
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppN1p, ppbacp, -eN1p*rep*insw(-rep), tfluxP)
+  _SET_ODE_(self%id_p, -eN1p*rep*insw(-rep))
+  _SET_ODE_(self%id_N1p, -(eN1p*rep*insw(-rep)))
 
  _SET_DIAGNOSTIC_(self%id_rep,rep)
 
@@ -594,6 +633,9 @@ contains
       huln = (ruR6n + ruR1n) - self%p_qncPBA*run
       ren  = huln*insw(huln)
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppbacn, ppN4n, ren, tfluxN)
+  _SET_ODE_(self%id_N4n, ren)
+  _SET_ODE_(self%id_n,  -ren)
+
  _SET_DIAGNOSTIC_(self%id_renh4,ren)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -607,12 +649,16 @@ contains
       rumn  = rumn3 + rumn4
       ren   = max(-rumn,huln)*insw(-huln)
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppN4n, ppbacn, -ren*rumn4/rumn, tfluxN)
+  _SET_ODE_(self%id_n, -ren*rumn4/rumn)
+  _SET_ODE_(self%id_N4n, -(-ren*rumn4/rumn))
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppN3n, ppbacn, -ren*rumn3/rumn, tfluxN)
+  _SET_ODE_(self%id_n, -ren*rumn3/rumn)
+  _SET_ODE_(self%id_N3n, -(-ren*rumn3/rumn))
+
  _SET_DIAGNOSTIC_(self%id_rumn3,rumn3)
  _SET_DIAGNOSTIC_(self%id_rumn4,rumn4)
  _SET_DIAGNOSTIC_(self%id_rumn,rumn)
  _SET_DIAGNOSTIC_(self%id_ren,ren)
-
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Phosphate remineralization  (Eq. 28 Vichi et al. 2004, note that there 
@@ -621,6 +667,8 @@ contains
       hulp = (ruR6p + ruR1p) - self%p_qpcPBA*run
       rep  = hulp*insw(hulp)
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppbacp, ppN1p, rep, tfluxP)
+  _SET_ODE_(self%id_N1p, rep)
+  _SET_ODE_(self%id_p, -rep)
   
  _SET_DIAGNOSTIC_(self%id_repo4,rep)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -631,6 +679,8 @@ contains
       rump = self%p_qup*N1p*bacc
       rep  = max(-rump,hulp)*insw(-hulp)
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppN1p, ppbacp, -rep, tfluxP)
+  _SET_ODE_(self%id_p, -rep)
+  _SET_ODE_(self%id_N1p, -(-rep))
 
  _SET_DIAGNOSTIC_(self%id_rep,rep)
   
@@ -644,8 +694,11 @@ contains
       reR3c = run - min(r, (ruR6p+ruR1p-rep)/self%p_qlpc)
       reR3c = max(ZERO, reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, 0.98D0*reR3c ,tfluxC)
+  _SET_ODE_(self%id_R3c, 0.98D0*reR3c)
+  _SET_ODE_(self%id_c,  -0.98D0*reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3l, 0.02D0*reR3c ,tfluxC) ! Flux to CDOM
-!     call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, reR3c ,tfluxC)
+  _SET_ODE_(self%id_X3c, 0.02D0*reR3c)
+  _SET_ODE_(self%id_c,  -0.02D0*reR3c)
  _SET_DIAGNOSTIC_(self%id_reR3c,reR3c)
 
     case ( BACT3 ) ! Polimene et al. (2006)
@@ -672,7 +725,12 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ren = (qncPBA - self%p_qncPBA)*bacc*self%p_ruen
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppbacn, ppN4n,       ren*insw( ren), tfluxN)
+  _SET_ODE_(self%id_N4n, ren*insw( ren))
+  _SET_ODE_(self%id_n,  -(ren*insw( ren)))
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppN4n, ppbacn, -eN4n*ren*insw(-ren), tfluxN)
+  _SET_ODE_(self%id_n, -eN4n*ren*insw(-ren))
+  _SET_ODE_(self%id_N4n, -(-eN4n*ren*insw(-ren)))
+
  _SET_DIAGNOSTIC_(self%id_ren,ren)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -683,21 +741,32 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       rep  =  (qpcPBA- self%p_qpcPBA)*bacc*self%p_ruep
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppbacp, ppN1p,       rep*insw( rep), tfluxP)
+  _SET_ODE_(self%id_N1p, rep*insw( rep))
+  _SET_ODE_(self%id_p,  -rep*insw( rep))
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppN1p, ppbacp, -eN1p*rep*insw(-rep), tfluxP)
- _SET_DIAGNOSTIC_(self%id_rep,rep)
+  _SET_ODE_(self%id_p,  -eN1p*rep*insw(-rep))
+  _SET_ODE_(self%id_N1p, -(-eN1p*rep*insw(-rep)))
+
+  _SET_DIAGNOSTIC_(self%id_rep,rep)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excretion fluxes (only losses to R2 and R3)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2c, 0.98D0*reR2c, tfluxC)
+  _SET_ODE_(self%id_R2c, 0.98D0*reR2c)
+  _SET_ODE_(self%id_c,  -0.98D0*reR2c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2l, 0.02D0*reR2c, tfluxC)! To CDOM
-!     call quota_flux( iiPel, ppbacc, ppbacc, ppR2c, reR2c, tfluxC)
+  _SET_ODE_(self%id_X2c, 0.02D0*reR2c)
+  _SET_ODE_(self%id_c,  -0.02D0*reR2c)
+
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3c, 0.98D0*reR3c, tfluxC)
+  _SET_ODE_(self%id_R3c, 0.98D0*reR3c)
+  _SET_ODE_(self%id_c,  -0.98D0*reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3l, 0.02D0*reR3c, tfluxC)! To CDOM
-!     call quota_flux( iiPel, ppbacc, ppbacc, ppR3c, reR3c, tfluxC)
+  _SET_ODE_(self%id_X3c, 0.02D0*reR3c)
+  _SET_ODE_(self%id_c,  -0.02D0*reR3c)
   
   end select
-
 
       _LOOP_END_
 
