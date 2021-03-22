@@ -35,6 +35,13 @@ instances:
       composition: s                                       # elemental composition
     initialization:
       s: 4.5                                               # silicate (mmol Si/m^3)
+  N6:
+    long_name: Reduction equivalent
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: r                                       # elemental composition
+    initialization:
+      r: 1.0                                               # Reduction equivalent (mmol Eq/m^3)
   O3:
     long_name: Dissolved Inorganic carbon
     model: ogs/bfm_pelagic_base
@@ -337,6 +344,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N6r: N6/r                                            
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 

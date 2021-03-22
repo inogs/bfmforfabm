@@ -81,7 +81,7 @@
       type (type_diagnostic_variable_id) :: id_ETWd  ! temperature Celsius
       type (type_diagnostic_variable_id) :: id_EIRd  ! light diagnostic
       type (type_diagnostic_variable_id) :: id_eT    ! temperature q10 factor
-      type (type_diagnostic_variable_id) :: id_r     ! light limitation exponent
+      type (type_diagnostic_variable_id) :: id_rr    ! light limitation exponent
       type (type_diagnostic_variable_id) :: id_eiPPY ! light limitation
       type (type_diagnostic_variable_id) :: id_sum   ! growth time scale
       type (type_diagnostic_variable_id) :: id_sdo   ! nutrient stress lysis
@@ -293,7 +293,7 @@ contains
       call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C','temperature Celsius')
       call self%register_diagnostic_variable(self%id_et,   'et',   '-','temperature factor')
       call self%register_diagnostic_variable(self%id_EIRd, 'EIR',  'uE/m2/s','PAR')
-      call self%register_diagnostic_variable(self%id_r, 'r',  '-','light limitation exponent')
+      call self%register_diagnostic_variable(self%id_rr, 'r',  '-','light limitation exponent')
       call self%register_diagnostic_variable(self%id_eiPPY, 'eiPPY',  '-','light limitation')
       call self%register_diagnostic_variable(self%id_sum, 'sum',  '1/d','growth time scale')
       call self%register_diagnostic_variable(self%id_sdo, 'sdo', 'mgC/m3/d','nutrient stress lysis')
@@ -533,7 +533,7 @@ select case ( LightPeriodFlag)
    case ( 3 ) ! on-off
 !     fpplim  =   fpplim*ThereIsLight
 end select
-  _SET_DIAGNOSTIC_(self%id_r,r)
+  _SET_DIAGNOSTIC_(self%id_rr,r)
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Light limitation factor according to Platt
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
