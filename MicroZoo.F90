@@ -99,16 +99,17 @@
 
       ! Identifiers for state variables of other models
       ! type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                  !  dissolved inorganic carbon, oxygen, total alkalinity
-      type (type_state_variable_id) :: id_O2o   !  oxygen
+      type (type_state_variable_id)      :: id_O2o   !  oxygen
 
       ! Environmental dependencies
-      type (type_dependency_id)            :: id_ETW   ! temperature
+      type (type_dependency_id)          :: id_ETW   ! temperature
 
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_ETWd   ! temperature Celsius
+      type (type_diagnostic_variable_id) :: id_eO2    ! Oxygen limitation
 
       ! Parameters (described in subroutine initialize, below)
-      real(rk) :: p_q10
+      real(rk) :: p_q10, p_chro
 
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -142,8 +143,8 @@ contains
 ! !DESCRIPTION:
 !
 ! !INPUT PARAMETERS:
-      class (type_ogs_bfm_primary_producer),intent(inout),target :: self
-      integer,                              intent(in)           :: configunit
+      class (type_ogs_bfm_microzoo),intent(inout),target :: self
+      integer,                      intent(in)           :: configunit
 !
 ! !REVISION HISTORY:
 !
@@ -157,7 +158,8 @@ contains
       ! by FABM (or its host)
       ! to present parameters to the user for configuration (e.g., through a
       ! GUI)
-      call self%get_parameter(self%p_q10,   'p_q10',     '-', 'Characteristic Q10 coefficient')
+      call self%get_parameter(self%p_q10,  'p_q10',        '-', 'Characteristic Q10 coefficient')
+      call self%get_parameter(self%p_chro, 'p_chro', 'mmol/m3', 'Half-saturation oxygen concentration')
 
       ! Register state variables (handled by type_bfm_pelagic_base)
       call self%add_constituent('c',1.e-4_rk)
@@ -165,13 +167,14 @@ contains
       call self%add_constituent('p',4.288e-8_rk)
       
       ! Register links to external nutrient pools.
-      call self%register_state_dependency(self%id_O2o,'O2o','mmol O/m^3','dissolved oxygen')
+      call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
 
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
 
       ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C','temperature Celsius')
+      call self%register_diagnostic_variable(self%id_eO2,  'eO2',  '-','Oxygen limitation')
 
 
   end subroutine
@@ -182,8 +185,9 @@ contains
     _DECLARE_ARGUMENTS_DO_
 
     !LOCAL VARIABLES:
-
     real(rk) :: zooc, zoop, zoon
+    real(rk) :: et,ETW,eO2
+    real(rk) :: O2o
 
     ! Enter spatial loops (if any)
     _LOOP_BEGIN_
@@ -227,6 +231,7 @@ contains
     _GET_(self%id_p,zoop)
     
     ! Retrieve ambient nutrient concentrations
+    _GET_(self%id_O2o,O2o)
     
     ! Retrieve environmental dependencies (water temperature)
     _GET_(self%id_ETW,ETW)
@@ -252,23 +257,27 @@ contains
 
     _SET_DIAGNOSTIC_(self%id_ETWd,ETW)
 
-    _LOOP_END_
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Oxygen limitation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     eO2 = min(ONE, MM(O2o(:), p_chro(zoo)))
+    eO2 = min(ONE, MM(O2o, self%p_chro))
     
-!     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     ! Calculate total potential food given the non-dim prey availability
-!     ! and capture efficiency with loops over all LFGs.
-!     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     rumc   = ZERO
-!     do i = 1 ,iiPelBacteria
-!      PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
-!                  MM(PelBacteria(i,iiC), p_minfood(zoo))
-!      rumc = rumc + PBAc(:,i)
-!   end do
+    _SET_DIAGNOSTIC_(self%id_eO2,eO2)
 
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! Calculate total potential food given the non-dim prey availability
+    ! and capture efficiency with loops over all LFGs.
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! rumc   = ZERO
+    ! do i = 1 ,iiPelBacteria
+    !   PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
+    !               MM(PelBacteria(i,iiC), p_minfood(zoo))
+    !   rumc = rumc + PBAc(:,i)
+    ! end do
+    
+    _LOOP_END_
+  end subroutine do
+end module
 !   do i = 1 ,iiPhytoPlankton
 !      PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)* &
 !                    MM(PhytoPlankton(i,iiC), p_minfood(zoo))

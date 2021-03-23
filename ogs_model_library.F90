@@ -6,6 +6,7 @@ module ogs_model_library
    use ogs_bfm_pelagic_base
    use bfm_Phyto 
    use bfm_PelBac
+   use bfm_MicroZoo
    use ogs_bfm_light
 
 
