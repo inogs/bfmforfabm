@@ -357,7 +357,7 @@ instances:
                                          # to Zooplankton group z
       suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5
                                          # to Zooplankton group z
-      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z6
+      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6
                                          # to Zooplankton group z
     initialization:
       c: 8.0                             # carbon (mg C/m^3)
@@ -374,7 +374,40 @@ instances:
       prey7: Z6
 #   ---------------------- Z6 Microzooplankton ----------------------
   z6:
-    long_name: Microzooplankton
+    long_name: Heterotrophic Nanoflagellates (HNAN)
     model: ogs/MicroZoo
     parameters:
 #             --------- Physiological parameters -----------------
+      p_q10:     2.0     # [-]           Characteristic Q10 coefficient
+      p_srs:     0.02    # [1/d]         Respiration rate at 10 degrees Celsius
+      p_sum:     5.0     # [1/d]         Potential growth rate
+      p_sdo:     0.05    # [1/d]         Mortality rate due to oxygen limitation
+      p_sd:      0.0     # [1/d]         Temperature independent mortality rate
+      p_pu:      0.3     # [-]           Assimilation efficiency
+      p_pu_ea:   0.5     # [-]           Fraction of activity excretion
+      p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
+      p_chuc:    100.0   # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 50.0    # [mgC/m3]      Half-saturation food concentration for
+                                         # preference factor
+      p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
+      p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
+      p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
+      nprey:     7       # [-]           Number of preys
+      suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
+                                         # to Zooplankton group z
+      suprey2:   1.0     # [-]           Availability of PhytoPlankton group P2
+                                         # to Zooplankton group z
+      suprey3:   0.1     # [-]           Availability of PhytoPlankton group P3
+                                         # to Zooplankton group z
+      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z6
+                                         # to Zooplankton group z
+    initialization:
+      c: 8.0                             # carbon (mg C/m^3)
+      n: 0.1008                          # nitrogen (mmol N/m^3)
+      p: 0.006288                        # phosphate (mmol N/m^3)
+    coupling:
+      O2o:   O2/o                        # Oxygen (mmol O2/m^3)
+      prey1: B1
+      prey2: P2
+      prey3: P3
+      prey4: Z6
