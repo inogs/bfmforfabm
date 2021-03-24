@@ -119,6 +119,10 @@
       type (type_diagnostic_variable_id) :: id_et     ! temperature q10 factor
       type (type_diagnostic_variable_id) :: id_eO2    ! Oxygen limitation
       type (type_diagnostic_variable_id) :: id_rumc   ! total potential food
+      type (type_diagnostic_variable_id) :: id_rugc   ! total food uptake rate (eq 38 Vichi et al. 2007)
+      type (type_diagnostic_variable_id) :: id_sut    ! specific uptake rate considering potentially available food
+      type (type_diagnostic_variable_id) :: id_rugn   ! tbd
+      type (type_diagnostic_variable_id) :: id_rugp   ! tbd
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preycd !prey c
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preynd !prey n
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preypd !prey p
@@ -236,7 +240,11 @@ contains
       call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C',     'temperature Celsius')
       call self%register_diagnostic_variable(self%id_et,   'et',   '-',     'temperature factor')
       call self%register_diagnostic_variable(self%id_eO2,  'eO2',  '-',     'Oxygen limitation')
-      call self%register_diagnostic_variable(self%id_rumc, 'rumc', 'mgC/m3','total potential food')
+      call self%register_diagnostic_variable(self%id_rumc, 'rumc', 'mgC/m3',   'total potential food')
+      call self%register_diagnostic_variable(self%id_rugc, 'rugc', 'mgC/m3/d', 'total food uptake rate')
+      call self%register_diagnostic_variable(self%id_sut,  'sut',  '1/d',      'specific uptake rate')
+      call self%register_diagnostic_variable(self%id_rugn, 'rugn', 'tbd',      'tbd')
+      call self%register_diagnostic_variable(self%id_rugp, 'rugp', 'tbd',      'tbd')
 
 
   end subroutine
@@ -252,7 +260,8 @@ contains
     real(rk) :: zooc, zoop, zoon
     real(rk) :: et,ETW,eO2
     real(rk) :: O2o
-    real(rk) :: rumc
+    real(rk) :: rumc,rugc,sut
+    real(rk) :: rugn
 
     ! Enter spatial loops (if any)
     _LOOP_BEGIN_
@@ -310,8 +319,9 @@ contains
       ! _GET_(self%idpreyl(iprey), preylP(iprey))
     enddo
     ! Prey carbon was returned in mmol (due to units of standard_variables%total_carbon); convert to mg
-    preycP = preycP*CMass
+    ! MAYBE NO MORE NECESSARY preycP = preycP*CMass
 
+    ! SKIP
     ! Quota collectors
     
     ! write(*,*) 'p_mez_sigma_rnd(zoo)', p_mez_sigma_rnd(zoo)
@@ -321,10 +331,10 @@ contains
     ! local_seed = rnd_SEED
     ! MIZ_FLUCT(:)=ZERO
     ! do i=1,NO_BOXES
-    !      MIZ_FLUCT(i) = zooc(i) * dsqrt(p_miz_sigma_rnd(zoo)/86400.0D0 * delt)*86400.0D0/delt * W(local_seed,local_seed)
+    ! SKIP      MIZ_FLUCT(i) = zooc(i) * dsqrt(p_miz_sigma_rnd(zoo)/86400.0D0 * delt)*86400.0D0/delt * W(local_seed,local_seed)
     ! enddo
     ! rnd_SEED = local_seed 
-    
+    ! TO HERE
     
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Temperature effect
@@ -348,61 +358,67 @@ contains
     rumc   = ZERO
     do iprey = 1, self%nprey
       rumc = rumc + self%p_pa(iprey)*preycP(iprey)* &
-                    MM(preycP(iprey), self%p_minfood)
+      MM(preycP(iprey), self%p_minfood)
     end do
-
+    
     _SET_DIAGNOSTIC_(self%id_rumc,rumc)
-    _LOOP_END_
-  end subroutine do
-end module
-
+    
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Calculate total food uptake rate (eq 38 Vichi et al. 2007) and 
     ! specific uptake rate considering potentially available food (sut)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!   rugc  = et*p_sum(zoo)*MM(rumc, p_chuc(zoo))*zooc
-!   sut = rugc / (p_small + rumc)
-
-!   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!   ! Total Gross Uptakes from every LFG
-!   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!   ! Bacterioplankton
-!   rugn = ZERO
-!   rugp = ZERO
-
-!   do i = 1, iiPelBacteria
-!     ruPBAc = sut*PBAc(:,i)
-!     call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, ruPBAc            , tfluxC)
-!     call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxN)
-!     call quota_flux(iiPel, ppzoop, ppPelBacteria(i,iiP), ppzoop, ruPBAc*qpcPBA(i,:), tfluxP)
-!     rugn = rugn + ruPBAc*qncPBA(i,:)
-!     rugp = rugp + ruPBAc*qpcPBA(i,:)
-!     call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, MIZ_FLUCT*ruPBAc/rugc, tfluxC)
-!     call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, MIZ_FLUCT*ruPBAc/rugc*qncPBA(i,:), tfluxN)
-!     call quota_flux(iiPel, ppzoop, ppPelBacteria(i,iiP), ppzoop, MIZ_FLUCT*ruPBAc/rugc*qpcPBA(i,:), tfluxP)
-!   end do
-!   ! Phytoplankton
-!   do i = 1, iiPhytoPlankton
-!     ruPPYc = sut*PPYc(:,i)
-!     call quota_flux(iiPel, ppzooc, ppPhytoPlankton(i,iiC), ppzooc, ruPPYc            , tfluxC)
-!     call quota_flux(iiPel, ppzoon, ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qncPPY(i,:), tfluxN)
-!     call quota_flux(iiPel, ppzoop, ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpcPPY(i,:), tfluxP)
-!     rugn = rugn + ruPPYc*qncPPY(i,:)
-!     rugp = rugp + ruPPYc*qpcPPY(i,:)
-!     ! Chl is transferred to the infinite sink
-!     call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
-!                ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
-!     ! silicon constituent is transferred to biogenic silicate
-!     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
-!        call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
-                              
-! #ifdef INCLUDE_PELFE
-!     ! Fe constituent is transferred to particulate iron
-!     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
+    rugc = et*self%p_sum*MM(rumc, self%p_chuc)*zooc
+    sut = rugc / (p_small + rumc)
+    
+    _SET_DIAGNOSTIC_(self%id_rugc,rugc)
+    _SET_DIAGNOSTIC_(self%id_sut,sut)
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! Total Gross Uptakes from every LFG
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! ! Bacterioplankton
+    rugn = ZERO
+    rugp = ZERO
+    
+    do iprey = 1, self%nprey
+      rupreyc(iprey) = sut*preycP(iprey)
+      rugn = rugn + rupreyc(iprey)*preynP(iprey)/preycP(irpey)
+    !   do i = 1, iiPelBacteria
+    !     ruPBAc = sut*PBAc(:,i)
+    !     call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, ruPBAc            , tfluxC)
+    !     call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxN)
+    !     call quota_flux(iiPel, ppzoop, ppPelBacteria(i,iiP), ppzoop, ruPBAc*qpcPBA(i,:), tfluxP)
+    !     rugn = rugn + ruPBAc*qncPBA(i,:)
+    !     rugp = rugp + ruPBAc*qpcPBA(i,:)
+    ! SKIP MIZ_FLUCT!     call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, MIZ_FLUCT*ruPBAc/rugc, tfluxC)
+    !     call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, MIZ_FLUCT*ruPBAc/rugc*qncPBA(i,:), tfluxN)
+    !     call quota_flux(iiPel, ppzoop, ppPelBacteria(i,iiP), ppzoop, MIZ_FLUCT*ruPBAc/rugc*qpcPBA(i,:), tfluxP)
+      ! to here
+    end do
+    _LOOP_END_
+  end subroutine do
+end module
+    !   ! Phytoplankton
+    !   do i = 1, iiPhytoPlankton
+    !     ruPPYc = sut*PPYc(:,i)
+    !     call quota_flux(iiPel, ppzooc, ppPhytoPlankton(i,iiC), ppzooc, ruPPYc            , tfluxC)
+    !     call quota_flux(iiPel, ppzoon, ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qncPPY(i,:), tfluxN)
+    !     call quota_flux(iiPel, ppzoop, ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpcPPY(i,:), tfluxP)
+    !     rugn = rugn + ruPPYc*qncPPY(i,:)
+    !     rugp = rugp + ruPPYc*qpcPPY(i,:)
+    !     ! Chl is transferred to the infinite sink
+    !     call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
+    !                ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
+    !     ! silicon constituent is transferred to biogenic silicate
+    !     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
+    !        call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
+    
+    ! #ifdef INCLUDE_PELFE
+    !     ! Fe constituent is transferred to particulate iron
+    !     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
 !        call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
 ! #endif
 
-! #if defined INCLUDE_PELCO2
+! SKIP #if defined INCLUDE_PELCO2
 !     ! PIC (calcite/aragonite) production associated to the grazed biomass
 !     ! The idea in PISCES is that the calcite flux exists only when associated
 !     ! to a carbon release from phytoplankton (there is no calcite storage in phyto)
@@ -412,11 +428,11 @@ end module
 !     ! that affects alkalinity
 !     call flux_vector( iiPel, ppO3c,ppO5c, p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
 !     call flux_vector( iiPel, ppO3h,ppO3h, -C2ALK*p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
-! #endif
 
 !     call quota_flux(iiPel, ppzooc, ppPhytoPlankton(i,iiC), ppzooc, MIZ_FLUCT*ruPPYc/rugc, tfluxC)
 !     call quota_flux(iiPel, ppzoon, ppPhytoPlankton(i,iiN), ppzoon, MIZ_FLUCT*ruPPYc/rugc*qncPPY(i,:), tfluxN)
 !     call quota_flux(iiPel, ppzoop, ppPhytoPlankton(i,iiP), ppzoop, MIZ_FLUCT*ruPPYc/rugc*qpcPPY(i,:), tfluxP)
+! TO HERE #endif
 !   end do
 !   ! Microzooplankton
 !   do i = 1, iiMicroZooPlankton
@@ -426,9 +442,11 @@ end module
 !        call quota_flux(iiPel, ppzooc, ppMicroZooPlankton(i,iiC), ppzooc, ruMIZc            , tfluxC)
 !        call quota_flux(iiPel, ppzoon, ppMicroZooPlankton(i,iiN), ppzoon, ruMIZc*qncMIZ(i,:), tfluxN)
 !        call quota_flux(iiPel, ppzoop, ppMicroZooPlankton(i,iiP), ppzoop, ruMIZc*qpcMIZ(i,:), tfluxP)
+! SKIP
 !        call quota_flux(iiPel, ppzooc, ppMicroZooPlankton(i,iiC), ppzooc, MIZ_FLUCT*ruMIZc/rugc, tfluxC)
 !        call quota_flux(iiPel, ppzoon, ppMicroZooPlankton(i,iiN), ppzoon, MIZ_FLUCT*ruMIZc/rugc*qncMIZ(i,:), tfluxN)
 !        call quota_flux(iiPel, ppzoop, ppMicroZooPlankton(i,iiP), ppzoop, MIZ_FLUCT*ruMIZc/rugc*qpcMIZ(i,:), tfluxP)
+! TO HERE
 !     end if
 !     rugn = rugn + ruMIZc*qncMIZ(i,:)
 !     rugp = rugp + ruMIZc*qpcMIZ(i,:)
@@ -501,7 +519,7 @@ end module
 !   call quota_flux(iiPel, ppzoon, ppzoon, ppN4n, ren, tfluxN)
 !   call quota_flux(iiPel, ppzoop, ppzoop, ppN1p, rep, tfluxP)
 
-!   if ( ppzoon == 0 .or. ppzoop == 0 ) then
+! SKIP FROM HERE (slow)   if ( ppzoon == 0 .or. ppzoop == 0 ) then
 !      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !      ! Eliminate the excess of the non-limiting constituent under fixed quota
 !      ! Determine whether C, P or N is limiting (Total Fluxes Formulation)
@@ -555,7 +573,7 @@ end module
 !      endif
 !      write(*,*) '+++++++++++++++'
 ! #endif
-
+! TO HERE
 !   endif
 
 !   end subroutine MicroZooDynamics

@@ -392,7 +392,7 @@ instances:
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     7       # [-]           Number of preys
+      nprey:     4       # [-]           Number of preys
       suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
                                          # to Zooplankton group z
       suprey2:   1.0     # [-]           Availability of PhytoPlankton group P2
