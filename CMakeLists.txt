@@ -3,6 +3,7 @@ add_library(fabm_models_ogs OBJECT
             bfm_pelagic_base.F90
             Phyto.F90
             PelBac.F90
+            PelChem.F90
             shared.F90
             light.F90
            )

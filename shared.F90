@@ -26,7 +26,7 @@ module ogs_bfm_shared
    real(rk),parameter :: HOURS_PER_DAY = 24.0_rk
    real(rk),parameter :: MW_C          = 12.0_rk
 
-   real(rk)           :: flPTN6r       = 0.0_rk
+   real(rk)           :: flPTN6r       
 
 #ifdef IRON
    logical,parameter :: use_iron = .true.

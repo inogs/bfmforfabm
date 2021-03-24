@@ -574,7 +574,8 @@ contains
   _SET_ODE_(self%id_N6r, flN6rPBA )
 
   ! Update the total rate of formation of reduction equivalent
-  flPTN6r = flPTN6r + flN6rPBA
+  flPTN6r = flN6rPBA
+! flPTN6r = flPTN6r + flN6rPBA
 
  _SET_DIAGNOSTIC_(self%id_rrc,rrc)
  _SET_DIAGNOSTIC_(self%id_flN6rPBA, flN6rPBA)
