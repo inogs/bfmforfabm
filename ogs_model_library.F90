@@ -6,11 +6,8 @@ module ogs_model_library
    use ogs_bfm_pelagic_base
    use bfm_Phyto 
    use bfm_PelBac
-<<<<<<< HEAD
    use bfm_PelChem
-=======
    use bfm_MicroZoo
->>>>>>> bdca1d0e79e5955febc548b09930acbf71c16f7d
    use ogs_bfm_light
 
 

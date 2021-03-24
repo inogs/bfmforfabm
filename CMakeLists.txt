@@ -3,11 +3,8 @@ add_library(fabm_models_ogs OBJECT
             bfm_pelagic_base.F90
             Phyto.F90
             PelBac.F90
-<<<<<<< HEAD
             PelChem.F90
-=======
             MicroZoo.F90
->>>>>>> bdca1d0e79e5955febc548b09930acbf71c16f7d
             shared.F90
             light.F90
            )
