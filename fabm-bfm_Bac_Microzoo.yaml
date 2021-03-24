@@ -1,0 +1,413 @@
+check_conservation: false
+require_initialization: true
+instances:
+  light:
+    model: ogs/light
+    parameters:
+      EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
+      EPSESS: 4e-05                                        # specific shortwave attenuation of silt (m^2/mg), default = 4e-05
+      pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
+  N1:
+    long_name: phosphate
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: p                                       # elemental composition
+    initialization:
+      p: 0.4                                               # phosphorus (mmol P/m^3)
+  N3:
+    long_name: nitrate
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: n                                       # elemental composition
+    initialization:
+      n: 8.0                                               # nitrogen (mmol N/m^3)
+  N4:
+    long_name: ammonium
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: n                                       # elemental composition
+    initialization:
+      n: 0.1                                               # nitrogen (mmol N/m^3)
+  N5:
+    long_name: silicate
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: s                                       # elemental composition
+    initialization:
+      s: 4.5                                               # silicate (mmol Si/m^3)
+  O3:
+    long_name: Dissolved Inorganic carbon
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                       # elemental composition
+    initialization:
+      c: 25000.0                                           # Dissolved Inorganic Carbon (mg C /m^3)
+  O2:
+    long_name: Dissolved Oxygen
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: o                                       # elemental composition
+    initialization:
+      o: 200.0
+  R1:
+    long_name: Dissolved Organic carbon Labile
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: cnp                                     # elemental composition
+    initialization:
+      c: 1.0                                          # Dissolved Organic Carbon (mg C /m^3)
+      n: .01                                          # Dissolved Organic Nitrogen (mmol N /m^3)
+      p: .0001                                        # Dissolved Organic Phosphorus (mmol P /m^3)
+  R2:
+    long_name: Dissolved Organic carbon semi-Labile
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                   # elemental composition
+    initialization:
+      c: 1.0                                           # Dissolved Organic Carbon (mg C /m^3)
+  R3:
+    long_name: Dissolved Organic carbon semi-refractory
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                   # elemental composition
+    initialization:
+      c: 450.0                                         # Dissolved Organic Carbon (mg C /m^3)
+  R6: 
+    long_name: Particulate Organic carbon 
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: cpns                                # elemental composition
+    initialization:
+      c: 10.0                                         # POC (mg C   /m^3)
+      n: 10.0                                         # PON (mmol N /m^3)
+      p: 10.0                                         # POP (mmol P /m^3)
+      s: 10.0                                         # POS (mmol S /m^3)
+  X1:
+    long_name: labile CDOM
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                     # elemental composition
+    initialization:
+      c: 1.0                                          
+  X2:
+    long_name: semi labile CDOM
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                     # elemental composition
+    initialization:
+      c: 1.0                                          
+  X3:
+    long_name: semi refractory CDOM
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: c                                     # elemental composition
+    initialization:
+      c: 1.0                                          
+#   ---------------------- P1 Diatom ----------------------
+  P1:
+    long_name: diatoms
+    model: ogs/Phyto
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_q10:   2.0                          # [-]            Characteristic Q10 coefficient
+      p_temp:  0.0                          # [-]            Cut-off threshold for temperature factor
+      p_sum:   2.5                          # [1/d]          maximum specific productivity at reference temperature (1/d)
+      p_srs:   0.1                          # [1/d]          Respiration rate at 10 degrees C
+      p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
+      p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
+      p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
+      p_sheo:  0.0                          # [mgC/3]        Half saturation constant for extra lysis
+      p_pu_ea: 0.05                         # [-]            Excreted fraction of primary production
+      p_pu_ra: 0.1                          # [-]            Activity respiration fraction
+      p_switchDOC: 2                        # [1-3]          Switch for the type of DOC excretion
+                                            #  This choice must be consistent with bacteria
+                                            #     1. All DOC is released as R1c (Vichi et al., 2007)
+                                            #     2. Activity DOC is released as R2c (Vichi et al., 2004)
+                                            #   (there is no nutrient-stress excretion)
+                                            #     3. All DOC is released as R2c (Polimene et al., 2006)
+#              --------- Nutrient parameters in phytoplankton -----------------
+      p_netgrowth: .TRUE.                   # [T or F]       Logical switch for nutrient-limited growth
+                                            # .T. nutrient-balanced growth (Vichi et al.2004)
+                                            # .F. nutrient-stress carbon excretion
+                                            # (Baretta-Bekker et al.1995 and Vichi et al.2007)
+      p_limnut: 1                           #  Switch for N-P co-limitation
+                                            # 0. Geometric mean
+                                            # 1. Threshold (Liebig-like)
+                                            # 2. Combined
+#                   ---- N limitation control ----
+      p_qun: 0.025                          # [m3/mgC/d]     Membrane affinity for N
+      p_lN4: 1.0                            # [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
+      p_qnlc: 0.00687                       # [mmolN/mgC]    minimum nitrogen to carbon ratio (mmol N/mg C)
+      p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
+      p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
+#                   ---- P limitation control ----
+      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
+#                   ---- Si limitation control ----
+      p_switchSi: 2                         # [1-2]          Switch for Silica limitation
+                                            #  1. Si limitation is controlled by external Si conc.
+                                            #  2. Si limitation is controlled by internal quota
+      p_chPs: 0.3                           # [mmolSi/m3]    Half saturation conc. for dissolved Si limitation
+      p_Contois: 0.0                        # [>=0]          If >0, use Contois formulation
+      p_qus: 0.0025                         # [m3/mgC/d]     Membrane affinity for Si
+      p_qslc: 0.007                         # [mmolSi/mgC]   maximum silicate to carbon ratio (mmol Si/mg C)
+      use_Si: .TRUE.                          # use silicate, default = false
+      p_qscPPY: 0.01                        # [mmolSi/mgC]   Reference quotum Si:C
+#                   ---- nutrient stressed sinking ----
+      p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
+      p_res: 5.0                            # [m/d]          Maximum Sinking vel city (m/d)
+#                   ---- Calcification ----
+      p_caco3r: 0.0                         # [-]            Reference PIC:POC (rain) ratio
+#              --------- Chlorophyll parameters -----------
+      p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
+      p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
+      p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+                                              
+      p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
+      p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
+      p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
+      p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
+#              --------- Light parameters ERSEM-II -----------
+      p_iswLtyp:  5                         # [0-6]          Shape of the productivity function
+      p_chELiPPY: 50.0                      # [W/m2]          Maximum Iopt
+      p_clELiPPY: 100.0                     # [W/m2]         Minimum Iopt
+      p_ruELiPPY: 8.0                       # [1/d]          Maximum daily shift in Iopt (1/d)
+      p_addepth: 0.2                        # [m]            Adaptation depth. Meaningless with high-res models
+#              --------- Sinking parameters -----------
+      p_rPIm: 0.0                          # [m/d]          Phytoplankton background sinking rate
+    initialization:
+      c: 8.0                                               # carbon (mg C/m^3)
+      n: 0.1008                                            # nitrogen (mmol N/m^3)
+      p: 0.006288                                          # phosphate (mmol N/m^3)
+      s: 0.128                                             # silicate (mmol Si/m^3)
+      Chl: 0.16                                            # chlorophyll a (mg/m^3)
+    coupling:
+      N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N5s: N5/s                                            # silicate (mmol Si/m^3)
+      O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+#   ---------------------- P2 Picoplankton ----------------------
+  P2:
+    long_name: Picoplankton
+    model: ogs/Phyto
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_q10:   2.0                          # [-]            Characteristic Q10 coefficient
+      p_temp:  0.0                          # [-]            Cut-off threshold for temperature factor
+      p_sum:   3.0                          # [1/d]          maximum specific productivity at reference temperature (1/d)
+      p_srs:   0.05                          # [1/d]          Respiration rate at 10 degrees C
+      p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
+      p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
+      p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
+      p_sheo:  0.0                          # [mgC/3]        Half saturation constant for extra lysis
+      p_pu_ea: 0.1                          # [-]            Excreted fraction of primary production
+      p_pu_ra: 0.1                          # [-]            Activity respiration fraction
+      p_switchDOC: 2                        # [1-3]          Switch for the type of DOC excretion
+                                            #  This choice must be consistent with bacteria
+                                            #     1. All DOC is released as R1c (Vichi et al., 2007)
+                                            #     2. Activity DOC is released as R2c (Vichi et al., 2004)
+                                            #   (there is no nutrient-stress excretion)
+                                            #     3. All DOC is released as R2c (Polimene et al., 2006)
+#              --------- Nutrient parameters in phytoplankton -----------------
+      p_netgrowth: .TRUE.                   # [T or F]       Logical switch for nutrient-limited growth
+                                            # .T. nutrient-balanced growth (Vichi et al.2004)
+                                            # .F. nutrient-stress carbon excretion
+                                            # (Baretta-Bekker et al.1995 and Vichi et al.2007)
+      p_limnut: 1                           #  Switch for N-P co-limitation
+                                            # 0. Geometric mean
+                                            # 1. Threshold (Liebig-like)
+                                            # 2. Combined
+#                   ---- N limitation control ----
+      p_qun: 0.025                          # [m3/mgC/d]     Membrane affinity for N
+      p_lN4: 0.5                            # [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
+      p_qnlc: 0.00687                       # [mmolN/mgC]    minimum nitrogen to carbon ratio (mmol N/mg C)
+      p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
+      p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
+#                   ---- P limitation control ----
+      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
+#                   ---- Si limitation control ----
+#     Silicon absent in this PFT                            
+#                   ---- nutrient stressed sinking ----
+      p_esNI: 0.75                           # [-]            Nutrient stress threshold for sinking
+      p_res: 0.0                            # [m/d]          Maximum Sinking vel city (m/d)
+#                   ---- Calcification ----
+      p_caco3r: 0.3                         # [-]            Reference PIC:POC (rain) ratio
+#              --------- Chlorophyll parameters -----------
+      p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
+      p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
+      p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+                                              
+      p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
+      p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
+      p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
+      p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
+#              --------- Light parameters ERSEM-II -----------
+      p_iswLtyp:  5                         # [0-6]          Shape of the productivity function
+      p_chELiPPY: 50.0                      # [W/m2]          Maximum Iopt
+      p_clELiPPY: 100.0                     # [W/m2]         Minimum Iopt
+      p_ruELiPPY: 10.0                       # [1/d]          Maximum daily shift in Iopt (1/d)
+      p_addepth: 0.25                        # [m]            Adaptation depth. Meaningless with high-res models
+#              --------- Sinking parameters -----------
+      p_rPIm: 0.0                          # [m/d]          Phytoplankton background sinking rate
+    initialization:
+      c: 8.0                                               # carbon (mg C/m^3)
+      n: 0.1008                                            # nitrogen (mmol N/m^3)
+      p: 0.006288                                          # phosphate (mmol N/m^3)
+      Chl: 0.16                                            # chlorophyll a (mg/m^3)
+    coupling:
+      N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+#   ---------------------- B1 Pelagic heteretrophyc bacteria ----------------------
+#
+  B1:
+    long_name: Bacteria
+    model: ogs/PelBac
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_version : 2 # Switch for bacteria parameterization
+#                              1 : Baretta-Bekker et al. 1995; 
+#                                  Vichi et al., 2007
+#                              2 : Vichi et al., 2004
+#                              3 : Polimene et al., 2006
+      p_q10 : 2.95 # [-]              Q10-value (temperature dependency)
+      p_chdo : 30.0 # [mmol/m3]        Half-saturation constant for O2 limitation
+      p_sd : 0.0  # [1/d]            Specific mortality rate
+      p_sd2 : 0.0  # [1/d]            Density dependent specific mortality rate
+      p_suhR1 : 0.5  # [1/d]            Specific potential uptake for nutrient-rich DOM
+      p_sulR1 : 0.0  #  [1/d]            Specific potential uptake for nutrient-poor DOM
+      p_suR2 : 0.25 #  [1/d]            Specific potential uptake for semi-labile DOC
+      p_suR3 : 0.0  #   [1/d]            Specific potential uptake for semi-refractory DOC
+      p_suR6 : 0.1  #    [1/d]            Specific potential uptake for POM (1/d)
+      p_sum : 8.38 #    [1/d]            Potential specific growth rate
+      p_pu_ra : 0.6  #  [-]              Activity respiration fraction
+      p_pu_ra_o : 0.2  #  [-]              Additional respiration fraction at low O2 conc
+      p_srs : 0.01 #  [1/d]            Specific rest respiration 
+      p_qncPBA : 0.017 #  [mmolN/mgC]      Optimal N/C ratio 
+      p_qpcPBA : 0.0019 #  [mmolP/mgC]      Optimal P/C ratio
+      p_qlnc : 0.0085 #  [mmolN/mgC]      Minimal N/C ratio
+      p_qlpc : 0.00095 #  [mmolP/mgC]      Minimal P/C ratio 
+      p_qun : 0.05    # [mmolN/mgC/day]  Membrane affinity for N 
+      p_qup : 0.005   # [mmolP/mgC/day]  Membrane affinity for P
+      p_chn : 0.05    # [mmolN/m3]       Half saturation ammonium conc. for uptake
+      p_chp : 1.00    # [mmolP/m3]       Half saturation phosphate conc. for uptake
+      p_rec : 1.0     # [1/d]            Relaxation timescale for semi-labile excretion
+      p_ruen : 1.0     # [1/d]            Relaxation timescale for N uptake/remin.
+      p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
+      p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
+      p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
+    initialization:
+      c: 8.0                                               # carbon (mg C/m^3)
+      n: 0.1008                                            # nitrogen (mmol N/m^3)
+      p: 0.006288                                          # phosphate (mmol N/m^3)
+    coupling:
+      N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c 
+      R1n: R1/n 
+      R1p: R1/p 
+      R2c: R2/c 
+      R3c: R3/c 
+      R6c: R6/c 
+      R6n: R6/n 
+      R6p: R6/p 
+      X1c: X1/c 
+      X2c: X2/c 
+      X3c: X3/c 
+#   ---------------------- Z5 Microzooplankton ----------------------
+  z5:
+    long_name: Microzooplankton
+    model: ogs/MicroZoo
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_q10:     2.0     # [-]           Characteristic Q10 coefficient
+      p_srs:     0.02    # [1/d]         Respiration rate at 10 degrees Celsius
+      p_sum:     2.0     # [1/d]         Potential growth rate
+      p_sdo:     0.05    # [1/d]         Mortality rate due to oxygen limitation
+      p_sd:      0.0     # [1/d]         Temperature independent mortality rate
+      p_pu:      0.5     # [-]           Assimilation efficiency
+      p_pu_ea:   0.5     # [-]           Fraction of activity excretion
+      p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
+      p_chuc:    30.0    # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 50.0    # [mgC/m3]      Half-saturation food concentration for
+                                         # preference factor
+      p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
+      p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
+      p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
+      nprey:     7       # [-]           Number of preys
+      suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b
+                                         # to Zooplankton group z
+      suprey2:   0.7     # [-]           Availability of PhytoPlankton group P1
+                                         # to Zooplankton group z
+      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2
+                                         # to Zooplankton group z
+      suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3
+                                         # to Zooplankton group z
+      suprey5:   0.1     # [-]           Availability of PhytoPlankton group P4
+                                         # to Zooplankton group z
+      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5
+                                         # to Zooplankton group z
+      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6
+                                         # to Zooplankton group z
+    initialization:
+      c: 8.0                             # carbon (mg C/m^3)
+      n: 0.1008                          # nitrogen (mmol N/m^3)
+      p: 0.006288                        # phosphate (mmol N/m^3)
+    coupling:
+      O2o:   O2/o                        # Oxygen (mmol O2/m^3)
+      prey1: B1
+      prey2: P1
+      prey3: P2
+      prey4: P3
+      prey5: P4
+      prey6: Z5
+      prey7: Z6
+#   ---------------------- Z6 Microzooplankton ----------------------
+  z6:
+    long_name: Heterotrophic Nanoflagellates (HNAN)
+    model: ogs/MicroZoo
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_q10:     2.0     # [-]           Characteristic Q10 coefficient
+      p_srs:     0.02    # [1/d]         Respiration rate at 10 degrees Celsius
+      p_sum:     5.0     # [1/d]         Potential growth rate
+      p_sdo:     0.05    # [1/d]         Mortality rate due to oxygen limitation
+      p_sd:      0.0     # [1/d]         Temperature independent mortality rate
+      p_pu:      0.3     # [-]           Assimilation efficiency
+      p_pu_ea:   0.5     # [-]           Fraction of activity excretion
+      p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
+      p_chuc:    100.0   # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 50.0    # [mgC/m3]      Half-saturation food concentration for
+                                         # preference factor
+      p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
+      p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
+      p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
+      nprey:     4       # [-]           Number of preys
+      suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
+                                         # to Zooplankton group z
+      suprey2:   1.0     # [-]           Availability of PhytoPlankton group P2
+                                         # to Zooplankton group z
+      suprey3:   0.1     # [-]           Availability of PhytoPlankton group P3
+                                         # to Zooplankton group z
+      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z6
+                                         # to Zooplankton group z
+    initialization:
+      c: 8.0                             # carbon (mg C/m^3)
+      n: 0.1008                          # nitrogen (mmol N/m^3)
+      p: 0.006288                        # phosphate (mmol N/m^3)
+    coupling:
+      O2o:   O2/o                        # Oxygen (mmol O2/m^3)
+      prey1: B1
+      prey2: P2
+      prey3: P3
+      prey4: Z6
