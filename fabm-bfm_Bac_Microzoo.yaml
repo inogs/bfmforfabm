@@ -6,7 +6,7 @@ instances:
     parameters:
       EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
       EPSESS: 4e-05                                        # specific shortwave attenuation of silt (m^2/mg), default = 4e-05
-      pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
+      pEIR_eow: 0.4
   N1:
     long_name: phosphate
     model: ogs/bfm_pelagic_base
@@ -35,6 +35,13 @@ instances:
       composition: s                                       # elemental composition
     initialization:
       s: 4.5                                               # silicate (mmol Si/m^3)
+  N6:
+    long_name: Reduction equivalent
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: r                                       # elemental composition
+    initialization:
+      r: 1.0                                               # Reduction equivalent (mmol Eq/m^3)
   O3:
     long_name: Dissolved Inorganic carbon
     model: ogs/bfm_pelagic_base
@@ -48,7 +55,14 @@ instances:
     parameters:
       composition: o                                       # elemental composition
     initialization:
-      o: 200.0
+      o: 300.0
+  O4:
+    long_name: Nitrogen Sink
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: n                                       # elemental composition
+    initialization:
+      n: 1000.0
   R1:
     long_name: Dissolved Organic carbon Labile
     model: ogs/bfm_pelagic_base
@@ -56,31 +70,31 @@ instances:
       composition: cnp                                     # elemental composition
     initialization:
       c: 1.0                                          # Dissolved Organic Carbon (mg C /m^3)
-      n: .01                                          # Dissolved Organic Nitrogen (mmol N /m^3)
-      p: .0001                                        # Dissolved Organic Phosphorus (mmol P /m^3)
+      n: 1.260E-002                                   # Dissolved Organic Nitrogen (mmol N /m^3)
+      p: 7.8620E-004                                  # Dissolved Organic Phosphorus (mmol P /m^3)
   R2:
     long_name: Dissolved Organic carbon semi-Labile
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                   # elemental composition
     initialization:
-      c: 1.0                                           # Dissolved Organic Carbon (mg C /m^3)
+      c: 0.1                                           # Dissolved Organic Carbon (mg C /m^3)
   R3:
     long_name: Dissolved Organic carbon semi-refractory
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                   # elemental composition
     initialization:
-      c: 450.0                                         # Dissolved Organic Carbon (mg C /m^3)
+      c: 1.0                                         # Dissolved Organic Carbon (mg C /m^3)
   R6: 
     long_name: Particulate Organic carbon 
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
     initialization:
-      c: 10.0                                         # POC (mg C   /m^3)
-      n: 10.0                                         # PON (mmol N /m^3)
-      p: 10.0                                         # POP (mmol P /m^3)
+      c: 1.0                                          # POC (mg C   /m^3)
+      n: 1.260E-002                                   # PON (mmol N /m^3)
+      p: 7.8620E-004                                  # POP (mmol P /m^3)
       s: 10.0                                         # POS (mmol S /m^3)
   X1:
     long_name: labile CDOM
@@ -88,21 +102,21 @@ instances:
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c: 3.000000000000000E-002
   X2:
     long_name: semi labile CDOM
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c: 3.000000000000000E-003
   X3:
     long_name: semi refractory CDOM
     model: ogs/bfm_pelagic_base
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 1.0                                          
+      c:  3.000000000000000E-002
 #   ---------------------- P1 Diatom ----------------------
   P1:
     long_name: diatoms
@@ -189,6 +203,18 @@ instances:
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       N5s: N5/s                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c
+      R1n: R1/n
+      R1p: R1/p
+      R2c: R2/c
+      R6c: R6/c
+      R6n: R6/n
+      R6s: R6/s
+      R6p: R6/p
+      X1c: X1/c
+      X2c: X2/c
+
 #   ---------------------- P2 Picoplankton ----------------------
   P2:
     long_name: Picoplankton
@@ -265,6 +291,16 @@ instances:
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c 
+      R1n: R1/n 
+      R1p: R1/p 
+      R2c: R2/c 
+      R6c: R6/c 
+      R6n: R6/n 
+      R6p: R6/p 
+      X1c: X1/c 
+      X2c: X2/c 
 #   ---------------------- B1 Pelagic heteretrophyc bacteria ----------------------
 #
   B1:
@@ -303,14 +339,19 @@ instances:
       p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
       p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
       p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
+      p_pe_R1c: 0.60  #[-]           Fractional content of C in cytoplasm
+      p_pe_R1n: 0.72  #[-]           Fractional content of N in cytoplasm
+      p_pe_R1p: 0.832 #[-]           Fractional content of P in cytoplasm
+
     initialization:
-      c: 8.0                                               # carbon (mg C/m^3)
-      n: 0.1008                                            # nitrogen (mmol N/m^3)
-      p: 0.006288                                          # phosphate (mmol N/m^3)
+      c: 1.0                                               # carbon (mg C/m^3)
+      n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
+      p: 1.900000000000000E-003                            # phosphate (mmol N/m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N6r: N6/r                                            
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -324,8 +365,42 @@ instances:
       X1c: X1/c 
       X2c: X2/c 
       X3c: X3/c 
+#   ---------------------- Pelagic chemistry ----------------------
+
+  PelChem:
+    long_name: pelagic chemistry
+    model: ogs/PelChem
+    parameters:
+      p_clO2o:  10.0       # [mmolO2/m3]  Half-saturation O2 concentration for nitrification and reoxidation
+      p_clN6r:   1.0       # [mmolHS/m3]  Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]
+      p_sN4N3:  0.01       # [1/d]        Specific nitrification rate at 10 degC
+      p_q10N4N3: 2.367     # [-]         Q10 factor for nitrification/denit
+      p_qon_nitri: 2.0     # [mmolO2/mmolN] stoichiometric coefficient for nitrification
+      p_qro: 0.5           # [mmolHS-/mmolO2] Stoichiometric coefficient for anaerobic reactions
+      p_sN3O4n: 0.35       # [1/d]        Specific denitrification rate
+      p_rPAo: 1.0          # [mmolO2/m3/d] Reference anoxic mineralization rate
+      p_qon_dentri: 1.25   # [mmolO2/mmolN] Stoichiometric coefficient for denitrification
+      p_rOS: 0.05          # [1/d]        Specific reoxidation rate of reduction equivalents
+      p_sR6N5: 0.1         # [1/d]        Specific remineralization rate of biogenic silica
+      p_q10R6N5: 1.49       # [-]          Q10 factor for biogenic silica
+      p_rX1c: 0.03          #[1/d]         degradation rate X1c
+      p_rX2c: 0.03          #[1/d]         degradation rate X2c
+      p_rX3c: 0.00003       #[1/d]         degradation rate X3c
+    initialization:
+    coupling:
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      O2o: O2/o                                            # oxygen (mmol O_2/m^3)
+      O4n: O4/n                                            # N2 (mmol N/m^3)
+      N6r: N6/r                                            # reduction equivalent (mmol HS/m^3)
+      N5s: N5/s                                            # silicate (mmol Si/m^3)
+      X1c: X1/c                                            # cdom X1c (mgC/m^3)
+      X2c: X2/c                                            # cdom X2c (mgC/m^3)
+      X3c: X3/c                                            # cdom X3c (mgC/m^3)
+      R3c: R3/c                                            # cdom R3c (mgC/m^3)
+      R6s: R6/s                                            # POSi (mgSi/m3)
 #   ---------------------- Z5 Microzooplankton ----------------------
-  z5:
+  Z5:
     long_name: Microzooplankton
     model: ogs/MicroZoo
     parameters:
@@ -344,20 +419,16 @@ instances:
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     7       # [-]           Number of preys
+      nprey:     5       # [-]           Number of preys
       suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b
                                          # to Zooplankton group z
       suprey2:   0.7     # [-]           Availability of PhytoPlankton group P1
                                          # to Zooplankton group z
       suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2
                                          # to Zooplankton group z
-      suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3
+      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5
                                          # to Zooplankton group z
-      suprey5:   0.1     # [-]           Availability of PhytoPlankton group P4
-                                         # to Zooplankton group z
-      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5
-                                         # to Zooplankton group z
-      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6
+      suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z6
                                          # to Zooplankton group z
     initialization:
       c: 8.0                             # carbon (mg C/m^3)
@@ -368,12 +439,10 @@ instances:
       prey1: B1
       prey2: P1
       prey3: P2
-      prey4: P3
-      prey5: P4
-      prey6: Z5
-      prey7: Z6
+      prey4: Z5
+      prey5: Z6
 #   ---------------------- Z6 Microzooplankton ----------------------
-  z6:
+  Z6:
     long_name: Heterotrophic Nanoflagellates (HNAN)
     model: ogs/MicroZoo
     parameters:
@@ -392,14 +461,12 @@ instances:
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     4       # [-]           Number of preys
+      nprey:     3       # [-]           Number of preys
       suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
                                          # to Zooplankton group z
       suprey2:   1.0     # [-]           Availability of PhytoPlankton group P2
                                          # to Zooplankton group z
-      suprey3:   0.1     # [-]           Availability of PhytoPlankton group P3
-                                         # to Zooplankton group z
-      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z6
+      suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z6
                                          # to Zooplankton group z
     initialization:
       c: 8.0                             # carbon (mg C/m^3)
@@ -409,5 +476,4 @@ instances:
       O2o:   O2/o                        # Oxygen (mmol O2/m^3)
       prey1: B1
       prey2: P2
-      prey3: P3
-      prey4: Z6
+      prey3: Z6
