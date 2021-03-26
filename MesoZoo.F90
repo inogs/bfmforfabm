@@ -107,14 +107,15 @@
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyc     !  carbon prey
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyn
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyp
-      ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preyl
-      ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preys
+      type (type_state_variable_id), allocatable,dimension(:) :: id_preyl
+      type (type_state_variable_id), allocatable,dimension(:) :: id_preys
       ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preyf
       type (type_model_id),      allocatable,dimension(:) :: id_prey
 
       type (type_state_variable_id)      :: id_O2o, id_O3c                  !  disolved oxygen, dissolved inorganic carbon
       type (type_state_variable_id)      :: id_N1p,id_N4n                   !  nutrients: phosphate, ammonium
       type (type_state_variable_id)      :: id_R6c,id_R6p,id_R6n            !  particulate organic carbon
+      type (type_state_variable_id)      :: id_R6s                          !  biogenic silica
 
       !! Environmental dependencies
       type (type_dependency_id)          :: id_ETW                          ! temperature
@@ -122,6 +123,7 @@
       !! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_qncMEZ     ! N:C quontum
       type (type_diagnostic_variable_id) :: id_qpcMEZ     ! P:C quontum      
+!      type (type_diagnostic_variable_id) :: id_prey2l     ! test      
 
       type (type_diagnostic_variable_id) :: id_ETWd   ! temperature Celsius
       type (type_diagnostic_variable_id) :: id_et     ! physiological temperature response
@@ -145,17 +147,15 @@
       type (type_diagnostic_variable_id) :: id_ren    ! ammonium remineralization rate
       type (type_diagnostic_variable_id) :: id_rep    ! phosphate remineralization rate
 
-!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruPPYc    ! grazing phyto
-!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruMIZc    ! grazing micro
-!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruMEZc    ! grazing meso
-      ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preysd !prey s
-      ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyfd !prey f
-      ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preydld !prey l
+!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruPPYc    ! grazing
+!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyfd    ! prey f
 
  
       !! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
+!      logical, allocatable :: p_pl(:)
+!      logical, allocatable :: p_ps(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
@@ -191,6 +191,8 @@ contains
       integer           :: iprey
       character(len=16) :: index
       real(rk) :: pippo1
+      logical  :: preyisphyto, preyisdiat
+
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
@@ -224,10 +226,14 @@ contains
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
       ! Get prey-specific parameters.
       allocate(self%p_pa(self%nprey))     !Availability of nprey for predator
+!      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
+!      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
       allocate(self%id_prey(self%nprey))
       allocate(self%id_preyc(self%nprey))
       allocate(self%id_preyn(self%nprey))
       allocate(self%id_preyp(self%nprey))
+      allocate(self%id_preyl(self%nprey))
+      allocate(self%id_preys(self%nprey))
 
       do iprey=1,self%nprey
         write (index,'(i0)') iprey
@@ -236,19 +242,29 @@ contains
         call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'c','mg C/m^3',   'prey '//trim(index)//' carbon')
         call self%register_state_dependency(self%id_preyn(iprey),'prey'//trim(index)//'n','mmol N/m^3', 'prey '//trim(index)//' nitrogen')
         call self%register_state_dependency(self%id_preyp(iprey),'prey'//trim(index)//'p','mmol P/m^3', 'prey '//trim(index)//' phosphorous')
-!! If phyto
-!        call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'l','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
-!        call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'l')
-!! If phyto & P1
-!        call self%register_state_dependency(self%id_preyp(iprey),'prey'//trim(index)//'s','mmol Si/m^3','prey '//trim(index)//' silica')
-!#ifdef INCLUDE_PELFE
-!        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
-
 
         call self%register_model_dependency(self%id_prey(iprey),'prey'//trim(index))
         call self%request_coupling_to_model(self%id_preyc(iprey),self%id_prey(iprey),'c')
         call self%request_coupling_to_model(self%id_preyn(iprey),self%id_prey(iprey),'n')
         call self%request_coupling_to_model(self%id_preyp(iprey),self%id_prey(iprey),'p')
+
+!#ifdef INCLUDE_PELFE
+!        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
+!        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
+!#endif
+
+        call self%get_parameter(preyisphyto,'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
+         if (preyisphyto) then
+            call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
+            call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'Chl')
+         end if
+
+        call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
+         if (preyisdiat) then
+            call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
+            call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),'s')
+         end if
+
       end do
 
 
@@ -263,10 +279,12 @@ contains
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3'   ,'POC')
       call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3' ,'POP')
       call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3' ,'PON')
+      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','biogenic silica')
 
 ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_qncMEZ,'qncMEZ', 'mmolN/mgC', 'N:C quontum')
       call self%register_diagnostic_variable(self%id_qpcMEZ,'qpcMEZ', 'mmolP/mgC', 'P:C quontum')
+!      call self%register_diagnostic_variable(self%id_prey2l,'prey2l', 'Chl', 'test')
       call self%register_diagnostic_variable(self%id_ETWd,  'ETW',   'C',        'temperature Celsius')
       call self%register_diagnostic_variable(self%id_et,    'et',    '-',        'temperature factor')
       call self%register_diagnostic_variable(self%id_eo,    'eo',    '-',        'oxygen limitation')
@@ -319,7 +337,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     integer  :: iprey
-    real(rk), dimension(self%nprey) :: preycP,preypP,preynP  !,preylP ,preysP, preyfP
+    real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP   !, preyfP
     real(rk), dimension(self%nprey) :: rupreyc, PPYc
     real(rk) :: zooc, zoop, zoon
     real(rk) :: ETW,et,eo
@@ -394,12 +412,11 @@ contains
       _GET_(self%id_preyc(iprey), preycP(iprey))
       _GET_(self%id_preyn(iprey), preynP(iprey))
       _GET_(self%id_preyp(iprey), preynP(iprey))
-! if phyto
-      ! _GET_(self%idpreyl(iprey),  preylP(iprey))
-! if phyto and Sil
-      ! _GET_(self%idpreys(iprey), preysP(iprey))
-! if PelFE
-      ! _GET_(self%idpreys(iprey), preysP(iprey))
+      _GET_(self%id_preyl(iprey), preylP(iprey))
+      _GET_(self%id_preys(iprey), preysP(iprey))
+!#ifdef INCLUDE_PELFE
+      ! _GET_(self%id_preyf(iprey), preyfP(iprey))
+!#endif
     enddo
 
 
@@ -412,6 +429,8 @@ contains
 
       _SET_DIAGNOSTIC_(self%id_qncMEZ,qncMEZ)
       _SET_DIAGNOSTIC_(self%id_qpcMEZ,qpcMEZ)
+
+!!      _SET_DIAGNOSTIC_(self%id_prey2l,preylP(2))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -489,11 +508,14 @@ contains
      rut_p = rut_p + ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small))
 
     ! Chl is transferred to the infinite sink
-!    call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
-!               ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
+!    call flux_vector(iiPel, ppPhytoPlankton(i,iiL), ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
+    _SET_ODE_(self%id_preyl(iprey), -ruPPYc*(preylP(iprey)/(preycP(iprey)+p_small)))
+
     ! silicon constituent is transferred to biogenic silicate
 !    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
 !       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
+    _SET_ODE_(self%id_R6s,           ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
+    _SET_ODE_(self%id_preys(iprey), -ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
 
 !#ifdef INCLUDE_PELFE
 !    ! Fe constituent is transferred to particulate iron
@@ -518,7 +540,6 @@ contains
       _SET_DIAGNOSTIC_(self%id_rut_c,rut_c)
       _SET_DIAGNOSTIC_(self%id_rut_n,rut_n)
       _SET_DIAGNOSTIC_(self%id_rut_p,rut_p)
-
 
 
   ! Microzooplankton
@@ -553,6 +574,7 @@ contains
 !  tfluxC = tfluxC + rut_c 
 !  tfluxN = tfluxN + rut_n
 !  tfluxP = tfluxP + rut_p
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Activity respiration and basal metabolism

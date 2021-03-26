@@ -588,8 +588,8 @@ instances:
       p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
-      # supreyB1: 		        # [-]             Availability of Bacteria to Z3
       suprey1: 1.0 		        # [-]             Availability of PhytoPlankton group 4 to Z3
+      prey1hasl: .TRUE. 
       suprey2: 1.0              	# [-]             Availability of MesoZooplankton group 4 to Z3
       suprey3: 1.0             	        # [-]             Availability of MesoZooplankton group 3 to Z3
 #------------------------------------------------------------------------------
@@ -608,6 +608,7 @@ instances:
       R6c: R6/c                                            # POC
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
+      R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
 #   ---------------------------------------------------------------------------
 #   ---------------------- Z4 Omnivorous Mesozooplankton ----------------------
   Z4:
@@ -630,10 +631,13 @@ instances:
       p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
 #-------------------------------------------------------------------------------
       nprey:     5                      # [-]             Number of preys
-      # supreyB1: 0.0 		        # [-]             Availability of Bacteria to Z3
       suprey1: 1.0 		        # [-]             Availability of PhytoPlankton group 1 to Z3
+      prey1hasl: .TRUE.
+      prey1hass: .TRUE.
       suprey2: 0.75 		        # [-]             Availability of PhytoPlankton group 2 to Z3
+      prey2hasl: .TRUE.
       suprey3: 1.0 		        # [-]             Availability of PhytoPlankton group 4 to Z3
+      prey3hasl: .TRUE.
       suprey4: 1.0              	# [-]             Availability of MicroZooplankton group 5 to Z3
       suprey5: 1.0             	        # [-]             Availability of MesoZooplankton group 4 to Z3
 #-------------------------------------------------------------------------------
@@ -654,3 +658,4 @@ instances:
       R6c: R6/c                                            # POC
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
+      R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
