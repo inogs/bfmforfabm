@@ -184,7 +184,7 @@ contains
       call self%get_parameter(self%p_pe_R1p, 'p_pe_R1p'  , '-', 'Fractional content of P in cytoplasm')
     
 ! Register state variables (handled by type_bfm_pelagic_base)
-!     call self%initialize_ogs_bfm_base(sedimentation=.true.)
+      call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)

@@ -117,9 +117,16 @@ contains
 !
 ! !LOCAL VARIABLES:
       real(rk) :: pippo1
+      ! Set time unit to d-1
+      ! This implies that all rates (sink/source terms, vertical velocities) are
+      ! given in d-1.
+!      self%dt = 86400._rk
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+! Initialize pelagic base model (this also sets the time unit to per day,instead of the default per second)
+      call self%initialize_bfm_base
+
      ! Obtain the values of all model parameters from FABM.
       ! Specify the long name and units of the parameters, which could be used
       ! by FABM (or its host)
@@ -242,10 +249,10 @@ contains
 
   
 ! call flux_vector( iiPel, ppN4n,ppN3n, flN4N3n(:) )
-! _SET_ODE_(self%id_N3n,flN4N3n)
-! _SET_ODE_(self%id_N4n,-flN4N3n)  
+ _SET_ODE_(self%id_N3n,flN4N3n)
+ _SET_ODE_(self%id_N4n,-flN4N3n)  
 ! call flux_vector( iiPel, ppO2o,ppO2o,-( flN4N3n(:)* p_qon_nitri) )
-! _SET_ODE_(self%id_O2o,flN4N3n_o2)
+ _SET_ODE_(self%id_O2o,flN4N3n_o2)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Denitrification in the water
@@ -264,11 +271,11 @@ contains
 
                
 !  call flux_vector( iiPel, ppN3n,ppO4n, flN3O4n(:) )
-! _SET_ODE_(self%id_N3n,-flN3O4n)
-! _SET_ODE_(self%id_O4n,flN3O4n)  
+ _SET_ODE_(self%id_N3n,-flN3O4n)
+ _SET_ODE_(self%id_O4n,flN3O4n)  
 !  call flux_vector( iiPel, ppN6r,ppN6r,-( p_qro* flN3O4n(:)* p_qon_dentri* &
 !      insw( -( O2o(:)- N6r(:)/ p_qro))) )
-! _SET_ODE_(self%id_N6r,flN3O4n_N6r)
+ _SET_ODE_(self%id_N6r,flN3O4n_N6r)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Reoxidation of reduction equivalents
@@ -278,9 +285,9 @@ contains
 
 
 ! call flux_vector( iiPel, ppN6r,ppN6r,-( fN6O2r) )
-! _SET_ODE_(self%id_N6r,-fN6O2r)       
+ _SET_ODE_(self%id_N6r,-fN6O2r)       
 ! call flux_vector( iiPel, ppO2o,ppO2o,-( fN6O2r/ p_qro) )
-! _SET_ODE_(self%id_O2o,-fN6O2r/ self%p_qro)
+ _SET_ODE_(self%id_O2o,-fN6O2r/ self%p_qro)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Dissolution of biogenic silicate
@@ -289,8 +296,8 @@ contains
    _SET_DIAGNOSTIC_(self%id_fR6N5s,fR6N5s) ! dissolution of biogenic silicate
 
 ! call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
-! _SET_ODE_(self%id_N5s,fR6N5s)
-! _SET_ODE_(self%id_R6s,-fR6N5s)
+ _SET_ODE_(self%id_N5s,fR6N5s)
+ _SET_ODE_(self%id_R6s,-fR6N5s)
 
 !GP #ifdef INCLUDE_PELFE
 !GP   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -347,14 +354,14 @@ contains
 ! GP ! min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! Eq A13
 
 !  call flux_vector( iiPel, ppR1l, ppR3c, degR1l )
-! _SET_ODE_(self%id_R3c,degX1c)
-! _SET_ODE_(self%id_X1c,-degX1c)
+ _SET_ODE_(self%id_R3c,degX1c)
+ _SET_ODE_(self%id_X1c,-degX1c)
 ! call flux_vector( iiPel, ppR2l, ppR3c, degR2l )
-! _SET_ODE_(self%id_R3c,degX2c)
-! _SET_ODE_(self%id_X2c,-degX2c)
+ _SET_ODE_(self%id_R3c,degX2c)
+ _SET_ODE_(self%id_X2c,-degX2c)
 ! call flux_vector( iiPel, ppR3l, ppR3c, degR3l )
-! _SET_ODE_(self%id_R3c,degX3c)
-! _SET_ODE_(self%id_X3c,-degX3c)
+ _SET_ODE_(self%id_R3c,degX3c)
+ _SET_ODE_(self%id_X3c,-degX3c)
 
       ! Leave spatial loops (if any)
       _LOOP_END_

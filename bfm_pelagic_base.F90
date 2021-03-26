@@ -31,6 +31,7 @@ module ogs_bfm_pelagic_base
 
    contains
       procedure :: initialize
+      procedure :: initialize_bfm_base
       procedure :: add_constituent
       ! Reference model procedures here.
    end type
@@ -99,6 +100,14 @@ contains
  
       ! Register model parameters and variables here.
    end subroutine initialize
+   subroutine initialize_bfm_base(self, configunit)
+     class (type_ogs_bfm_pelagic_base), intent(inout), target :: self
+
+      ! Set time unit to d-1
+      ! This implies that all rates (sink/source terms, vertical velocities) are
+      ! given in d-1.
+      self%dt = 86400._rk
+   end subroutine initialize_bfm_base
 
    ! Add model subroutines here.
       subroutine add_constituent(self,name,initial_value,background_value,qn,qp)
@@ -106,11 +115,6 @@ contains
       character(len=*),                intent(in)            :: name
       real(rk),                        intent(in)            :: initial_value
       real(rk),optional,               intent(in)            :: background_value,qn,qp
-
-      ! Set time unit to d-1
-      ! This implies that all rates (sink/source terms, vertical velocities) are
-      ! given in d-1.
-      self%dt = 86400._rk
 
 
       select case (name)
