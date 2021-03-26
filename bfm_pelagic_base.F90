@@ -3,6 +3,7 @@
 module ogs_bfm_pelagic_base
 
    use fabm_types
+   use fabm_particle
 
    use ogs_bfm_shared
 
@@ -10,8 +11,8 @@ module ogs_bfm_pelagic_base
 
    private
 
-   type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
-! type,extends(type_particle_model),public :: type_ersem_pelagic_base
+   ! type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
+   type,extends(type_particle_model),public :: type_ogs_bfm_pelagic_base
       type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
