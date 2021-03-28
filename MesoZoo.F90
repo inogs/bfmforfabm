@@ -411,7 +411,7 @@ contains
     do iprey = 1, self%nprey
       _GET_(self%id_preyc(iprey), preycP(iprey))
       _GET_(self%id_preyn(iprey), preynP(iprey))
-      _GET_(self%id_preyp(iprey), preynP(iprey))
+      _GET_(self%id_preyp(iprey), preypP(iprey))
       _GET_(self%id_preyl(iprey), preylP(iprey))
       _GET_(self%id_preys(iprey), preysP(iprey))
 !#ifdef INCLUDE_PELFE
