@@ -101,7 +101,7 @@ contains
  
       ! Register model parameters and variables here.
    end subroutine initialize
-   subroutine initialize_bfm_base(self, configunit)
+   subroutine initialize_bfm_base(self)
      class (type_ogs_bfm_pelagic_base), intent(inout), target :: self
 
       ! Set time unit to d-1

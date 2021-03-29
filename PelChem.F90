@@ -267,8 +267,6 @@ contains
    flN3O4n_N6r = -( self%p_qro* flN3O4n*self%p_qon_dentri*insw(-(O2o-N6r/self%p_qro)))
 
    _SET_DIAGNOSTIC_(self%id_flN3O4n_N6r,flN3O4n_N6r) ! impact of denitrification on reduction equivalent
-             
-
                
 !  call flux_vector( iiPel, ppN3n,ppO4n, flN3O4n(:) )
  _SET_ODE_(self%id_N3n,-flN3O4n)

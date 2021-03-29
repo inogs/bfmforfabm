@@ -4,7 +4,9 @@ add_library(fabm_models_ogs OBJECT
             Phyto.F90
             PelBac.F90
             PelChem.F90
+            PelOxygen.F90
             MicroZoo.F90
+            MesoZoo.F90
             shared.F90
             light.F90
            )

@@ -83,6 +83,11 @@ contains
       call self%register_dependency(self%id_EWIND,standard_variables%wind_speed)
 !      call self%register_dependency(self%id_EFICE,standard_variables%fraction_ice)
 
+      ! Set time unit to d-1
+      ! This implies that all rates (sink/source terms, vertical velocities) are
+      ! given in d-1.
+      self%dt = 86400._rk
+
    end subroutine
 
 

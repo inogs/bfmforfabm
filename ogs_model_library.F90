@@ -7,7 +7,9 @@ module ogs_model_library
    use bfm_Phyto 
    use bfm_PelBac
    use bfm_PelChem
+   use bfm_PelOxygen
    use bfm_MicroZoo
+   use bfm_MesoZoo
    use ogs_bfm_light
 
 
@@ -46,7 +48,9 @@ contains
          case ('Phyto'); allocate(type_ogs_bfm_primary_producer::model)
          case ('PelBac'); allocate(type_ogs_bfm_pelagic_bacteria::model)
          case ('PelChem'); allocate(type_ogs_bfm_PelChem::model)
+         case ('PelOxygen'); allocate(type_ogs_bfm_PelOxygen::model)
          case ('MicroZoo'); allocate(type_ogs_bfm_microzoo::model)
+         case ('MesoZoo'); allocate(type_ogs_bfm_microzoo::model)
          case ('light'); allocate(type_ogs_bfm_light::model)
       end select
 
