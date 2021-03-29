@@ -50,7 +50,7 @@ contains
          case ('PelChem'); allocate(type_ogs_bfm_PelChem::model)
          case ('PelOxygen'); allocate(type_ogs_bfm_PelOxygen::model)
          case ('MicroZoo'); allocate(type_ogs_bfm_microzoo::model)
-         case ('MesoZoo'); allocate(type_ogs_bfm_microzoo::model)
+         case ('MesoZoo'); allocate(type_ogs_bfm_mesozoo::model)
          case ('light'); allocate(type_ogs_bfm_light::model)
       end select
 
