@@ -154,8 +154,8 @@
       !! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
-!      logical, allocatable :: p_pl(:)
-!      logical, allocatable :: p_ps(:)
+      logical, allocatable :: p_pl(:)
+      logical, allocatable :: p_ps(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
@@ -191,7 +191,7 @@ contains
       integer           :: iprey
       character(len=16) :: index
       real(rk) :: pippo1
-      logical  :: preyisphyto, preyisdiat
+!      logical  :: preyisphyto, preyisdiat
 
 !EOP
 !-------------------------------------------------------------------------!
@@ -227,8 +227,8 @@ contains
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
       ! Get prey-specific parameters.
       allocate(self%p_pa(self%nprey))     !Availability of nprey for predator
-!      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
-!      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
+      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
+      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
       allocate(self%id_prey(self%nprey))
       allocate(self%id_preyc(self%nprey))
       allocate(self%id_preyn(self%nprey))
@@ -254,14 +254,18 @@ contains
 !        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
 !#endif
 
-        call self%get_parameter(preyisphyto,'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
-         if (preyisphyto) then
+        call self%get_parameter(self%p_pl(iprey),'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
+         if (self%p_pl(iprey)) then
+!        call self%get_parameter(preyisphyto,'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
+!         if (preyisphyto) then
             call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
             call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'Chl')
          end if
 
-        call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
-         if (preyisdiat) then
+        call self%get_parameter(self%p_ps(iprey),'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
+         if (self%p_ps(iprey)) then
+!        call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
+!         if (preyisdiat) then
             call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
             call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),'s')
          end if
@@ -508,15 +512,19 @@ contains
      rut_n = rut_n + ruPPYc*(preynP(iprey)/(preycP(iprey)+p_small))
      rut_p = rut_p + ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small))
 
+    if (self%p_pl(iprey)) then
     ! Chl is transferred to the infinite sink
 !    call flux_vector(iiPel, ppPhytoPlankton(i,iiL), ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
     _SET_ODE_(self%id_preyl(iprey), -ruPPYc*(preylP(iprey)/(preycP(iprey)+p_small)))
+    end if
 
+    if (self%p_ps(iprey)) then
     ! silicon constituent is transferred to biogenic silicate
 !    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
 !       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
     _SET_ODE_(self%id_R6s,           ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
     _SET_ODE_(self%id_preys(iprey), -ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
+    end if
 
 !#ifdef INCLUDE_PELFE
 !    ! Fe constituent is transferred to particulate iron
