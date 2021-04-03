@@ -104,6 +104,10 @@
       ! from type_ogs_bfm_pelagic_base!
 
       !! Identifiers for state variables of other models
+
+      !! In ERSEM
+      !type (type_dependency_id),    allocatable,dimension(:) :: id_preyc,id_preyn,id_preyp,id_preys,id_preyf,id_preyl
+
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyc     !  carbon prey
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyn
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyp
@@ -123,7 +127,8 @@
       !! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_qncMEZ     ! N:C quontum
       type (type_diagnostic_variable_id) :: id_qpcMEZ     ! P:C quontum      
-!      type (type_diagnostic_variable_id) :: id_prey2l     ! test      
+      type (type_diagnostic_variable_id) :: id_prey2l     ! test      
+      type (type_diagnostic_variable_id) :: id_prey1x     ! test      
 
       type (type_diagnostic_variable_id) :: id_ETWd   ! temperature Celsius
       type (type_diagnostic_variable_id) :: id_et     ! physiological temperature response
@@ -147,15 +152,22 @@
       type (type_diagnostic_variable_id) :: id_ren    ! ammonium remineralization rate
       type (type_diagnostic_variable_id) :: id_rep    ! phosphate remineralization rate
 
-!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruPPYc    ! grazing
-!      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyfd    ! prey f
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruPPYc    ! prey-specific grazing
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyld    ! prey chl for diagnostic
+
+      type (type_diagnostic_variable_id) :: id_temp_p    ! 
+      type (type_diagnostic_variable_id) :: id_temp_n    ! 
+      type (type_diagnostic_variable_id) :: id_limit     ! which constituent is limiting
+      type (type_diagnostic_variable_id) :: id_pe_R6c    ! rate removal C
+      type (type_diagnostic_variable_id) :: id_pe_N1p    ! rate removal P
+      type (type_diagnostic_variable_id) :: id_pe_N4n    ! rate removal N
 
  
       !! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
-      logical, allocatable :: p_pl(:)
-      logical, allocatable :: p_ps(:)
+!      logical, allocatable :: p_pl(:)
+!      logical, allocatable :: p_ps(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
@@ -227,14 +239,18 @@ contains
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
       ! Get prey-specific parameters.
       allocate(self%p_pa(self%nprey))     !Availability of nprey for predator
-      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
-      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
+!      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
+!      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
       allocate(self%id_prey(self%nprey))
       allocate(self%id_preyc(self%nprey))
       allocate(self%id_preyn(self%nprey))
       allocate(self%id_preyp(self%nprey))
       allocate(self%id_preyl(self%nprey))
       allocate(self%id_preys(self%nprey))
+
+      allocate(self%id_preyld(self%nprey))
+      allocate(self%id_ruPPYc(self%nprey))
+
 
       do iprey=1,self%nprey
         write (index,'(i0)') iprey
@@ -249,26 +265,23 @@ contains
         call self%request_coupling_to_model(self%id_preyn(iprey),self%id_prey(iprey),'n')
         call self%request_coupling_to_model(self%id_preyp(iprey),self%id_prey(iprey),'p')
 
+
+        call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
+        call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),total_chlorophyll)
+
+
+        call self%register_diagnostic_variable(self%id_preyld(iprey),'prey'//trim(index)//'Chld','mg Chl/m^3',  'prey '//trim(index)//' chlorophyll')
+        call self%register_diagnostic_variable(self%id_ruPPYc(iprey),'prey'//trim(index)//'rate','mg C/mg C/d', 'prey '//trim(index)//' grazing rate')
+
+
+        call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
+        call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
+
+
 !#ifdef INCLUDE_PELFE
 !        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
 !        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
 !#endif
-
-        call self%get_parameter(self%p_pl(iprey),'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
-         if (self%p_pl(iprey)) then
-!        call self%get_parameter(preyisphyto,'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
-!         if (preyisphyto) then
-            call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
-            call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'Chl')
-         end if
-
-        call self%get_parameter(self%p_ps(iprey),'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
-         if (self%p_ps(iprey)) then
-!        call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
-!         if (preyisdiat) then
-            call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
-            call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),'s')
-         end if
 
       end do
 
@@ -289,7 +302,8 @@ contains
 ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_qncMEZ,'qncMEZ', 'mmolN/mgC', 'N:C quontum')
       call self%register_diagnostic_variable(self%id_qpcMEZ,'qpcMEZ', 'mmolP/mgC', 'P:C quontum')
-!      call self%register_diagnostic_variable(self%id_prey2l,'prey2l', 'Chl', 'test')
+      call self%register_diagnostic_variable(self%id_prey2l,'prey2l', 'Chl', 'test')
+      call self%register_diagnostic_variable(self%id_prey1x,'prey1x', 's', 'test')
       call self%register_diagnostic_variable(self%id_ETWd,  'ETW',   'C',        'temperature Celsius')
       call self%register_diagnostic_variable(self%id_et,    'et',    '-',        'temperature factor')
       call self%register_diagnostic_variable(self%id_eo,    'eo',    '-',        'oxygen limitation')
@@ -307,6 +321,13 @@ contains
       call self%register_diagnostic_variable(self%id_rq6p,  'rq6p',  'mgC/m3/d', 'phosphorus egestion rate')
       call self%register_diagnostic_variable(self%id_ren,   'ren',   'mmolN/m3/d',  'ammonium remineralization rate')
       call self%register_diagnostic_variable(self%id_rep,   'rep',   'mmolP/m3/d',  'phosphate remineralization rate')
+
+      call self%register_diagnostic_variable(self%id_temp_p,  'temp_p',   '-',  '-')
+      call self%register_diagnostic_variable(self%id_temp_n,  'temp_n',   '-',  '-')
+      call self%register_diagnostic_variable(self%id_limit,   'limit',    '-',  'limiting constituent')
+      call self%register_diagnostic_variable(self%id_pe_R6c,  'pe_R6c',   'mgC/m3/d',    'removal of C')
+      call self%register_diagnostic_variable(self%id_pe_N1p,  'pe_N1p',   'mmolP/m3/d',  'removal of P')
+      call self%register_diagnostic_variable(self%id_pe_N4n,  'pe_N4n',   'mmolN/m3/d',  'removal of N')
 
    end subroutine
 
@@ -344,6 +365,7 @@ contains
     integer  :: iprey
     real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP   !, preyfP
     real(rk), dimension(self%nprey) :: rupreyc, PPYc
+    real(rk) :: preyP
     real(rk) :: zooc, zoop, zoon
     real(rk) :: ETW,et,eo
     real(rk) :: O2o
@@ -357,7 +379,13 @@ contains
     real(rk) :: prI, rrc, rdo_c, rd_c
     real(rk) :: rq6c, rq6n, rq6p
     real(rk) :: rep, ren
+    real(rk) :: temp_n, temp_p
+    real(rk) :: ru_c, ru_p, ru_n
+    real(rk) :: pu_e_n, pu_e_p
+    integer       :: limit
+    real(rk) :: pe_R6c, pe_N1p, pe_N4n
     
+
     ! Enter spatial loops (if any)
     _LOOP_BEGIN_
 
@@ -435,7 +463,8 @@ contains
       _SET_DIAGNOSTIC_(self%id_qncMEZ,qncMEZ)
       _SET_DIAGNOSTIC_(self%id_qpcMEZ,qpcMEZ)
 
-!!      _SET_DIAGNOSTIC_(self%id_prey2l,preylP(2))
+      _SET_DIAGNOSTIC_(self%id_prey2l,preylP(2))
+      _SET_DIAGNOSTIC_(self%id_prey1x,preysP(1))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -512,19 +541,23 @@ contains
      rut_n = rut_n + ruPPYc*(preynP(iprey)/(preycP(iprey)+p_small))
      rut_p = rut_p + ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small))
 
-    if (self%p_pl(iprey)) then
+!    if (self%p_pl(iprey)) then
     ! Chl is transferred to the infinite sink
 !    call flux_vector(iiPel, ppPhytoPlankton(i,iiL), ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
     _SET_ODE_(self%id_preyl(iprey), -ruPPYc*(preylP(iprey)/(preycP(iprey)+p_small)))
-    end if
+!    end if
 
-    if (self%p_ps(iprey)) then
+      _SET_DIAGNOSTIC_(self%id_ruPPYc(iprey), ruPPYc)
+      _SET_DIAGNOSTIC_(self%id_preyld(iprey), preylP(iprey))
+
+
+!    if (self%p_ps(iprey)) then
     ! silicon constituent is transferred to biogenic silicate
 !    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
 !       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
     _SET_ODE_(self%id_R6s,           ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
     _SET_ODE_(self%id_preys(iprey), -ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
-    end if
+!    end if
 
 !#ifdef INCLUDE_PELFE
 !    ! Fe constituent is transferred to particulate iron
@@ -654,15 +687,7 @@ contains
    _SET_ODE_(self%id_R6p, rq6p)
 
 
-    _LOOP_END_
-  end subroutine do
-end module
-
-
-
-!!!! Skip: beginning adjustement quota
-
-!  if ( ppzoon > 0 .and. ppzoop > 0 ) then
+!  if ( zoon > 0 .and. zoop > 0 ) then
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      ! Check the assimilation rate for Carbon, Nitrogen and Phosphorus
      ! Note that activity respiration does not involve nutrient utilization
@@ -671,48 +696,66 @@ end module
      ! Eq 41 in Vichi et al. 2007 (there is an error in the denominator,
      ! the \Iota_c should be \Iota_i, with i=n,p)
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     ru_c = p_puI(zoo)*rut_c
-!     ru_n = (p_puI(zoo) + prI)* rut_n
-!     ru_p = (p_puI(zoo) + prI)* rut_p
-!     pu_e_n  =   ru_n/( p_small+ ru_c)
-!     pu_e_p  =   ru_p/( p_small+ ru_c)
+      ru_c = self%p_puI*rut_c
+      ru_n = (self%p_puI + prI)* rut_n
+      ru_p = (self%p_puI + prI)* rut_p
+      pu_e_n  =   ru_n/( p_small+ ru_c)
+      pu_e_p  =   ru_p/( p_small+ ru_c)
 
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      ! Eliminate the excess of the non-limiting constituent
      ! Determine whether C, P or N is the limiting element and assign the
      ! value to variable limit
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     limit = iiC
-!     temp_p  = pu_e_p/qpcMEZ(zoo,:)
-!     temp_n  = pu_e_n/qncMEZ(zoo,:)
+      limit = 1.0_rk
+      !limit = c
+      temp_p  = pu_e_p/qpcMEZ
+      temp_n  = pu_e_n/qncMEZ
 
-!     WHERE ( temp_p<temp_n .OR. abs(temp_p-temp_n)<p_small ) 
-!         WHERE ( pu_e_p< qpcMEZ(zoo,:) )
-!           limit = iiP
-!         END WHERE
-!     ELSEWHERE
-!         WHERE ( pu_e_n<qncMEZ(zoo,:) )
-!           limit = iiN
-!         END WHERE
-!     END WHERE
+      _SET_DIAGNOSTIC_(self%id_temp_p, temp_p)
+      _SET_DIAGNOSTIC_(self%id_temp_n, temp_n)
+
+      if ( temp_p<temp_n .OR. abs(temp_p-temp_n)<p_small ) then 
+          if ( pu_e_p< qpcMEZ ) then
+            limit = 3.0_rk
+            !limit = p
+         end if
+      else
+          if ( pu_e_n<qncMEZ ) then
+            limit = 2.0_rk
+            !limit = n
+          end if
+      end if
+
+      _SET_DIAGNOSTIC_(self%id_limit,  limit)
+
 
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      ! Compute the correction terms depending on the limiting constituent
      ! Eq. 42 Vichi et al 2007 for a combination of N and P limitation
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!     WHERE     ( limit == iiC )
-!         pe_R6c = ZERO
-!         pe_N1p = max(ZERO, (ONE - p_peI(zoo))*rut_p - p_qpcMEZ(zoo)*ru_c)
-!         pe_N4n = max(ZERO, (ONE - p_peI(zoo))*rut_n - p_qncMEZ(zoo)*ru_c)
-!     ELSEWHERE ( limit == iiP )
-!         pe_R6c = max(ZERO, ru_c - (ONE - p_peI(zoo))*rut_p/p_qpcMEZ(zoo))
-!         pe_N1p = ZERO
-!         pe_N4n = max( ZERO, (ONE - p_peI(zoo))*rut_n - p_qncMEZ(zoo)*(ru_c - pe_R6c))
-!     ELSEWHERE ( limit == iiN )
-!         pe_R6c = max(ZERO, ru_c - (ONE - p_peI(zoo))*rut_n/p_qncMEZ(zoo))
-!         pe_N1p = max(ZERO, (ONE - p_peI(zoo))*rut_p - p_qpcMEZ(zoo)*(ru_c - pe_R6c))
-!         pe_N4n = ZERO
-!     END WHERE
+      if ( limit == 1.0_rk ) then
+!      if ( limit == iiC ) 
+         pe_R6c = ZERO
+         pe_N1p = max(ZERO, (ONE - self%p_peI)*rut_p - self%p_qpcMEZ*ru_c)
+         pe_N4n = max(ZERO, (ONE - self%p_peI)*rut_n - self%p_qncMEZ*ru_c)
+      else if ( limit == 3.0_rk ) then
+!      else if ( limit == iiP )
+         pe_R6c = max(ZERO, ru_c - (ONE - self%p_peI)*rut_p/self%p_qpcMEZ)
+         pe_N1p = ZERO
+         pe_N4n = max( ZERO, (ONE - self%p_peI)*rut_n - self%p_qncMEZ*(ru_c - pe_R6c))
+      else if ( limit == 2.0_rk ) then
+!      else if ( limit == iiN )
+         pe_R6c = max(ZERO, ru_c - (ONE - self%p_peI)*rut_n/self%p_qncMEZ)
+         pe_N1p = max(ZERO, (ONE - self%p_peI)*rut_p - self%p_qpcMEZ*(ru_c - pe_R6c))
+         pe_N4n = ZERO
+      end if   
+
+      _SET_DIAGNOSTIC_(self%id_pe_R6c, pe_R6c)
+      _SET_DIAGNOSTIC_(self%id_pe_N1p, pe_N1p)
+      _SET_DIAGNOSTIC_(self%id_pe_N4n, pe_N4n)
+
+
 !  else
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      ! Eliminate the excess of the non-limiting constituent under fixed quota
@@ -763,15 +806,27 @@ end module
 !   
 !  endif
 
+
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Correction term for excess of non-limiting nutrients as organic carbon 
   ! release (POC) and nutrient remineralization (PO4 and NH)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !  call flux_vector(iiPel, ppzooc, ppR6c, pe_R6c)
+   _SET_ODE_(self%id_c,  -pe_R6c)
+   _SET_ODE_(self%id_R6c, pe_R6c)
 !  call flux_vector(iiPel, ppzoop, ppN1p, pe_N1p)
+   _SET_ODE_(self%id_p,  -pe_N1p)
+   _SET_ODE_(self%id_N1p, pe_N1p)
 !  call flux_vector(iiPel, ppzoon, ppN4n, pe_N4n)
+   _SET_ODE_(self%id_n,  -pe_N4n)
+   _SET_ODE_(self%id_N4n, pe_N4n)
 
-!!!! Skip: end adjustement quota
+
+
+    _LOOP_END_
+  end subroutine do
+end module
 
 
 !  end subroutine MesoZooDynamics
