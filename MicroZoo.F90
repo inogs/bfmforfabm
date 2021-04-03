@@ -266,12 +266,14 @@
           if (preyisphyto) then
             call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
             call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'Chl')
+!           call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),total_chlorophyll)
           end if
 
           call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
           if (preyisdiat) then
             call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
             call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),'s')
+!           call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
           end if
         end do
         
@@ -597,6 +599,12 @@
       ! call quota_flux(iiPel, ppzoop, ppzoop, ppN1p, rep, tfluxP)
       _SET_ODE_(self%id_p, -rep)
       _SET_ODE_(self%id_N1p,rep)
+
+      _SET_DIAGNOSTIC_(self%id_runc,runc)
+      _SET_DIAGNOSTIC_(self%id_runn,runn)
+      _SET_DIAGNOSTIC_(self%id_runp,runp)
+      _SET_DIAGNOSTIC_(self%id_ren,ren)
+      _SET_DIAGNOSTIC_(self%id_rep,rep)
       
       _LOOP_END_
     end subroutine do

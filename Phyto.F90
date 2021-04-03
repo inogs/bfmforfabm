@@ -327,10 +327,12 @@ contains
       call self%register_diagnostic_variable(self%id_rr1n,  'rr1n', '?',' Excretion to DON  ')
       call self%register_diagnostic_variable(self%id_rr6p,  'rr6p', '?',' Excretion to POP  ')
       call self%register_diagnostic_variable(self%id_rr1p,  'rr1p', '?',' Excretion to DOP  ')
-      call self%register_diagnostic_variable(self%id_rums,  'rums', '?',' max pot. uptake of S')
-      call self%register_diagnostic_variable(self%id_miss,  'miss', '?',' Intracellular missing amount of S')
-      call self%register_diagnostic_variable(self%id_rups,  'rups', '?',' S uptake based on C uptake')
-      call self%register_diagnostic_variable(self%id_runs,  'runs', '?',' actual S uptake ')
+      if (self%use_Si) then 
+         call self%register_diagnostic_variable(self%id_rums,  'rums', '?',' max pot. uptake of S')
+         call self%register_diagnostic_variable(self%id_miss,  'miss', '?',' Intracellular missing amount of S')
+         call self%register_diagnostic_variable(self%id_rups,  'rups', '?',' S uptake based on C uptake')
+         call self%register_diagnostic_variable(self%id_runs,  'runs', '?',' actual S uptake ')
+      endif
       call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ')
       call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ')
 
@@ -729,7 +731,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_runn, runn)
  _SET_DIAGNOSTIC_(self%id_runn3, runn3)
  _SET_DIAGNOSTIC_(self%id_runn4, runn4)
- _SET_DIAGNOSTIC_(self%id_fR1n, fR1n)
+ _SET_DIAGNOSTIC_(self%id_fR1n, 0.0_rk)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
