@@ -559,19 +559,20 @@ instances:
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     5       # [-]           Number of preys
+      nprey:     7       # [-]           Number of preys
       suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b
                                          # to Zooplankton group z
       suprey2:   0.7     # [-]           Availability of PhytoPlankton group P1
                                          # to Zooplankton group z
-      prey2hasl: .TRUE.
-      prey2hass: .TRUE.
       suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2
                                          # to Zooplankton group z
-      prey3hasl: .TRUE.
-      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5
+      suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3
                                          # to Zooplankton group z
-      suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z6
+      suprey5:   0.1     # [-]           Availability of PhytoPlankton group P4
+                                         # to Zooplankton group z
+      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5
+                                         # to Zooplankton group z
+      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6
                                          # to Zooplankton group z
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
@@ -596,8 +597,10 @@ instances:
       prey1: B1
       prey2: P1
       prey3: P2
-      prey4: Z5
-      prey5: Z6
+      prey4: P3
+      prey5: P4
+      prey6: Z5
+      prey7: Z6
 #   ---------------------- Z6 Microzooplankton ----------------------
   Z6:
     long_name: Heterotrophic Nanoflagellates (HNAN)
@@ -618,13 +621,14 @@ instances:
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qncMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qpcMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     3       # [-]           Number of preys
+      nprey:     4       # [-]           Number of preys
       suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
                                          # to Zooplankton group z
-      suprey2:   1.0     # [-]           Availability of PhytoPlankton group P2
+      suprey2:   0.2     # [-]           Availability of PhytoPlankton group P2
                                          # to Zooplankton group z
-      prey2hasl: .TRUE.
-      suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z6
+      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P3
+                                         # to Zooplankton group z
+      suprey4:   0.2     # [-]           Availability of MicroZooplankton group Z6
                                          # to Zooplankton group z
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
@@ -648,7 +652,8 @@ instances:
       R1p:   R1/p                        # labile DOP
       prey1: B1
       prey2: P2
-      prey3: Z6
+      prey3: P3
+      prey4: Z6
 #   ---------------------- Z3 Carnivorous Mesozooplankton ----------------------
   Z3:
     long_name: Carnivorous Mesozooplankton
