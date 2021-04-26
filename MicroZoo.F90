@@ -257,26 +257,17 @@
           call self%register_state_dependency(self%id_preyn(iprey),'prey'//trim(index)//'n','mmol n/m^3', 'prey '//trim(index)//' nitrogen')
           call self%register_state_dependency(self%id_preyp(iprey),'prey'//trim(index)//'p','mmol p/m^3', 'prey '//trim(index)//' phosphorous')
           call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
+          call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/^3', 'prey '//trim(index)//' chlorophyll')
+!          call self%register_state_dependency(self%id_preyf(iprey),'prey'//trim(index)//'f','umol Fe/^3', 'prey '//trim(index)//' iron')
           
           call self%register_model_dependency(self%id_prey(iprey),'prey'//trim(index))
           call self%request_coupling_to_model(self%id_preyc(iprey),self%id_prey(iprey),'c')
           call self%request_coupling_to_model(self%id_preyn(iprey),self%id_prey(iprey),'n')
           call self%request_coupling_to_model(self%id_preyp(iprey),self%id_prey(iprey),'p')
           call self%request_coupling_to_model(self%id_preys(iprey),self%id_prey(iprey),standard_variables%total_silicate)
+          call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),total_chlorophyll)
+!          call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
           
-!           call self%get_parameter(preyisphyto,'prey'//trim(index)//'hasl','','prey type '//trim(index)//' is phyto',default=.false.)
-!           if (preyisphyto) then
-!             call self%register_state_dependency(self%id_preyl(iprey),'prey'//trim(index)//'Chl','mg Chl/m^3', 'prey '//trim(index)//' chlorophyll')
-!             call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),'Chl')
-! !           call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),total_chlorophyll)
-!           end if
-
-!           call self%get_parameter(preyisdiat,'prey'//trim(index)//'hass','','prey type '//trim(index)//' is diatom',default=.false.)
-!           if (preyisdiat) then
-!             call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
-!             call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),'s')
-! !           call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
-!           end if
         end do
         
         
@@ -336,7 +327,7 @@
       integer  :: iprey,istate
       real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP
       real(rk), dimension(self%nprey) :: PPYc,qpcPPY,qncPPY,qlcPPY,qscPPY
-      real(rk) :: qqcPPY,preyP
+      real(rk) :: preyP
       real(rk) :: zooc, zoop, zoon
       real(rk) :: qncMIZ, qpcMIZ
       real(rk) :: et,ETW,eO2
@@ -405,9 +396,12 @@
         _GET_(self%id_preyc(iprey), preycP(iprey))
         _GET_(self%id_preyn(iprey), preynP(iprey))
         _GET_(self%id_preyp(iprey), preypP(iprey))
-        ! _GET_(self%id_preyl(iprey), preylP(iprey))
+        _GET_(self%id_preyl(iprey), preylP(iprey))
         _GET_(self%id_preys(iprey), preysP(iprey))
-        ! _GET_(self%id_preyi(iprey), preyiP(iprey))
+!#ifdef INCLUDE_PELFE
+      ! _GET_(self%id_preyf(iprey), preyfP(iprey))
+!#endif
+
         ! Quota collectors
         qpcPPY(iprey) = preypP(iprey)/(preycP(iprey)+p_small) ! add some epsilon (add in shared) to avoid divide by 0
         qncPPY(iprey) = preynP(iprey)/(preycP(iprey)+p_small) ! add some epsilon (add in shared) to avoid divide by 0
@@ -467,13 +461,13 @@
         ! All the predation flux from the prey are assigned in the istate loop below
         ! call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, ruPBAc, tfluxC)
         _SET_ODE_(self%id_c,            ruPPYc)
-        ! _SET_ODE_(self%id_preyc(iprey),-ruPPYc)
+        _SET_ODE_(self%id_preyc(iprey),-ruPPYc)
         ! call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxN)
         _SET_ODE_(self%id_n,            ruPPYc*qncPPY(iprey))
+        _SET_ODE_(self%id_preyn(iprey),-ruPPYc*qncPPY(iprey))
         ! call quota_flux(iiPel, ppzoop, ppPelBacteria(i,iiP), ppzoop, ruPBAc*qpcPBA(i,:), tfluxP)
-        ! _SET_ODE_(self%id_preyn(iprey),-ruPPYc*qncPPY(iprey))
         _SET_ODE_(self%id_p,            ruPPYc*qpcPPY(iprey))
-        ! _SET_ODE_(self%id_preyp(iprey),-ruPPYc*qpcPPY(iprey))
+        _SET_ODE_(self%id_preyp(iprey),-ruPPYc*qpcPPY(iprey))
         
         rugn = rugn + ruPPYc*qncPPY(iprey)
         rugp = rugp + ruPPYc*qpcPPY(iprey)
@@ -481,26 +475,19 @@
         ! Chl is transferred to the infinite sink
         ! call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
         !                  ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
-        ! _SET_ODE_(self%id_preyl(iprey),-ruPPYc*qlcPPY(iprey)) Done in the istate loop below
+        _SET_ODE_(self%id_preyl(iprey),-ruPPYc*qlcPPY(iprey))
         
         ! silicon constituent is transferred to biogenic silicate
         ! if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
         !   call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
         _SET_ODE_(self%id_R6s,          ruPPYc*qscPPY(iprey))
-        ! _SET_ODE_(self%id_preys(iprey),-ruPPYc*qscPPY(iprey))
+        _SET_ODE_(self%id_preys(iprey),-ruPPYc*qscPPY(iprey))
 
         ! #ifdef INCLUDE_PELFE
         !     ! Fe constituent is transferred to particulate iron
         !     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
         !        call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
         ! #endif
-        
-        ! Predation rates to all state variables
-        do istate=1,size(self%id_prey(iprey)%state)
-          _GET_(self%id_prey(iprey)%state(istate),preyP)
-          qqcPPY = preyP/(preycP(iprey)+p_small) ! add some epsilon (add in shared) to avoid divide by 0
-          _SET_ODE_(self%id_prey(iprey)%state(istate),-ruPPYc*qqcPPY)
-        end do
         
       end do
       
