@@ -578,9 +578,9 @@ instances:
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
       p_pe_R1p: 0.832     # [-]           Fractional content of C in cytoplasm
     initialization:
-      c: 8.0                             # carbon (mg C/m^3)
-      n: 0.1008                          # nitrogen (mmol N/m^3)
-      p: 0.006288                        # phosphate (mmol N/m^3)
+      c: 1.0                             # carbon (mg C/m^3)
+      n: 0.0167                          # nitrogen (mmol N/m^3)
+      p: 0.00185                        # phosphate (mmol N/m^3)
     coupling:
       O2o:   O2/o                        # Oxygen (mmol O2/m^3)
       O3c:   O3/c                        # dissolved inorganic carbon (mg C/m^3)
@@ -634,9 +634,9 @@ instances:
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
       p_pe_R1p: 0.832     # [-]           Fractional content of C in cytoplasm
     initialization:
-      c: 8.0                             # carbon (mg C/m^3)
-      n: 0.1008                          # nitrogen (mmol N/m^3)
-      p: 0.006288                        # phosphate (mmol N/m^3)
+      c: 1.0                             # carbon (mg C/m^3)
+      n: 0.0167                          # nitrogen (mmol N/m^3)
+      p: 0.00185                        # phosphate (mmol N/m^3)
     coupling:
       O2o:   O2/o                        # Oxygen (mmol O2/m^3)
       O3c:   O3/c                        # dissolved inorganic carbon (mg C/m^3)
