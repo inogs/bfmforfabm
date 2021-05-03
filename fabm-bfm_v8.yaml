@@ -195,7 +195,7 @@ instances:
       c: 8.0                                               # carbon (mg C/m^3)
       n: 0.1008                                            # nitrogen (mmol N/m^3)
       p: 0.006288                                          # phosphate (mmol N/m^3)
-      s: 0.128                                             # silicate (mmol Si/m^3)
+      s: 0.08                                             # silicate (mmol Si/m^3)
       Chl: 0.16                                            # chlorophyll a (mg/m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
@@ -684,26 +684,29 @@ instances:
       p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
-      suprey1: 1.0 		        # [-]             Availability of PhytoPlankton group 4 to Z3 
-      suprey2: 1.0              	# [-]             Availability of MesoZooplankton group 4 to Z3
-      suprey3: 1.0             	        # [-]             Availability of MesoZooplankton group 3 to Z3
+      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P4
+                                         # to Zooplankton group z
+      suprey2:   1.0     # [-]           Availability of MicroZooplankton group Z3
+                                         # to Zooplankton group z
+      suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z4
+                                         # to Zooplankton group z
 #------------------------------------------------------------------------------
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
-      n: 0.0126                                            # nitrogen (mmol N/m^3)
-      p: 0.000786                                          # phosphate (mmol N/m^3)
+      n: 0.015                                             # nitrogen (mmol N/m^3)
+      p: 0.00167                                           # phosphate (mmol N/m^3)
     coupling:
       O2o: O2/o                                            # dissolved oxygen
       O3c: O3/c                                            # DIC
-      prey1: P4    
-      prey2: Z4   
-      prey3: Z3
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       R6c: R6/c                                            # POC
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      prey1: P4
+      prey2: Z3
+      prey3: Z4
 #   ---------------------------------------------------------------------------
 #   ---------------------- Z4 Omnivorous Mesozooplankton ----------------------
   Z4:
@@ -726,30 +729,35 @@ instances:
       p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
 #-------------------------------------------------------------------------------
       nprey:     5                      # [-]             Number of preys
-      suprey1: 1.0 		        # [-]             Availability of PhytoPlankton group 1 to Z4
-      suprey2: 0.75 		        # [-]             Availability of PhytoPlankton group 2 to Z4
-      suprey3: 1.0 		        # [-]             Availability of PhytoPlankton group 4 to Z4
-      suprey4: 1.0              	# [-]             Availability of MicroZooplankton group 5 to Z4
-      suprey5: 1.0             	        # [-]             Availability of MesoZooplankton group 4 to Z4
+      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P1
+                                         # to Zooplankton group z
+      suprey2:   0.75    # [-]           Availability of PhytoPlankton group P2
+                                         # to Zooplankton group z
+      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P4
+                                         # to Zooplankton group z
+      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5
+                                         # to Zooplankton group z
+      suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z4
+                                         # to Zooplankton group z
 #-------------------------------------------------------------------------------
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
-      n: 0.0126                                            # nitrogen (mmol N/m^3)
-      p: 0.000786                                          # phosphate (mmol N/m^3)
+      n: 0.015                                             # nitrogen (mmol N/m^3)
+      p: 0.00167                                           # phosphate (mmol N/m^3)
     coupling:
       O2o: O2/o                                            # dissolved oxygen
       O3c: O3/c                                            # DIC
-      prey1: P1 
-      prey2: P2  
-      prey3: P4
-      prey4: Z5
-      prey5: Z4
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       R6c: R6/c                                            # POC
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      prey1: P1
+      prey2: P2
+      prey3: P4
+      prey4: Z5
+      prey5: Z4
 
 #   ---------------------- Pelagic chemistry ----------------------
 #
