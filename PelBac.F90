@@ -111,6 +111,8 @@
       type (type_diagnostic_variable_id) :: id_reR2c   ! Carbon excretion as Semi-Labile
       type (type_diagnostic_variable_id) :: id_reR3c   ! Excess carbon
       type (type_diagnostic_variable_id) :: id_run     ! Net production
+      type (type_diagnostic_variable_id) :: id_B_N_O3h   ! variation of alk due to net N uptake/release
+      type (type_diagnostic_variable_id) :: id_B_P_O3h   ! variation of alk due to net P uptake/release
 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10, p_chdo, p_sd, p_sd2, p_suhR1, p_sulR1, p_suR2
@@ -190,6 +192,7 @@ contains
       call self%add_constituent('p',4.288e-8_rk)
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','dissolved organic carbon')
+      call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
@@ -248,6 +251,9 @@ contains
           call self%register_diagnostic_variable(self%id_rep,'rep', 'mmolP/m3/d','Direct uptake of phosphate')
           call self%register_diagnostic_variable(self%id_repo4,'repo4', 'mmolP/m3/d','Phosphate remineralization')
           call self%register_diagnostic_variable(self%id_reR3c,'reR3c', 'mmolC/m3/d','Excess carbon')
+          call self%register_diagnostic_variable(self%id_B_P_O3h,'variazO3h_B_Putil', 'mmol/m3/d','variation of alk due to bacteria P utilization')
+          call self%register_diagnostic_variable(self%id_B_N_O3h,'variazO3h_B_Nutil', 'mmol/m3/d','variation of alk due to bacteria N utilization')
+
          case ( BACT3 ) 
           call self%register_diagnostic_variable(self%id_reR2c,'reR2c', 'mgC/m3/d','Carbon excretion as Semi-Labile')
           call self%register_diagnostic_variable(self%id_reR3c,'reR3c', 'mgC/m3/d','Carbon excretion as Semi-Refractory')
@@ -286,7 +292,7 @@ contains
       real(rk) :: flN6rPBA
       real(rk) :: ruR1n,ruR6n
       real(rk) :: ruR1p,ruR6p
-      real(rk) :: huln,ren, rep
+      real(rk) :: huln,ren, rep, rep1
       real(rk) :: run
       real(rk) :: rump,hulp
       real(rk) :: rumn,rumn3,rumn4
@@ -662,6 +668,11 @@ contains
  _SET_DIAGNOSTIC_(self%id_rumn,rumn)
  _SET_DIAGNOSTIC_(self%id_ren,ren)
 
+! uptake of no3 -> increase alk and viceversa
+! uptake of nh4 -> decrease alk and viceversa
+ _SET_ODE_(self%id_O3h, (-ren*rumn3/rumn) + (ren*rumn4/rumn))
+ _SET_DIAGNOSTIC_(self%id_B_N_O3h,(-ren*rumn3/rumn) + ren*rumn4/rumn)
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Phosphate remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is an error in the paper as there should be no division by B1c)
@@ -671,7 +682,7 @@ contains
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppbacp, ppN1p, rep, tfluxP)
   _SET_ODE_(self%id_N1p, rep)
   _SET_ODE_(self%id_p, -rep)
-  
+  rep1=rep
  _SET_DIAGNOSTIC_(self%id_repo4,rep)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Inorganic Phosphorus uptake  (Eq. 29 Vichi et al. 2004, there is a bug
@@ -685,6 +696,10 @@ contains
   _SET_ODE_(self%id_N1p, -(-rep))
 
  _SET_DIAGNOSTIC_(self%id_rep,rep)
+
+! uptake of po4 -> increase alk and viceversa
+ _SET_ODE_(self%id_O3h,-(rep1) + rep )
+ _SET_DIAGNOSTIC_(self%id_B_P_O3h,-(rep1) + rep)
   
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excess carbon (also considering dissolved nutrient uptake ren and rep) 

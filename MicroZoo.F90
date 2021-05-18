@@ -112,6 +112,8 @@
       ! type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                  !  dissolved inorganic carbon, oxygen, total alkalinity
       type (type_state_variable_id)      :: id_O2o   ! oxygen
       type (type_state_variable_id)      :: id_O3c   ! dissolved inorganic carbon
+      type (type_state_variable_id)      :: id_O5c   ! particulate inorganic carbon
+      type (type_state_variable_id)      :: id_O3h   ! alkalinity
       type (type_state_variable_id)      :: id_N4n   ! Ammonium
       type (type_state_variable_id)      :: id_N1p   ! Phosphate
       type (type_state_variable_id)      :: id_R6c,id_R6s,id_R6n,id_R6p   ! particulate organic carbon, silicon, nitrogen, phosphorous
@@ -156,9 +158,13 @@
       ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyfd !prey f
       ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preydld !prey l
 
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3precip ! precipitation of PIC
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3_to_alk ! consume of alk due to precipitation of PIC
+
       ! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
+      integer, allocatable :: p_isP2(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sdo, p_sd
       real(rk) :: p_pu, p_pu_ea, p_chro, p_chuc, p_minfood
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
@@ -242,16 +248,22 @@
         call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
         ! Get prey-specific parameters.
         allocate(self%p_pa(self%nprey)) !Availability of nprey for microzoo group
+        allocate(self%p_isP2(self%nprey))   !is P2? [=1 for P2 and 0 otherwise]
         allocate(self%id_prey(self%nprey))
         allocate(self%id_preyc(self%nprey))
         allocate(self%id_preyn(self%nprey))
         allocate(self%id_preyp(self%nprey))
         allocate(self%id_preyl(self%nprey))
         allocate(self%id_preys(self%nprey))
-        
+
+
+        allocate(self%id_CaCO3precip(self%nprey))
+        allocate(self%id_CaCO3_to_alk(self%nprey))
+  
         do iprey=1,self%nprey
           write (index,'(i0)') iprey
           call self%get_parameter(self%p_pa(iprey),'suprey'//trim(index),'-','Availability for prey type '//trim(index))
+          call self%get_parameter(self%p_isP2(iprey),'isP2'//trim(index),'-','identify P2 among the preys '//trim(index))
           
           call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'c','mg C/m^3', 'prey '//trim(index)//' carbon') ! mg o mml? anna
           call self%register_state_dependency(self%id_preyn(iprey),'prey'//trim(index)//'n','mmol n/m^3', 'prey '//trim(index)//' nitrogen')
@@ -267,13 +279,14 @@
           call self%request_coupling_to_model(self%id_preys(iprey),self%id_prey(iprey),standard_variables%total_silicate)
           call self%request_coupling_to_model(self%id_preyl(iprey),self%id_prey(iprey),total_chlorophyll)
 !          call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
-          
         end do
         
         
         ! Register links to external nutrient pools.
         call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
         call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3',   'dissolved organic carbon')
+        call self%register_state_dependency(self%id_O5c,'O5c','mg C/m^3',   'particulate inorganic carbon')
+        call self%register_state_dependency(self%id_O3h,'O3h','mmol/m^3',   'alkalinity')
         call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3', 'ammonium')
         call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3', 'phosphate')
         call self%register_state_dependency(self%id_R6c,'R6c','mmg C/m^3',  'POC')
@@ -316,6 +329,14 @@
         call self%register_diagnostic_variable(self%id_runp, 'runp', 'tbd',      'tbd')
         call self%register_diagnostic_variable(self%id_ren,  'ren',  'tbd',      'tbd')
         call self%register_diagnostic_variable(self%id_rep,  'rep',  'tbd',      'tbd')
+
+      do iprey=1,self%nprey
+       if (self%p_isP2(iprey).eq.1) then
+         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip')
+         call self%register_diagnostic_variable(self%id_CaCO3_to_alk(iprey),'_P2_consumeALK_for_CaCO3precip','mmol/m^3/d','_P2_consumeALK_for_CaCO3precip')
+       endif
+      end do
+
      end subroutine
     
     subroutine do(self,_ARGUMENTS_DO_)
@@ -488,6 +509,27 @@
         !     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
         !        call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
         ! #endif
+!#if defined INCLUDE_PELCO2
+!    ! PIC (calcite/aragonite) production associated to the grazed biomass
+!    ! The idea in PISCES is that the calcite flux exists only when associated
+!    ! to a carbon release from phytoplankton (there is no calcite storage in
+!    ! phyto)
+!    ! Use the realized rain ratio for each phytoplankton species and assume
+!    ! that only a portion is egested
+!    ! Calcite production is parameterized as a flux between DIC and PIC
+!    ! that affects alkalinity
+     if (self%p_isP2(iprey).eq.1) then
+!    call flux_vector( iiPel, ppO3c,ppO5c, p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
+        _SET_ODE_(self%id_O3c,-self%p_pecaco3*ruPPYc*qccPPY)        ! precipitation of CaCO3 consumes DIC
+        _SET_ODE_(self%id_O5c,self%p_pecaco3*ruPPYc*qccPPY)         ! precipitation of CaCO3 produces PIC
+!    call flux_vector( iiPel, ppO3h,ppO3h,-C2ALK*p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
+        _SET_ODE_(self%id_O3h,-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)  ! precipitation of CaCO3 consumes 2 alkalinity
+
+        _SET_DIAGNOSTIC_(self%id_CaCO3precip(iprey), self%p_pecaco3*ruPPYc*qccPPY)
+        _SET_DIAGNOSTIC_(self%id_CaCO3_to_alk(iprey),-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)
+     endif
+!#endif
+      
         
       end do
       
@@ -595,9 +637,12 @@
       ! call quota_flux(iiPel, ppzoon, ppzoon, ppN4n, ren, tfluxN)
       _SET_ODE_(self%id_n, -ren)
       _SET_ODE_(self%id_N4n,ren)
+      _SET_ODE_(self%id_O3h, ren)      ! release of 1 NH4 increases 1 alkalinity
       ! call quota_flux(iiPel, ppzoop, ppzoop, ppN1p, rep, tfluxP)
       _SET_ODE_(self%id_p, -rep)
       _SET_ODE_(self%id_N1p,rep)
+      _SET_ODE_(self%id_O3h, -rep)      ! release of 1 PO4 decreases 1 alkalinity
+
 
       _SET_DIAGNOSTIC_(self%id_runc,runc)
       _SET_DIAGNOSTIC_(self%id_runn,runn)

@@ -25,8 +25,11 @@ module ogs_bfm_shared
    real(rk),parameter :: SUNQ          = 24.0_rk
    real(rk),parameter :: HOURS_PER_DAY = 24.0_rk
    real(rk),parameter :: MW_C          = 12.0_rk
-
-   real(rk)           :: flPTN6r       
+   real(rk),parameter :: C2ALK         = 2.0_rk/MW_C   ! Conversion factor between inorganic carbon and alkalinity
+   real(rk),parameter :: p_atm0         = 1013.25_rk    !reference sea level pressure
+   real(rk),parameter :: ZERO_KELVIN   = -273.16;
+   real(rk)           :: flPTN6r    ! total rate of formation of reduction equivalent [mmolHS/m3/d] computed in PelBac and used in PelChem   
+   real(rk)           :: qccPPY     ! PIC:POC ration in P2: compputed in Phyto and used in MicroZoo and MesoZoo only for prey P2 (crapy solution)
 
 #ifdef IRON
    logical,parameter :: use_iron = .true.
@@ -38,6 +41,7 @@ module ogs_bfm_shared
    type (type_bulk_standard_variable),parameter :: total_chlorophyll = type_bulk_standard_variable(name='total_chlorophyll',units='mg/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_oxygen = type_bulk_standard_variable(name='total_oxygen',units='mmolO2/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_reduction_equivalent = type_bulk_standard_variable(name='total_reduction_equivalent',units='mmolEq/m^3',aggregate_variable=.true.)
+   type (type_bulk_standard_variable),parameter :: alkalinity = type_bulk_standard_variable(name='alkalinity',units='mmolEq/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_calcite_in_biota = type_bulk_standard_variable(name='total_calcite_in_biota',units='mg C/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_silicate = type_bulk_standard_variable(name='total_silicate',units='mmolSi/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: secchi_depth = type_bulk_standard_variable(name='secchi_depth',units='m')

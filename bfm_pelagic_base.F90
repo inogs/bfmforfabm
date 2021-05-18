@@ -13,7 +13,7 @@ module ogs_bfm_pelagic_base
 
    ! type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
    type,extends(type_particle_model),public :: type_ogs_bfm_pelagic_base
-      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r
+      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_h
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
       type (type_dependency_id)                     :: id_dens
@@ -98,6 +98,7 @@ contains
       if (index(composition,'f')/=0) call self%add_constituent('f',0.0_rk)
       if (index(composition,'o')/=0) call self%add_constituent('o',0.0_rk)
       if (index(composition,'r')/=0) call self%add_constituent('r',0.0_rk)
+      if (index(composition,'h')/=0) call self%add_constituent('h',0.0_rk)
  
       ! Register model parameters and variables here.
    end subroutine initialize
@@ -138,6 +139,8 @@ contains
          call register(self%id_chl,'Chl','mg','chlorophyll a',total_chlorophyll)
       case ('r')
          call register(self%id_r,'r','mmol/Eq','mmol Eq',total_reduction_equivalent)
+      case ('h')
+         call register(self%id_h,'h','mmol eq','mmol Eq alkalinity',alkalinity)
       case default
          call self%fatal_error('add_constituent','Unknown constituent "'//trim(name)//'".')
       end select

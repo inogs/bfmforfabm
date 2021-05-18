@@ -52,7 +52,7 @@
       procedure :: initialize
       procedure :: do
       procedure :: do_surface
-   end type
+   end type type_ogs_bfm_PelOxygen
    
    
 contains

@@ -120,7 +120,9 @@
       type (type_state_variable_id)      :: id_N1p,id_N4n                   !  nutrients: phosphate, ammonium
       type (type_state_variable_id)      :: id_R6c,id_R6p,id_R6n            !  particulate organic carbon
       type (type_state_variable_id)      :: id_R6s                          !  biogenic silica
-
+      type (type_state_variable_id)      :: id_O3h                          !  alkalinity
+      type (type_state_variable_id)      :: id_O5c                          !  calcite
+  
       !! Environmental dependencies
       type (type_dependency_id)          :: id_ETW                          ! temperature
 
@@ -154,6 +156,8 @@
 
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_ruPPYc    ! prey-specific grazing
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preyld    ! prey chl for diagnostic
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3precip ! precipitation of PIC
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3_to_alk ! consume of alk due to precipitation of PIC
 
       type (type_diagnostic_variable_id) :: id_temp_p    ! 
       type (type_diagnostic_variable_id) :: id_temp_n    ! 
@@ -161,11 +165,12 @@
       type (type_diagnostic_variable_id) :: id_pe_R6c    ! rate removal C
       type (type_diagnostic_variable_id) :: id_pe_N1p    ! rate removal P
       type (type_diagnostic_variable_id) :: id_pe_N4n    ! rate removal N
-
+      type (type_diagnostic_variable_id) :: id_varO3h_Nutil ! variation of O3h due to NH44 utilization by Zoo
  
       !! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
+      integer, allocatable :: p_isP2(:)
 !      logical, allocatable :: p_pl(:)
 !      logical, allocatable :: p_ps(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sd
@@ -239,6 +244,7 @@ contains
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
       ! Get prey-specific parameters.
       allocate(self%p_pa(self%nprey))     !Availability of nprey for predator
+      allocate(self%p_isP2(self%nprey))   !is P2? [=1 for P2 and 0 otherwise]
 !      allocate(self%p_pl(self%nprey))     !Does the prey have Chl?
 !      allocate(self%p_ps(self%nprey))     !Does the prey have Silica?
       allocate(self%id_prey(self%nprey))
@@ -251,10 +257,13 @@ contains
       allocate(self%id_preyld(self%nprey))
       allocate(self%id_ruPPYc(self%nprey))
 
+      allocate(self%id_CaCO3precip(self%nprey))
+      allocate(self%id_CaCO3_to_alk(self%nprey))
 
       do iprey=1,self%nprey
         write (index,'(i0)') iprey
         call self%get_parameter(self%p_pa(iprey),'suprey'//trim(index),'-','Availability for prey type '//trim(index))
+        call self%get_parameter(self%p_isP2(iprey),'isP2'//trim(index),'-','identify P2 among the preys '//trim(index))
         
         call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'c','mg C/m^3',   'prey '//trim(index)//' carbon')
         call self%register_state_dependency(self%id_preyn(iprey),'prey'//trim(index)//'n','mmol N/m^3', 'prey '//trim(index)//' nitrogen')
@@ -277,13 +286,12 @@ contains
         call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
         call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
 
-
 !#ifdef INCLUDE_PELFE
 !        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
 !        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
 !#endif
+     enddo
 
-      end do
 
 
 ! Register environmental dependencies (temperature)
@@ -292,6 +300,8 @@ contains
 ! Register links to external nutrient pools.
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3'   ,'dissolved inorganic carbon')
+      call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3'  ,'alkalinity')
+      call self%register_state_dependency(self%id_O5c,'O5c' ,'mgC/m^3'    ,'calcite'    ,required=.false.)
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3' ,'phosphate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3' ,'ammonium')
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3'   ,'POC')
@@ -321,6 +331,7 @@ contains
       call self%register_diagnostic_variable(self%id_rq6p,  'rq6p',  'mgC/m3/d', 'phosphorus egestion rate')
       call self%register_diagnostic_variable(self%id_ren,   'ren',   'mmolN/m3/d',  'ammonium remineralization rate')
       call self%register_diagnostic_variable(self%id_rep,   'rep',   'mmolP/m3/d',  'phosphate remineralization rate')
+      call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz')
 
       call self%register_diagnostic_variable(self%id_temp_p,  'temp_p',   '-',  '-')
       call self%register_diagnostic_variable(self%id_temp_n,  'temp_n',   '-',  '-')
@@ -328,6 +339,15 @@ contains
       call self%register_diagnostic_variable(self%id_pe_R6c,  'pe_R6c',   'mgC/m3/d',    'removal of C')
       call self%register_diagnostic_variable(self%id_pe_N1p,  'pe_N1p',   'mmolP/m3/d',  'removal of P')
       call self%register_diagnostic_variable(self%id_pe_N4n,  'pe_N4n',   'mmolN/m3/d',  'removal of N')
+
+
+     do iprey=1,self%nprey
+       if (self%p_isP2(iprey).eq.1) then
+       call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mg C/m^3/d',  '_P2_CaCO3precip')
+       call self%register_diagnostic_variable(self%id_CaCO3_to_alk(iprey),'_P2_consumeALK_for_CaCO3precip','mmol/m^3/d',  '_P2_consumeALK_for_CaCO3precip')
+       endif
+
+      end do
 
    end subroutine
 
@@ -566,15 +586,23 @@ contains
 !#endif
 
 !#if defined INCLUDE_PELCO2
-!    ! PIC (calcite/aragonite) production associated to the grazed biomass
-!    ! The idea in PISCES is that the calcite flux exists only when associated
-!    ! to a carbon release from phytoplankton (there is no calcite storage in phyto)
-!    ! Use the realized rain ratio for each phytoplankton species and assume
-!    ! that only a portion is egested
-!    ! Calcite production is parameterized as a flux between DIC and PIC
-!    ! that affects alkalinity
+! PIC (calcite/aragonite) production associated to the grazed biomass
+! The idea in PISCES is that the calcite flux exists only when associated
+! to a carbon release from phytoplankton (there is no calcite storage in phyto)
+! Use the realized rain ratio for each phytoplankton species and assume
+! that only a portion is egested
+! Calcite production is parameterized as a flux between DIC and PIC
+! that affects alkalinity
+   if (self%p_isP2(iprey).eq.1) then
 !    call flux_vector( iiPel, ppO3c,ppO5c, p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
+    _SET_ODE_(self%id_O3c,-self%p_pecaco3*ruPPYc*qccPPY)        ! precipitation of CaCO3 consumes DIC
+    _SET_ODE_(self%id_O5c,self%p_pecaco3*ruPPYc*qccPPY)         ! precipitation of CaCO3 produces PIC
 !    call flux_vector( iiPel, ppO3h,ppO3h, -C2ALK*p_pecaco3(zoo)*ruPPYc*qccPPY(i,:))
+    _SET_ODE_(self%id_O3h,-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)  ! precipitation of CaCO3 consumes 2 alkalinity
+   
+    _SET_DIAGNOSTIC_(self%id_CaCO3precip(iprey), self%p_pecaco3*ruPPYc*qccPPY)
+    _SET_DIAGNOSTIC_(self%id_CaCO3_to_alk(iprey),-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)
+   endif
 !#endif
 
      end do
@@ -667,9 +695,12 @@ contains
 !  call quota_flux(iiPel, ppzoop, ppzoop, ppN1p, rep, tfluxP)
    _SET_ODE_(self%id_p,  -rep)
    _SET_ODE_(self%id_N1p, rep)
+   _SET_ODE_(self%id_O3h, -rep)      ! release of 1 PO4 decreases 1 alkalinity
+
 !  call quota_flux(iiPel, ppzoon, ppzoon, ppN4n, ren, tfluxN)
    _SET_ODE_(self%id_n,  -ren)
    _SET_ODE_(self%id_N4n, ren)
+   _SET_ODE_(self%id_O3h, ren)      ! release of 1 NH4 increases 1 alkalinity
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Fluxes to particulate organic matter
@@ -818,12 +849,14 @@ contains
 !  call flux_vector(iiPel, ppzoop, ppN1p, pe_N1p)
    _SET_ODE_(self%id_p,  -pe_N1p)
    _SET_ODE_(self%id_N1p, pe_N1p)
+   _SET_ODE_(self%id_O3h, -pe_N1p)      ! release of 1 PO4 decrease alkalinity
 !  call flux_vector(iiPel, ppzoon, ppN4n, pe_N4n)
    _SET_ODE_(self%id_n,  -pe_N4n)
    _SET_ODE_(self%id_N4n, pe_N4n)
+   _SET_ODE_(self%id_O3h, pe_N4n)      ! release of 1 NH4 increase alkalinity
 
 
-
+   _SET_DIAGNOSTIC_(self%id_varO3h_Nutil, pe_N4n + ren )
     _LOOP_END_
   end subroutine do
 end module

@@ -120,6 +120,7 @@
       type (type_diagnostic_variable_id) :: id_runs      !  actual uptake
       type (type_diagnostic_variable_id) :: id_rho_Chl   !  Chlorophyll to Carbon ration
       type (type_diagnostic_variable_id) :: id_rate_Chl  !  Chlorophyll production per unit of carbon
+      type (type_diagnostic_variable_id) :: id_O3hconume_for_CaCO3prec !consume of alk for caco3 precipitation
 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
@@ -132,7 +133,7 @@
       real(rk) :: p_rPIm
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
       logical :: use_Si,p_netgrowth
-
+      logical :: use_CaCO3
    contains
 
       ! Model procedures
@@ -224,8 +225,6 @@ contains
 !                   ---- nutrient stressed sinking ----
       call self%get_parameter(self%p_esNI,  'p_esNI',       '-', 'Nutrient stress threshold for sinking')
       call self%get_parameter(self%p_res,   'p_res',       'm/d', 'Maximum Sinking velocity ')
-!                   ---- Calcification ----
-      call self%get_parameter(self%p_caco3r,   'p_caco3r',  '-',  'reference PIC:POC (rain) ratio')
 !              --------- Chlorophyll parameters -----------
       call self%get_parameter(self%p_switchChl,   'p_switchChl',  '1-4', 'Switch for Chla-a synthesis')
       call self%get_parameter(self%p_sdchl,   'p_sdchl',  '1/d', 'Specific turnover rate for Chla')
@@ -242,7 +241,10 @@ contains
       call self%get_parameter(self%p_addepth,   'p_addepth',  'm', 'Adaptation depth. Meaningless with high-res models')
 !              --------- Sinking parameters -----------
       call self%get_parameter(self%p_rPIm,   'p_rPIm',  'm/d', 'Phytoplankton background sinking rate')
-    
+!              --------- Calcite parameters only for P2 ------------
+      call self%get_parameter(self%use_CaCO3,   'use_CaCO3','',          'use calcite',default=.false.)
+      call self%get_parameter(self%p_caco3r,   'p_caco3r',  '-',  'reference PIC:POC rain ratio', default=0._rk)
+ 
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
@@ -259,6 +261,8 @@ contains
 !     if (self%use_Si) call self%add_constituent('s',1.e-6_rk,c0*self%qsc)
       ! Register links to external nutrient pools.
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','dissolved organic carbon')
+      call self%register_state_dependency(self%id_O3h,'O3h','mmol/m^3','alkalinity')
+      call self%register_state_dependency(self%id_O5c,'O5c','mg C/m^3','particulate inorganic carbon')
       call self%register_state_dependency(self%id_O2o,'O2o','mmolO2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
@@ -335,8 +339,9 @@ contains
       endif
       call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ')
       call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ')
-
-
+      if (self%use_CaCO3) then
+         call self%register_diagnostic_variable(self%id_O3hconume_for_CaCO3prec,'consO3h_caco3','mmol/m3/d','consume of alk for CaCO3 precipitation')
+      endif
    end subroutine
 
    subroutine do(self,_ARGUMENTS_DO_)
@@ -721,6 +726,9 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppN4n,ppphyton, runn4, tfluxN )  ! source/sink.n
   _SET_ODE_(self%id_n,runn4)
   _SET_ODE_(self%id_N4n,-runn4)
+!SEAMLESS GC: Alkalinity contributions: +1 for NO3 and  -1 for NH4: uptake of 1
+!mole of NO3 increases alkalinity; uptake of 1 mole of NH4 decreases alkalinity (Wolf-Gladrow etal., 2007)
+  _SET_ODE_(self%id_O3h,runn3-runn4)
   tmp = - runn*( ONE- r)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR1n,tmp, tfluxN)  ! source/sink.n
   _SET_ODE_(self%id_n,-tmp)
@@ -753,6 +761,9 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 !SEAMLESS  call quota_flux(iiPel, ppphytop, ppN1p,ppphytop, tmp, tfluxP)  ! source/sink.p
   _SET_ODE_(self%id_p,tmp)
   _SET_ODE_(self%id_N1p,-tmp)
+!SEAMLESS GC: Alkalinity contributions: +1 for PO4 (i.e., uptake of 1 mole of PO4 
+! increases alkalinity by 1 mole  (Wolf-Gladrow etal., 2007)
+  _SET_ODE_(self%id_O3h,tmp)
 
   tmp = - runp*( ONE- r)
 !SEAMLESS  call quota_flux(iiPel, ppphytop, ppphytop,ppR1p, tmp, tfluxP)  ! source/sink.p
@@ -915,13 +926,20 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 !SEAMLESS  !  - temperature enhancement
 !SEAMLESS  !  - density enhancement
 !SEAMLESS  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS  if ( p_caco3r(phyto) > ZERO ) then
-!SEAMLESS     qccPPY(phyto, :) = min(0.8_RLEN,p_caco3r(phyto)*tN*et*MM(phytoc, p_sheo(phyto)))
-!SEAMLESS     qccPPY(phyto, :) = max(0.02_RLEN,qccPPY(phyto, :))
-!SEAMLESS     ! Calcite production represented as a flux between DIC and PIC, impacting ALK
+  if ( self%use_CaCO3 )  then   ! used only in P2 -> it is very crapy solution
+   if ( self%p_caco3r > ZERO ) then
+     qccPPY = min(0.8_rk,self%p_caco3r*tN*et*MM(phytoc, self%p_sheo))
+     qccPPY = max(0.02_rk,qccPPY)
+! Calcite production represented as a flux between DIC and PIC, impacting ALK
 !SEAMLESS     call flux_vector( iiPel, ppO3c,ppO5c, qccPPY(phyto, :)*rr6c )
+     _SET_ODE_(self%id_O3c,-qccPPY*rr6c) 
+     _SET_ODE_(self%id_O5c,+qccPPY*rr6c) 
 !SEAMLESS     call flux_vector( iiPel, ppO3h,ppO3h, -C2ALK*qccPPY(phyto, :)*rr6c )
-!SEAMLESS  endif
+     _SET_ODE_(self%id_O3h, -2_rk*qccPPY*rr6c)
+     _SET_DIAGNOSTIC_(self%id_O3hconume_for_CaCO3prec, -2_rk*qccPPY*rr6c)
+  endif
+  endif
+
 !SEAMLESS#endif
 
  ! End of computation section for process PhytoDynamics

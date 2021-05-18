@@ -11,8 +11,8 @@ module ogs_model_library
    use bfm_MicroZoo
    use bfm_MesoZoo
    use ogs_bfm_light
-
-
+   use bfm_CalciteDissolution
+   use bfm_PelagicCSYS
 
 
    ! Add use statements for new models here
@@ -52,6 +52,8 @@ contains
          case ('MicroZoo'); allocate(type_ogs_bfm_microzoo::model)
          case ('MesoZoo'); allocate(type_ogs_bfm_mesozoo::model)
          case ('light'); allocate(type_ogs_bfm_light::model)
+         case ('CalciteDissolution'); allocate(type_ogs_bfm_CalciteDissolution::model)
+         case ('PelagicCSYS'); allocate(type_ogs_bfm_PelagicCSYS::model)
       end select
 
    end subroutine create

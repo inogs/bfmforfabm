@@ -9,6 +9,8 @@ add_library(fabm_models_ogs OBJECT
             MesoZoo.F90
             shared.F90
             light.F90
+            CalciteDissolution.F90
+            PelagicCSYS.F90
            )
 
 add_dependencies(fabm_models_ogs fabm_base)
