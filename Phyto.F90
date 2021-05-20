@@ -121,7 +121,9 @@
       type (type_diagnostic_variable_id) :: id_rho_Chl   !  Chlorophyll to Carbon ration
       type (type_diagnostic_variable_id) :: id_rate_Chl  !  Chlorophyll production per unit of carbon
       type (type_diagnostic_variable_id) :: id_O3hconume_for_CaCO3prec !consume of alk for caco3 precipitation
-
+      type (type_diagnostic_variable_id) :: id_Putil_O3h !  variation of O3h due to net utilization of P (uptake-release)
+      type (type_diagnostic_variable_id) :: id_Nutil_O3h !  variation of O3h due to net utilization of N (uptake-release)
+ 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
       real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc,p_qpcPPY, p_xqp
@@ -340,8 +342,10 @@ contains
       call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ')
       call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ')
       if (self%use_CaCO3) then
-         call self%register_diagnostic_variable(self%id_O3hconume_for_CaCO3prec,'consO3h_caco3','mmol/m3/d','consume of alk for CaCO3 precipitation')
+         call self%register_diagnostic_variable(self%id_O3hconume_for_CaCO3prec,'consO3h_caco3','mmol/m3/d','consume of O3h for CaCO3 precipitation')
       endif
+         call self%register_diagnostic_variable(self%id_Nutil_O3h,'varO3h_for_Nutil','mmol/m3/d','variation of O3h due to N uptake/release')
+         call self%register_diagnostic_variable(self%id_Putil_O3h,'varO3h_for_Putil','mmol/m3/d','variation of O3h due to P uptake/release')
    end subroutine
 
    subroutine do(self,_ARGUMENTS_DO_)
@@ -740,8 +744,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_runn3, runn3)
  _SET_DIAGNOSTIC_(self%id_runn4, runn4)
  _SET_DIAGNOSTIC_(self%id_fR1n, 0.0_rk)
+ _SET_DIAGNOSTIC_(self%id_Nutil_O3h, runn3-runn4)
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -763,7 +767,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   _SET_ODE_(self%id_N1p,-tmp)
 !SEAMLESS GC: Alkalinity contributions: +1 for PO4 (i.e., uptake of 1 mole of PO4 
 ! increases alkalinity by 1 mole  (Wolf-Gladrow etal., 2007)
-  _SET_ODE_(self%id_O3h,tmp)
+!  _SET_ODE_(self%id_O3h,tmp)
+  _SET_DIAGNOSTIC_(self%id_Putil_O3h,tmp)
 
   tmp = - runp*( ONE- r)
 !SEAMLESS  call quota_flux(iiPel, ppphytop, ppphytop,ppR1p, tmp, tfluxP)  ! source/sink.p

@@ -65,7 +65,7 @@ contains
 !      call self%register_diagnostic_variable(self%id_RainR,'RainR','1','rain ratio') !! SERVE??
 
       call self%register_diagnostic_variable(self%id_fCaCO3_2_O3c,'fCaCO2_2_O3c','mg C/m^3/d','calcite dissolution flux')
-      call self%register_diagnostic_variable(self%id_fCaCO3_2_O3h,'fCaCO2_2_alk','mmol/m3/d','production of alk for calcite dissolution')
+      call self%register_diagnostic_variable(self%id_fCaCO3_2_O3h,'fCaCO2_2_O3h','mmol/m3/d','production of O3h for calcite dissolution')
       call self%register_dependency(self%id_OCalc,'OCalc','-','calcite saturation') !!! viene da pelagicCO2.F90
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','total dissolved inorganic carbon')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol/m^3','alkalinity')

@@ -29,7 +29,7 @@ module bfm_PelagicCSYS
       type (type_horizontal_dependency_id) :: id_EWIND,id_PCO2A
 
       type (type_diagnostic_variable_id) :: id_pH,id_pco2,id_CarbA, id_BiCarb, id_Carb
-      type (type_diagnostic_variable_id) :: id_OCalc,id_OArag 
+      type (type_diagnostic_variable_id) :: id_OCalc,id_OArag,id_ALK,id_DIC 
 
       type (type_horizontal_diagnostic_variable_id) :: id_fair,id_wnd_diag
 
@@ -76,6 +76,8 @@ contains
       call self%register_dependency(self%id_EWIND,standard_variables%wind_speed)
       call self%register_dependency(self%id_PCO2A,standard_variables%mole_fraction_of_carbon_dioxide_in_air) ! in [ppm]
 !diagnostics for carbonate system
+      call self%register_diagnostic_variable(self%id_ALK,  'ALK',  'umol/kg','alkalinity [umol/kg]',missing_value=0._rk)
+      call self%register_diagnostic_variable(self%id_DIC,  'DIC',  'umol/kg','DIC [umol/kg]',missing_value=0._rk)
       call self%register_diagnostic_variable(self%id_ph,'pH',    '-','pH on total scale',standard_variable=standard_variables%ph_reported_on_total_scale,missing_value=0._rk)
 
       call self%register_diagnostic_variable(self%id_pco2,  'pCO2',  'ppm','partial pressure of CO2',missing_value=0._rk)
@@ -162,6 +164,8 @@ contains
          _SET_DIAGNOSTIC_(self%id_CarbA, CO2)
          _SET_DIAGNOSTIC_(self%id_Bicarb,HCO3)
          _SET_DIAGNOSTIC_(self%id_Carb,  CO3)
+         _SET_DIAGNOSTIC_(self%id_DIC,  DIC)
+         _SET_DIAGNOSTIC_(self%id_ALK,  ALK)
 
 
          _SET_DIAGNOSTIC_(self%id_OCalc,OCalc)

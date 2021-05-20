@@ -113,6 +113,7 @@
       type (type_diagnostic_variable_id) :: id_run     ! Net production
       type (type_diagnostic_variable_id) :: id_B_N_O3h   ! variation of alk due to net N uptake/release
       type (type_diagnostic_variable_id) :: id_B_P_O3h   ! variation of alk due to net P uptake/release
+      type (type_diagnostic_variable_id) :: id_varO3h_reminNH4 ! variation of alk due to NH4 remineralization
 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10, p_chdo, p_sd, p_sd2, p_suhR1, p_sulR1, p_suR2
@@ -251,9 +252,9 @@ contains
           call self%register_diagnostic_variable(self%id_rep,'rep', 'mmolP/m3/d','Direct uptake of phosphate')
           call self%register_diagnostic_variable(self%id_repo4,'repo4', 'mmolP/m3/d','Phosphate remineralization')
           call self%register_diagnostic_variable(self%id_reR3c,'reR3c', 'mmolC/m3/d','Excess carbon')
-          call self%register_diagnostic_variable(self%id_B_P_O3h,'variazO3h_B_Putil', 'mmol/m3/d','variation of alk due to bacteria P utilization')
-          call self%register_diagnostic_variable(self%id_B_N_O3h,'variazO3h_B_Nutil', 'mmol/m3/d','variation of alk due to bacteria N utilization')
-
+          call self%register_diagnostic_variable(self%id_B_P_O3h,'varO3h_for_Putil', 'mmol/m3/d','variation of alk due to bacteria P utilization')
+          call self%register_diagnostic_variable(self%id_B_N_O3h,'varO3h_for_Nutil', 'mmol/m3/d','variation of alk due to bacteria N utilization')
+          call self%register_diagnostic_variable(self%id_varO3h_reminNH4,'varO3h_reminNH4', 'mmol/m3/d','variation of alk due to NH4 remineralization')
          case ( BACT3 ) 
           call self%register_diagnostic_variable(self%id_reR2c,'reR2c', 'mgC/m3/d','Carbon excretion as Semi-Labile')
           call self%register_diagnostic_variable(self%id_reR3c,'reR3c', 'mgC/m3/d','Carbon excretion as Semi-Refractory')
@@ -645,6 +646,8 @@ contains
   _SET_ODE_(self%id_n,  -ren)
 
  _SET_DIAGNOSTIC_(self%id_renh4,ren)
+ _SET_ODE_(self%id_O3h,ren)
+ _SET_DIAGNOSTIC_(self%id_varO3h_reminNH4,ren)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Inorganic Nitrogen uptake  (Eq. 29 Vichi et al. 2004, there is a bug
@@ -695,11 +698,11 @@ contains
   _SET_ODE_(self%id_p, -rep)
   _SET_ODE_(self%id_N1p, -(-rep))
 
- _SET_DIAGNOSTIC_(self%id_rep,rep)
+ _SET_DIAGNOSTIC_(self%id_rep,rep)  ! rep contiene valori negativi (uptake) 
 
-! uptake of po4 -> increase alk and viceversa
- _SET_ODE_(self%id_O3h,-(rep1) + rep )
- _SET_DIAGNOSTIC_(self%id_B_P_O3h,-(rep1) + rep)
+! rep1 (remineraliz contiene valori positivi) => -ALK ; rep (uptake, ma la variabile contiene valori negativi) => +ALK
+! _SET_ODE_(self%id_O3h,-(rep1) + -rep )
+ _SET_DIAGNOSTIC_(self%id_B_P_O3h,-(rep1) + -rep)
   
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excess carbon (also considering dissolved nutrient uptake ren and rep) 

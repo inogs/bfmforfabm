@@ -159,7 +159,9 @@
       ! type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_preydld !prey l
 
       type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3precip ! precipitation of PIC
-      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3_to_alk ! consume of alk due to precipitation of PIC
+      type (type_diagnostic_variable_id), allocatable,dimension(:) :: id_CaCO3_to_O3h ! consume of alk due to precipitation of PIC
+      type (type_diagnostic_variable_id) :: id_varO3h_Nutil ! variation of O3h due to NH44 utilization by Zoo
+      type (type_diagnostic_variable_id) :: id_varO3h_Putil ! variation of O3h due to PO4 utilization by Zoo
 
       ! Parameters (described in subroutine initialize, below)
       integer  :: nprey
@@ -258,7 +260,7 @@
 
 
         allocate(self%id_CaCO3precip(self%nprey))
-        allocate(self%id_CaCO3_to_alk(self%nprey))
+        allocate(self%id_CaCO3_to_O3h(self%nprey))
   
         do iprey=1,self%nprey
           write (index,'(i0)') iprey
@@ -330,10 +332,12 @@
         call self%register_diagnostic_variable(self%id_ren,  'ren',  'tbd',      'tbd')
         call self%register_diagnostic_variable(self%id_rep,  'rep',  'tbd',      'tbd')
 
+       call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz')
+       call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz')
       do iprey=1,self%nprey
        if (self%p_isP2(iprey).eq.1) then
          call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip')
-         call self%register_diagnostic_variable(self%id_CaCO3_to_alk(iprey),'_P2_consumeALK_for_CaCO3precip','mmol/m^3/d','_P2_consumeALK_for_CaCO3precip')
+         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_P2_consumeO3h_for_CaCO3precip','mmol/m^3/d','_P2_consumeO3h_for_CaCO3precip')
        endif
       end do
 
@@ -526,7 +530,7 @@
         _SET_ODE_(self%id_O3h,-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)  ! precipitation of CaCO3 consumes 2 alkalinity
 
         _SET_DIAGNOSTIC_(self%id_CaCO3precip(iprey), self%p_pecaco3*ruPPYc*qccPPY)
-        _SET_DIAGNOSTIC_(self%id_CaCO3_to_alk(iprey),-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)
+        _SET_DIAGNOSTIC_(self%id_CaCO3_to_O3h(iprey),-C2ALK*self%p_pecaco3*ruPPYc*qccPPY)
      endif
 !#endif
       
@@ -641,7 +645,7 @@
       ! call quota_flux(iiPel, ppzoop, ppzoop, ppN1p, rep, tfluxP)
       _SET_ODE_(self%id_p, -rep)
       _SET_ODE_(self%id_N1p,rep)
-      _SET_ODE_(self%id_O3h, -rep)      ! release of 1 PO4 decreases 1 alkalinity
+!      _SET_ODE_(self%id_O3h, -rep)      ! release of 1 PO4 decreases 1 alkalinity
 
 
       _SET_DIAGNOSTIC_(self%id_runc,runc)
@@ -649,7 +653,10 @@
       _SET_DIAGNOSTIC_(self%id_runp,runp)
       _SET_DIAGNOSTIC_(self%id_ren,ren)
       _SET_DIAGNOSTIC_(self%id_rep,rep)
-      
+     
+      _SET_DIAGNOSTIC_(self%id_varO3h_Nutil,ren)
+      _SET_DIAGNOSTIC_(self%id_varO3h_Putil,-rep)
+ 
       _LOOP_END_
     end subroutine do
 end module

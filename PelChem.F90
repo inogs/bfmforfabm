@@ -88,7 +88,8 @@
       type (type_diagnostic_variable_id) :: id_degX1c  ! degradation cdom X1c
       type (type_diagnostic_variable_id) :: id_degX2c  ! degradation cdom X2c
       type (type_diagnostic_variable_id) :: id_degX3c  ! degradation cdom X3c
-      
+      type (type_diagnostic_variable_id) :: id_varO3h_for_nitr ! variation of O3h for nitrification (-1 mole of NH4 -> + 2 mole of alk)
+      type (type_diagnostic_variable_id) :: id_varO3h_for_denitr ! variation of O3h for denitrification (-1 mole of NO3 (consumed) -> + 1 mole of alk)
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
@@ -151,6 +152,7 @@ contains
 
 
       ! Register links to external nutrient pools.
+      call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
@@ -180,8 +182,8 @@ contains
       call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c')
       call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c')
 !     call self%register_diagnostic_dependency(self%id_flPTN6r,'flPTN6r','mmolHS/m3/d','total rate of formation of reduction equivalent') ! from PelBac
-      
-      
+      call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification')
+      call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification')
 
   end subroutine
 
@@ -192,7 +194,7 @@ contains
 
    ! !LOCAL VARIABLES:
       real(rk) :: ETW, parEIR
-      real(rk) :: N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n
+      real(rk) :: N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
       real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo,fR6N5s
@@ -216,6 +218,7 @@ contains
          _GET_(self%id_R6s,R6s)
 
          _GET_(self%id_O2o,O2o)
+         _GET_(self%id_O3h,O3h)
          _GET_(self%id_O4n,O4n)
          _GET_(self%id_X1c,X1c)
          _GET_(self%id_X2c,X2c)
@@ -253,6 +256,9 @@ contains
  _SET_ODE_(self%id_N4n,-flN4N3n)  
 ! call flux_vector( iiPel, ppO2o,ppO2o,-( flN4N3n(:)* p_qon_nitri) )
  _SET_ODE_(self%id_O2o,flN4N3n_o2)
+ _SET_ODE_(self%id_O3h, -2._rk*flN4N3n)  ! Alkalinity contributions: +1 for NH4, -1 for nitrate
+
+ _SET_DIAGNOSTIC_(self%id_varO3h_for_nitr, -2*flN4N3n)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Denitrification in the water
@@ -275,6 +281,8 @@ contains
 !      insw( -( O2o(:)- N6r(:)/ p_qro))) )
  _SET_ODE_(self%id_N6r,flN3O4n_N6r)
 
+ _SET_ODE_(self%id_O3h,flN3O4n)   ! - 1 mole of N3n -> + 1 mole of alkalinity
+ _SET_DIAGNOSTIC_(self%id_varO3h_for_denitr,flN3O4n)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Reoxidation of reduction equivalents
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

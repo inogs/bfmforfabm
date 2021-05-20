@@ -48,7 +48,7 @@ instances:
     parameters:
 #      composition: c                                       # elemental composition
     initialization:
-      c: 25000.0                                           # Dissolved Inorganic Carbon (mg C /m^3)
+      c: 28500.00                                           # Dissolved Inorganic Carbon (mg C /m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N5s: N5/s                                            # silicate  (mmol Si/m^3)
@@ -66,14 +66,14 @@ instances:
     parameters:
       composition: h                                       # elemental composition
     initialization:
-      h: 2500.0                                            # alkalinity (mmol m3)
+      h: 2660.0                                            # alkalinity (mmol m3)
   O4:
     long_name: Nitrogen Sink
     model: ogs/bfm_pelagic_base
     parameters:
       composition: n                                       # elemental composition
     initialization:
-      n: 1000.0
+      n: 200.0
   R1:
     long_name: Dissolved Organic carbon Labile
     model: ogs/bfm_pelagic_base
@@ -560,6 +560,7 @@ instances:
       X3c: X3/c
 #   ---------------------- Z5 Microzooplankton ----------------------
   Z5:
+#    use: false
     long_name: Microzooplankton
     model: ogs/MicroZoo
     parameters:
@@ -633,6 +634,7 @@ instances:
       O5c:   O5/c
 #   ---------------------- Z6 Microzooplankton ----------------------
   Z6:
+#    use: false
     long_name: Heterotrophic Nanoflagellates (HNAN)
     model: ogs/MicroZoo
     parameters:
@@ -706,6 +708,7 @@ instances:
       O5c:   O5/c
 #   ---------------------- Z3 Carnivorous Mesozooplankton ----------------------
   Z3:
+#    use: false
     long_name: Carnivorous Mesozooplankton
     model: ogs/MesoZoo
     parameters:
@@ -757,6 +760,7 @@ instances:
 #   ---------------------------------------------------------------------------
 #   ---------------------- Z4 Omnivorous Mesozooplankton ----------------------
   Z4:
+#    use: false
     long_name: Omnivorous Mesozooplankton
     model: ogs/MesoZoo
     parameters:
@@ -839,6 +843,7 @@ instances:
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O2o: O2/o                                            # oxygen (mmol O_2/m^3)
+      O3h: O3h/h                                           # alkalinity (mmol /m^3)
       O4n: O4/n                                            # N2 (mmol N/m^3)
       N6r: N6/r                                            # reduction equivalent (mmol HS/m^3)
       N5s: N5/s                                            # silicate (mmol Si/m^3)
