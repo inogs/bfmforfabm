@@ -862,7 +862,7 @@ instances:
       p_nomega: 1.0       # [-]             Order of the dissolution rate dependence on Omega
       c0:       1.0e-05         #                 background concentration (mg C/m^3), default = 0.0
     initialization:
-      c: 0.05                                         # carbon (mg C/m^3)
+      c: 1.0                                         # carbon (mg C/m^3)
     coupling:
       OCalc: O3/OCalc                               # calcite saturation (-)
       O3c: O3/c                                     # total dissolved inorganic carbon (mgC/m^3)

@@ -130,9 +130,12 @@ contains
 ! mmol eq/m3 --> umol/kg
          DIC = O3c/MW_C/ERHO*1000.0_rk
          ALK = O3h/ERHO*1000.0_rk  
-         PHOS=N1p/ERHO*1000.0_rk
-         SILIC=N5s/ERHO*1000.0_rk
-         pH=8.0_rk ! first guess to be passed to CarbonateSystem
+         PHOS=N1p  !/ERHO*1000.0_rk
+         SILIC=N5s ! /ERHO*1000.0_rk
+         pH=8.1_rk ! first guess to be passed to CarbonateSystem
+       
+!         EPR=5.04097033087945_rk !! used to test bfm0d 
+
 
        error= CarbonateSystem( ESW, ETW,ERHO, &
                PHOS, SILIC, DIC, ALK, &
@@ -243,15 +246,30 @@ contains
 ! mmol eq/m3 --> umol/kg
          DIC = O3c/MW_C/ERHO*1000.0_rk
          ALK = O3h/ERHO*1000.0_rk
-         PHOS=N1p/ERHO*1000.0_rk
-         SILIC=N5s/ERHO*1000.0_rk
-         pH=8.0_rk ! first guess to be passed to CarbonateSystem
+         PHOS=N1p  !/ERHO*1000.0_rk
+         SILIC=N5s ! /ERHO*1000.0_rk
+         pH=8.1_rk ! first guess to be passed to CarbonateSystem
 
+ !        EPR=5.04097033087945_rk !!used to test bfm0d
+!       write(*,*) 'O3c',O3c
+!       write(*,*) 'O3h',O3h
+!       write(*,*) 'ERHO',ERHO
+!       write(*,*) 'ETW', ETW
+!       write(*,*) 'ESW', ESW
+!       write(*,*) 'patm', p_atm0
+!       write(*,*) 'pr_in', EPR
+!       write(*,*) 'DIC',DIC
+!       write(*,*) 'ALK',ALK
+!       write(*,*) 'PHOS',PHOS
+!       write(*,*) 'SILIC',SILIC
+!       write(*,*) 'pH',pH
        error= CarbonateSystem( ESW, ETW,ERHO, &
-               N1p, N5s, DIC, ALK, &
+               PHOS, SILIC, DIC, ALK, &
                CO2,HCO3, CO3, pH, &
                pCO2, patm=p_atm0, pr_in=EPR, &
                OmegaC=OCalc,OmegaA=OArag,fCO2=ffCO2)
+  
+!     write(*,*) 'pH after',pH
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 !   ! compute Air-Sea CO2 Exchange
 ! from AirSeaExchange.F90 routine of BFM
