@@ -109,7 +109,7 @@ instances:
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c: 3.000000000000000E-003
+      c: 3.000000000000000E-002
   X3:
     long_name: semi refractory CDOM
     model: ogs/bfm_pelagic_base
