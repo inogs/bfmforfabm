@@ -23,24 +23,22 @@ module bfm_PelagicCSYS
    type,extends(type_base_model),public :: type_ogs_bfm_PelagicCSYS
 !     Variable identifiers
       type (type_state_variable_id)     :: id_O3c,id_O3h,id_N1p,id_N5s
-      type (type_dependency_id)         :: id_ETW, id_ESW, id_ERHO, id_EPR
+      type (type_dependency_id)         :: id_ETW, id_ESW, id_ERHO, id_EPR,id_depth
 
-!      type (type_dependency_id)         :: id_Carb_in,id_BiCarb_in,id_CarbA_in,id_pH_in,id_pco2_in
-      type (type_horizontal_dependency_id) :: id_EWIND,id_PCO2A
+      type (type_horizontal_dependency_id) :: id_EWIND,id_PCO2A, id_EPRatm
 
       type (type_diagnostic_variable_id) :: id_pH,id_pco2,id_CarbA, id_BiCarb, id_Carb
-      type (type_diagnostic_variable_id) :: id_OCalc,id_OArag,id_ALK,id_DIC 
+      type (type_diagnostic_variable_id) :: id_OCalc,id_OArag,id_ALK,id_DIC,id_EPRdiag !,id_depth_diag
 
       type (type_horizontal_diagnostic_variable_id) :: id_fair,id_wnd_diag
 
-!      integer :: iswCO2X,iswtalk,iswASFLUX,phscale
    contains
       procedure :: initialize
       procedure :: do
       procedure :: do_surface
    end type type_ogs_bfm_PelagicCSYS
 
-   public :: CarbonateSystem  !!!! per ersem erano : co2dyn, CaCO3_Saturation
+   public :: CarbonateSystem  
 
 contains
 
@@ -49,9 +47,6 @@ contains
 ! !INPUT PARAMETERS:
       class (type_ogs_bfm_PelagicCSYS), intent(inout), target :: self
       integer,                      intent(in)            :: configunit
-
-!!!!!! da cancellare      integer :: iswbioalk
-!
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -65,7 +60,9 @@ contains
       call self%register_dependency(self%id_ETW, standard_variables%temperature)
       call self%register_dependency(self%id_ESW,standard_variables%practical_salinity)
       call self%register_dependency(self%id_ERHO,standard_variables%density)
+      call self%register_dependency(self%id_depth,standard_variables%depth)  
       call self%register_dependency(self%id_EPR,standard_variables%pressure)  
+      call self%register_dependency(self%id_EPRatm,standard_variables%surface_air_pressure)  
 ! dependecy for previous values of carb syst variables
 !      call self%register_dependency(self%id_pco2_in,'pCO2','1e-6','previous pCO2')
 !      call self%register_dependency(self%id_Carb_in,'Carb','mmol/m^3','previous carbonate concentration')
@@ -87,6 +84,8 @@ contains
 
       call self%register_diagnostic_variable(self%id_OCalc,'OCalc','-','calcite saturation',missing_value=4._rk)
       call self%register_diagnostic_variable(self%id_OArag,'OArag','-','aragonite saturation',missing_value=3._rk)
+      call self%register_diagnostic_variable(self%id_EPRdiag,'EPR','dbar','pressure water',missing_value=0._rk)
+!      call self%register_diagnostic_variable(self%id_depth_diag,'depth','m','depth water column cell',missing_value=0._rk)
 
 ! diagnostics for air-sea CO2 flux
       call self%register_diagnostic_variable(self%id_fair,'fair','mmolC/m^2/d','air-sea flux of CO2',source=source_do_surface)
@@ -102,24 +101,25 @@ contains
       class (type_ogs_bfm_PelagicCSYS), intent(in) :: self
       _DECLARE_ARGUMENTS_DO_
 
-      real(rk) :: O3c,ETW,ESW,ERHO,EPR
+      real(rk) :: O3c,ETW,ESW,ERHO,EPR,EPRatm,Depth
       real(rk) :: O3h,N1p,N5s 
       real(rk) :: DIC,ALK,PHOS,SILIC
 
       real(rk) :: pH,PCO2,H2CO3,HCO3,CO3,CO2
       real(rk) :: OCalc,OArag, ffCO2
       integer  :: error
-!!! non serve      IF (self%iswCO2X .NE. 1 ) RETURN
 
       _LOOP_BEGIN_
-         _GET_(self%id_O3c,O3c)
-         _GET_(self%id_O3h,O3h)
-         _GET_(self%id_N1p,N1p)
+         _GET_(self%id_O3c,O3c)  ! dissolved inorganic carbon in mg/m3
+         _GET_(self%id_O3h,O3h)  ! alkalinity in mmol/m3
+         _GET_(self%id_N1p,N1p)  ! 
          _GET_(self%id_N5s,N5s)
          _GET_(self%id_ETW,ETW)
          _GET_(self%id_ESW,ESW)
-         _GET_(self%id_ERHO,ERHO)
-         _GET_(self%id_EPR,EPR)
+         _GET_(self%id_ERHO,ERHO)! density kg/m3
+         _GET_(self%id_EPR,EPR)  ! pressure water in dbar
+         _GET_(self%id_depth,Depth)  ! depth water column cell in m
+         _GET_HORIZONTAL_(self%id_EPRatm,EPRatm)  ! pressure water in dbar
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ! Compute carbonate system equilibria
@@ -135,7 +135,6 @@ contains
          pH=8.1_rk ! first guess to be passed to CarbonateSystem
        
 !         EPR=5.04097033087945_rk !! used to test bfm0d 
-
 
        error= CarbonateSystem( ESW, ETW,ERHO, &
                PHOS, SILIC, DIC, ALK, &
@@ -158,10 +157,8 @@ contains
 !            CO3 = CO3/1.e3_rk/density  ! from mmol/m3 to mol/kg
 !            HCO3 = HCO3/1.e3_rk/density  ! from mmol/m3 to mol/kg
 !            H2CO3 = H2CO3/1.e3_rk/density  ! from mmol/m3 to mol/kg
-
-!         pCO2 = pCO2/1.e6_rk  ! from uatm to atm
+!            pCO2 = pCO2/1.e6_rk  ! from uatm to atm
      
-
          _SET_DIAGNOSTIC_(self%id_ph,pH)
          _SET_DIAGNOSTIC_(self%id_pco2,PCO2)  ! pCO2 in ppm
          _SET_DIAGNOSTIC_(self%id_CarbA, CO2)
@@ -169,10 +166,10 @@ contains
          _SET_DIAGNOSTIC_(self%id_Carb,  CO3)
          _SET_DIAGNOSTIC_(self%id_DIC,  DIC)
          _SET_DIAGNOSTIC_(self%id_ALK,  ALK)
-
-
          _SET_DIAGNOSTIC_(self%id_OCalc,OCalc)
          _SET_DIAGNOSTIC_(self%id_OArag,OArag)
+         _SET_DIAGNOSTIC_(self%id_EPRdiag,EPR)
+!         _SET_DIAGNOSTIC_(self%id_depth_diag,Depth)
  
      _LOOP_END_
    end subroutine
@@ -187,7 +184,7 @@ contains
 
       _DECLARE_ARGUMENTS_DO_SURFACE_
 
-      real(rk) :: O3c,ETW,ESW,ERHO,EWIND, EPR
+      real(rk) :: O3c,ETW,ESW,ERHO,EWIND, EPR, EPRatm, Depth
       real(rk) :: O3h,N1p,N5s  
       real(rk) :: DIC,ALK,PHOS,SILIC
 
@@ -219,9 +216,6 @@ contains
     !real(RLEN),parameter :: F(7) = (/-160.7333, 215.4152, 89.8920, -1.47759,
     !0.029941, -0.027455, 0.0053407/)
     !---------------------------------------------------------------------------
-    !
-
-!!!      if (self%iswASFLUX<=0) return
 
       _HORIZONTAL_LOOP_BEGIN_
          _GET_(self%id_O3c,O3c)
@@ -232,11 +226,12 @@ contains
          _GET_(self%id_ESW,ESW)
          _GET_(self%id_ERHO,ERHO)
          _GET_(self%id_EPR,EPR)
+         _GET_(self%id_depth,Depth)  ! depth water column cell in m
+         _GET_HORIZONTAL_(self%id_EPRatm,EPRatm)
          _GET_HORIZONTAL_(self%id_EWIND,EWIND)
          _GET_HORIZONTAL_(self%id_PCO2A,PCO2A)
         
          wind = max(EWIND,0.0_rk)
-!
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ! Compute carbonate system equilibria
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -250,26 +245,13 @@ contains
          SILIC=N5s ! /ERHO*1000.0_rk
          pH=8.1_rk ! first guess to be passed to CarbonateSystem
 
- !        EPR=5.04097033087945_rk !!used to test bfm0d
-!       write(*,*) 'O3c',O3c
-!       write(*,*) 'O3h',O3h
-!       write(*,*) 'ERHO',ERHO
-!       write(*,*) 'ETW', ETW
-!       write(*,*) 'ESW', ESW
-!       write(*,*) 'patm', p_atm0
-!       write(*,*) 'pr_in', EPR
-!       write(*,*) 'DIC',DIC
-!       write(*,*) 'ALK',ALK
-!       write(*,*) 'PHOS',PHOS
-!       write(*,*) 'SILIC',SILIC
-!       write(*,*) 'pH',pH
+!         EPR=5.04097033087945_rk !! used to test bfm0d 
        error= CarbonateSystem( ESW, ETW,ERHO, &
                PHOS, SILIC, DIC, ALK, &
                CO2,HCO3, CO3, pH, &
                pCO2, patm=p_atm0, pr_in=EPR, &
                OmegaC=OCalc,OmegaA=OArag,fCO2=ffCO2)
   
-!     write(*,*) 'pH after',pH
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 !   ! compute Air-Sea CO2 Exchange
 ! from AirSeaExchange.F90 routine of BFM
@@ -341,10 +323,7 @@ contains
     ! Air-sea gas flux [mmol/(m2 * day)]
     AirSeaCO2 = kwgas * (co2starair - co2star) * (ONE - Fice) * rho * 1000
 
-
-
          _SET_HORIZONTAL_DIAGNOSTIC_(self%id_wnd_diag,wind) ! diagnostic in m/s
-
          _SET_SURFACE_EXCHANGE_(self%id_O3c,AirSeaCO2*12._rk) ! co2 flux in mgC/m2/d because O3c is in mgC/m3
          _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fair,AirSeaCO2)
       _HORIZONTAL_LOOP_END_
@@ -458,18 +437,19 @@ contains
   sit = n5s / rho * PERMIL
 
   ! Absolute temperature (Kelvin) and related values
-  tk     = temp - ZERO_KELVIN  !ZERO_KELVIN=-273.16; ETW is in degC; tk is in degK
+  tk     = temp - ZERO_KELVIN  !ZERO_KELVIN=-273.15; ETW is in degC; tk is in degK
   temp2  = temp * temp
   tk100  = tk / 100.0_rk
   tk1002 = tk100 * tk100
   invtk  = ONE / tk
   dlogtk = log(tk)
-
+  
   ! Salinity and simply related values
   s  = salt
   s2 = salt*salt
   sqrts = sqrt(salt)
   s15 = salt**1.5_rk
+
   ! Hydrostatic Pressure [dbar]
   if (present(pr_in)) then
     press = pr_in * 0.1_rk  ! convert from dbar to bar
@@ -539,7 +519,6 @@ contains
   !      21.225890_rk*sqrts + 0.12450870_rk*s - (3.7243e-4_rk)*s2 ) + &
   !      (-779.3444_rk*sqrts - 19.91739_rk*s)*invtk
   !      -3.3534679_rk*sqrts*dlogtk) )
-
   !-----------------------------------------------------------------------
   ! Kb = [H][BO2]/[HBO2] 
   ! Millero p.669 (1995) using data from Dickson (1990)    (total scale)
@@ -683,7 +662,6 @@ contains
   !    - Ks         (already on Free scale;   already pressure corrected)
   !    - Kf         (already on Total scale;  already pressure corrected)
   !    - Kspc, Kspa (independent of pH scale; pressure-corrected below)
-
   ! Perform actual pressure correction (on seawater scale)
   K1   = K1   * EXP(lnkpok0(1))
   K2   = K2   * EXP(lnkpok0(2))
@@ -695,7 +673,6 @@ contains
   K2p  = K2p  * EXP(lnkpok0(10))
   K3p  = K3p  * EXP(lnkpok0(11))
   Ksi  = Ksi  * EXP(lnkpok0(12))
-
   ! Convert back to original total scale:
   K1  = K1  * SWS2total
   K2  = K2  * SWS2total
@@ -705,7 +682,6 @@ contains
   Kb  = Kb  * SWS2total
   Ksi = Ksi * SWS2total
   Kw  = Kw  * SWS2total
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! 3. COMPUTE CARBONATE SYSTEM
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -715,7 +691,7 @@ contains
   else
      Hi = 10.0_rk**(-pH)
   endif
-
+ 
   ! Solve for H+ using above result as the initial H+ value (mol/kg)
   H = solve_at_general(ta, tc, Bt, pt, sit, St, Ft,            &
                K0, K1, K2, Kb, Kw, Ks, Kf, K1p, K2p, K3p, Ksi, Hi )

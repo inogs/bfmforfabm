@@ -27,7 +27,7 @@ module ogs_bfm_shared
    real(rk),parameter :: MW_C          = 12.0_rk
    real(rk),parameter :: C2ALK         = 2.0_rk/MW_C   ! Conversion factor between inorganic carbon and alkalinity
    real(rk),parameter :: p_atm0         = 1013.25_rk    !reference sea level pressure
-   real(rk),parameter :: ZERO_KELVIN   = -273.16;
+   real(rk),parameter :: ZERO_KELVIN   = -273.15_rk;
    real(rk)           :: flPTN6r    ! total rate of formation of reduction equivalent [mmolHS/m3/d] computed in PelBac and used in PelChem   
    real(rk)           :: qccPPY     ! PIC:POC ration in P2: compputed in Phyto and used in MicroZoo and MesoZoo only for prey P2 (crapy solution)
 
