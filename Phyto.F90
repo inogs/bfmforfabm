@@ -141,6 +141,8 @@
       ! Model procedures
       procedure :: initialize
       procedure :: do
+      procedure :: get_vertical_movement
+      procedure :: get_sinking_rate
 
    end type type_ogs_bfm_primary_producer
 
@@ -911,14 +913,6 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 
  _SET_DIAGNOSTIC_(self%id_rho_Chl, rho_Chl)
  _SET_DIAGNOSTIC_(self%id_rate_Chl, rate_Chl)
- !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- ! Sedimentation
- !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS  if ( p_res(phyto)> ZERO) then
-!SEAMLESS    sediPPY(phyto,:) = sediPPY(phyto,:) &
-!SEAMLESS                   + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
-!SEAMLESS  end if
-!SEAMLESS
 !SEAMLESS#if defined INCLUDE_PELCO2
 !SEAMLESS  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !SEAMLESS  ! PIC (calcite/aragonite) production
@@ -957,6 +951,107 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
       _LOOP_END_
 
    end subroutine do
+   function get_sinking_rate(self,_ARGUMENTS_LOCAL_) result(sediPPY)
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ ! Sedimentation
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!SEAMLESS  if ( p_res(phyto)> ZERO) then
+!SEAMLESS    sediPPY(phyto,:) = sediPPY(phyto,:) &
+!SEAMLESS                   + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
+!SEAMLESS  end if
+!SEAMLESS
+   class (type_ogs_bfm_primary_producer),intent(in) :: self
+      _DECLARE_ARGUMENTS_LOCAL_
+
+      real(rk) :: phytoc,phytop,phyton,phytos
+      real(rk) :: qpcPPY,qncPPY,qscPPY
+      real(rk) :: N5s
+      real(rk) :: sediPPY
+      real(rk) :: iN1p, iNIn, eN5s, fpplim, iN5s, iN, tN  
+
+       _GET_(self%id_c,phytoc)
+       _GET_(self%id_p,phytop)
+       _GET_(self%id_n,phyton)
+
+       if (self%use_Si) then
+           _GET_(self%id_s,phytos)
+       endif
+
+  ! Quota collectors
+       qpcPPY = phytop/(phytoc+p_small) ! add some epsilon (add in shared) to avoid divide by 0
+       qncPPY = phyton/(phytoc+p_small)
+       if (self%use_Si) then
+           qscPPY=phytos/(phytoc+p_small)
+       endif
+
+       iN1p = min( ONE, max( p_small, ( qpcPPY - self%p_qplc)/( self%p_qpcPPY- self%p_qplc)))
+       iNIn = min( ONE, max( p_small, ( qncPPY - self%p_qnlc)/( self%p_qncPPY- self%p_qnlc)))
+
+       if (self%use_Si) then
+           _GET_(self%id_N5s,N5s)
+           select case (self%p_switchSi) 
+               case (1)  ! external control
+                   eN5s = min( ONE, N5s/(N5s + self%p_chPs+(self%p_Contois*phytos)))
+                   fpplim = eN5s
+                   iN5s   =  ONE
+               case (2) ! internal control
+                   iN5s = min(ONE, max( p_small, ( qscPPY &
+                        - self%p_qslc)/( self%p_qscPPY- self%p_qslc)))
+                   fpplim = iN5s
+                   eN5s   = ONE
+           end select
+       else 
+           iN5s   = ONE
+           eN5s   = ONE
+           fpplim = ONE
+       end if
+
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! Multiple nutrient limitation
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+       select case ( self%p_limnut)
+           case ( 0 )
+               iN  =   (iN1p* iNIn)**(0.5_rk)  ! geometric mean
+
+           case ( 1 )
+               iN  =   min(  iN1p,  iNIn)  ! Liebig rule
+
+           case ( 2 )
+               iN  =   2.0_rk/( ONE/ iN1p+ ONE/ iNIn)  ! combined
+
+       end select
+
+! tN only controls sedimentation of phytoplankton (Liebig)
+       tN= min(iN,fpplim)
+
+      sediPPY = self%rm + self%p_res * MAX(ZERO,( self%p_esNI-tN))
+!SEAMLESS  if ( p_res(phyto)> ZERO) then
+!SEAMLESS    sediPPY(phyto,:) = sediPPY(phyto,:) &
+!SEAMLESS                   + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
+!SEAMLESS  end if
+   end function
+
+   subroutine get_vertical_movement(self,_ARGUMENTS_GET_VERTICAL_MOVEMENT_)
+      class (type_ogs_bfm_primary_producer),intent(in) :: self
+      _DECLARE_ARGUMENTS_GET_VERTICAL_MOVEMENT_
+
+      real(rk) :: sediPPY
+
+      _LOOP_BEGIN_
+
+         ! Retrieve local state
+         sediPPY = -get_sinking_rate(self,_ARGUMENTS_LOCAL_)
+         _SET_VERTICAL_MOVEMENT_(self%id_c,sediPPY)
+         _SET_VERTICAL_MOVEMENT_(self%id_p,sediPPY)
+         _SET_VERTICAL_MOVEMENT_(self%id_n,sediPPY)
+         if (self%use_Si) _SET_VERTICAL_MOVEMENT_(self%id_s,sediPPY)
+         _SET_VERTICAL_MOVEMENT_(self%id_chl,sediPPY)
+         if (use_iron) _SET_VERTICAL_MOVEMENT_(self%id_f,sediPPY)
+
+      _LOOP_END_
+
+   end subroutine get_vertical_movement
 end module
 !SEAMLESS!EOC
 !SEAMLESS!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

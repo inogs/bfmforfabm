@@ -73,7 +73,7 @@ contains
             qp = 0.0_rk
          end if
       end if
-!     call self%get_parameter(rRPmX, 'rm', 'm/d', 'sinking velocity', default=0.0_rk)
+      call self%get_parameter(self%rm, 'rm', 'm/d', 'sinking velocity', default=0.0_rk)
 
 !     call self%initialize_ersem_base(rm=rRPmX, sedimentation=rRPmX>0._rk)
 
@@ -101,14 +101,18 @@ contains
       if (index(composition,'h')/=0) call self%add_constituent('h',0.0_rk)
  
       ! Register model parameters and variables here.
+
    end subroutine initialize
+
    subroutine initialize_bfm_base(self)
      class (type_ogs_bfm_pelagic_base), intent(inout), target :: self
+     
 
       ! Set time unit to d-1
       ! This implies that all rates (sink/source terms, vertical velocities) are
       ! given in d-1.
       self%dt = 86400._rk
+
    end subroutine initialize_bfm_base
 
    ! Add model subroutines here.
