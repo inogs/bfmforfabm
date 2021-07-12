@@ -164,8 +164,10 @@ contains
          character(len=16) :: num
 
          ! Register state variable
+         self%dt = 86400._rk
          call self%register_state_variable(variable_id,name,trim(base_units)//'/m^3',long_name, &
             initial_value,minimum=0._rk,vertical_movement=-self%rm/self%dt,background_value=background_value,no_river_dilution=self%no_river_dilution)
+!        write(*,*) "vertical_movement", -self%rm/self%dt
 
          ! Contribute to aggregate variable
          call self%add_to_aggregate_variable(aggregate_variable,variable_id,scale_factor)

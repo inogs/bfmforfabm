@@ -103,6 +103,7 @@ instances:
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
+      rm:  15.000                                       # Sinking Velocity
     initialization:
       c: 1.0                                          # POC (mg C   /m^3)
       n: 1.260E-002                                   # PON (mmol N /m^3)
