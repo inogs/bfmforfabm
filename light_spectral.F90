@@ -12,16 +12,15 @@ module ogs_bfm_light_spectral
 
    type,extends(type_base_model),public :: type_ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
-      type (type_diagnostic_variable_id)   :: id_prova1, id_prova2
-      type (type_diagnostic_variable_id)   :: id_tot_a, id_tot_b, id_tot_bb
-      type (type_diagnostic_variable_id)   :: id_phy_a, id_phy_b, id_phy_bb
+      type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
+      type (type_diagnostic_variable_id)   :: id_par_tot
+
       type (type_dependency_id)            :: id_dz
       type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
-      type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
-      type (type_diagnostic_variable_id)   :: id_par_tot
-! BLOCK 1 python generated  code
+      type (type_horizontal_dependency_id) :: id_zenithA
+! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
       type (type_horizontal_dependency_id) ::  id_Ed_0_0550, id_Ed_0_0575, id_Ed_0_0600, id_Ed_0_0625, id_Ed_0_0650
@@ -41,7 +40,7 @@ module ogs_bfm_light_spectral
 
       ! Parameters
       integer  :: nlt
-!     real(rk) :: EPSESSX,EPS0X,pEIR_eowX
+      real(rk) :: rd, rs, ru, vs, vu
    contains
 !     Model procedures
       procedure :: initialize
@@ -65,7 +64,12 @@ contains
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-      call self%get_parameter(self%nlt,    'nlt',   '-',   'number of wavelenghts', default=-1)
+      call self%get_parameter(self%nlt,    'nlt',  '-',   'number of wavelenghts', default=-1)
+      call self%get_parameter(self%rd,     'rd',   '-',   ' ', default=1.0_rk)
+      call self%get_parameter(self%rs,     'rs',   '-',   ' ', default=1.5_rk)
+      call self%get_parameter(self%ru,     'ru',   '-',   ' ', default=3.0_rk)
+      call self%get_parameter(self%vs,     'vs',   '',   'avg cosine diffuse down', default=0.83_rk)
+      call self%get_parameter(self%vu,     'vu',   '-',   'avg cosine diffuse up', default=0.4_rk)
        
       if (self%nlt>0) then
           allocate(lam(self%nlt)); lam(:)=huge(lam(1))
@@ -97,13 +101,6 @@ contains
       enddo
 
      ! Register diagnostic variables
-      call self%register_diagnostic_variable(self%id_prova1,'prova1','W/m^2','prova1_paolo', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_tot_a,'tot_a','1/m','total absorption', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_tot_b,'tot_b','1/m','total scattering', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_tot_bb,'tot_bb','1/m','total back scattering', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_phy_a,'phy_a','1/m','phytoplankton absorption', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_phy_b,'phy_b','1/m','phytoplankton scattering', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_phy_bb,'phy_bb','1/m','phytoplankton back scattering', source=source_do_column)
 
       call self%register_diagnostic_variable(self%id_par_dia, 'PAR_dia','?????','PAR_diatoms', source=source_do_column)
       call self%register_diagnostic_variable(self%id_par_flag,'PAR_flag','?????','PAR_flagellates', source=source_do_column)
@@ -130,7 +127,9 @@ contains
 
       ! Register environmental dependencies 
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
-! BLOCK 1 python generate code see AUX_SCRIPTS/python_light_spectral.py
+      call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
+
+! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
       call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
       call self%register_dependency(self%id_Ed_0_0325,type_surface_standard_variable(name='surf_direct_downward_irradiance_0325_nm'))
       call self%register_dependency(self%id_Ed_0_0350,type_surface_standard_variable(name='surf_direct_downward_irradiance_0350_nm'))
@@ -197,7 +196,7 @@ contains
       call self%register_dependency(self%id_Es_0_2200,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2200_nm'))
       call self%register_dependency(self%id_Es_0_2900,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2900_nm'))
       call self%register_dependency(self%id_Es_0_3700,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_3700_nm'))
-! END BLOCK1
+! END BLOCK2 python generated code
    end subroutine initialize
 
    subroutine do_column(self,_ARGUMENTS_VERTICAL_)
@@ -205,7 +204,7 @@ contains
       _DECLARE_ARGUMENTS_VERTICAL_
 
       integer  :: kk,nlev,l
-      real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
+      real(rk) :: dz,zenithA,mud
       real(rk) :: phy_a,phy_b,phy_bb
       real(rk) :: cdom_a
       real(rk) :: tot_a,tot_b,tot_bb
@@ -231,6 +230,10 @@ contains
       real(rk) :: PAR_picophytoplankton
       real(rk) :: PAR_dinoflagellates
       real(rk) :: PAR_scalar
+
+      _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
+      call getrmud(zenithA,mud) ! average cosine direct component in the water
+
 !START BLOCK3
       _GET_SURFACE_(self%id_Ed_0_0250,Ed_0(1))
       _GET_SURFACE_(self%id_Ed_0_0325,Ed_0(2))
@@ -299,7 +302,7 @@ contains
       _GET_SURFACE_(self%id_Es_0_2900,Es_0(32))
       _GET_SURFACE_(self%id_Es_0_3700,Es_0(33))
 
-!END BLOCK3
+!END BLOCK3 python generated code
       
 
       write(*,*) "Ed_0_250", Ed_0(1)
@@ -309,11 +312,10 @@ contains
       write(*,*) " size(a_array) ", size(a_array)
 
 
-!     if (buffer.lt.0._rk) buffer=0._rk
       kk=0
       zgrid(1)=0.0_rk
+
       _DOWNWARD_LOOP_BEGIN_
-!     _VERTICAL_LOOP_BEGIN_
           kk = kk + 1
        _GET_(self%id_dz,dz)     ! Layer height (m)
 
@@ -349,12 +351,12 @@ contains
 
      _DOWNWARD_LOOP_END_
   
-     rd=1.0_rk
-     rs=1.0_rk
-     ru=1.0_rk
-     vd(:,:)=1.0_rk
-     vs=1.0_rk
-     vu=1.0_rk
+     rd      = self%rd
+     rs      = self%rs
+     ru      = self%ru
+     vd(:,:) = mud
+     vs      = self%vs
+     vu      = self%vu
 
 !integer, intent(in):: n,m                                             !n of layers and size of the vertical grid
 !integer, intent(in):: nlt                                             !n of wavelenghts to be considered
@@ -366,18 +368,19 @@ contains
 !double precision, dimension(3,m,nlt), intent(out):: E                     !the 3-stream solution on the zz grid
 
      bb_array(:,:)=0.001_rk
-     write(*,*) 'a_array(:,1)',  a_array(:,1)
-     write(*,*) 'b_array(:,1)',  b_array(:,1)
-     write(*,*) 'bb_array(:,1)', bb_array(:,1)
+!    write(*,*) 'a_array(:,1)',  a_array(:,1)
+!    write(*,*) 'b_array(:,1)',  b_array(:,1)
+!    write(*,*) 'bb_array(:,1)', bb_array(:,1)
 
      call solve_direct(cache%n+1, zgrid, cache%n, zgrid, self%nlt, a_array, b_array, bb_array, rd, rs, ru, vd, vs, vu, Ed_0, Es_0, E, E_ave)
 
-     write(*,*) 'E(1,:,:)', E(1,:,1:2)
-     write(*,*) 'E(2,:,:)', E(2,:,1:2)
-     write(*,*) 'E(3,:,:)', E(3,:,1:2)
-     write(*,*) 'E_ave(1,:,:)', E_ave(1,:,1:2)
-     write(*,*) 'E_ave(2,:,:)', E_ave(2,:,1:2)
-     write(*,*) 'E_ave(3,:,:)', E_ave(3,:,1:2)
+!    write(*,*) 'E(1,:,:)', E(1,:,1:2)
+!    write(*,*) 'E(2,:,:)', E(2,:,1:2)
+!    write(*,*) 'E(3,:,:)', E(3,:,1:2)
+!    write(*,*) 'E_ave(1,:,:)', E_ave(1,:,1:2)
+!    write(*,*) 'E_ave(2,:,:)', E_ave(2,:,1:2)
+!    write(*,*) 'E_ave(3,:,:)', E_ave(3,:,1:2)
+
 ! Scalar irradiance
      E_scalar(:,:)=E_ave(1,:,:)/vd + E_ave(2,:,:)/vs + E_ave(3,:,:)/vu
 
@@ -389,10 +392,10 @@ contains
 
      do l=1,self%nlt
 !    do l=5,17 or 19?  
-         PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + WtoQ(l) * ac(1,l) * E_scalar(:,l)
-         PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + WtoQ(l) * ac(2,l) * E_scalar(:,l)
-         PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + WtoQ(l) * ac(3,l) * E_scalar(:,l)
-         PAR_dinoflagellates_array(:)   = PAR_dinoflagellates_array(:)   + WtoQ(l) * ac(4,l) * E_scalar(:,l)
+         PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + WtoQ(l) * ac(1,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + WtoQ(l) * ac(2,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + WtoQ(l) * ac(3,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_dinoflagellates_array(:)   = PAR_dinoflagellates_array(:)   + WtoQ(l) * ac(4,l) * E_scalar(:,l) *SEC_PER_DAY
      enddo
 
      do l=5,17
@@ -406,12 +409,6 @@ contains
 
           kk = kk + 1
 
-!         PAR_diatoms           = PAR_diatoms_array(kk)
-!         PAR_flagellates       = PAR_flagellates_array(kk)
-!         PAR_picophytoplankton = PAR_picophytoplankton_array(kk)
-!         PAR_dinoflagellates   = PAR_dinoflagellates_array(kk)
-!         PAR_scalar            = PAR_scalar_array(kk)
-
          _SET_DIAGNOSTIC_(self%id_par_dia,PAR_diatoms_array(kk))                  
          _SET_DIAGNOSTIC_(self%id_par_flag,PAR_flagellates_array(kk))            
          _SET_DIAGNOSTIC_(self%id_par_pico,PAR_picophytoplankton_array(kk))
@@ -420,7 +417,6 @@ contains
 
      _DOWNWARD_LOOP_END_
 
-   STOP
    end subroutine do_column
 
 end module
