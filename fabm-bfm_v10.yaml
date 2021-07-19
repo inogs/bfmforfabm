@@ -873,6 +873,7 @@ instances:
       X3c: X3/c                                            # cdom X3c (mgC/m^3)
       R3c: R3/c                                            # cdom R3c (mgC/m^3)
       R6s: R6/s                                            # POSi (mgSi/m3)
+      PAR_tot: lightspectral/PAR_tot
 ##  --------------------- CalciteDissolution
   O5:
 #    use: false
