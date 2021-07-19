@@ -75,6 +75,7 @@
       type (type_state_variable_id) :: id_X1c, id_X2c, id_X3c               !  CDOM
       ! Environmental dependencies
       type (type_dependency_id)    :: id_parEIR,id_ETW   ! PAR and temperature
+      type (type_dependency_id)    :: id_par_tot
 
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_eo      ! Oxygen limitation factor MM
@@ -168,6 +169,8 @@ contains
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
+      ! Dependency from multispectral model
+      call self%register_dependency(self%id_par_tot,type_bulk_standard_variable(name='PAR_tot'))
       
 
       call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten')
@@ -193,7 +196,7 @@ contains
       _DECLARE_ARGUMENTS_DO_
 
    ! !LOCAL VARIABLES:
-      real(rk) :: ETW, parEIR
+      real(rk) :: ETW, parEIR, PAR_tot
       real(rk) :: N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
@@ -228,6 +231,7 @@ contains
          ! photosynthetically active radation)
          _GET_(self%id_ETW,ETW)
          _GET_(self%id_parEIR,parEIR)
+         _GET_(self%id_PAR_tot,PAR_tot)
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -342,7 +346,7 @@ contains
 !GP  BIOPTIMOD T2
 !GP   PAR(:) =EIR(:)
 
-  
+ ! Check unit of measure of PAR here! 
   degX1c = X1c * ( self%p_rX1c * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13
   degX2c = X2c * ( self%p_rX2c  * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13
   degX3c = X3c * ( eTq( ETW, 2.95_rk ) * self%p_rX3c  + 0.03_rk * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13

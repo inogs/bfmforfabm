@@ -2,6 +2,8 @@ check_conservation: false
 require_initialization: true
 log: true
 instances:
+  zenith_angle:
+    model: ogs/zenith_angle
   light:
     model: ogs/light
     parameters:

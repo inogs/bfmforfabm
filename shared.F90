@@ -63,6 +63,11 @@ module ogs_bfm_shared
 !  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_250_nm',units='W/m2')
 !  type (type_surface_standard_variable),parameter     :: surf_diffuse_direct_irradiance_325_nm = type_surface_standard_variable(name='surf_direct_downward_irradiance_325_nm',units='W/m2')
 !  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_325_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_325_nm',units='W/m2')
+    type (type_bulk_standard_variable),parameter       :: PAR_tot = type_bulk_standard_variable(name='PAR_tot',units='<UNITS>',aggregate_variable=.false.)
+    type (type_bulk_standard_variable),parameter       :: PAR_dia = type_bulk_standard_variable(name='PAR_dia',units='<UNITS>',aggregate_variable=.false.)
+    type (type_bulk_standard_variable),parameter       :: PAR_flag = type_bulk_standard_variable(name='PAR_flag',units='<UNITS>',aggregate_variable=.false.)
+    type (type_bulk_standard_variable),parameter       :: PAR_pico = type_bulk_standard_variable(name='PAR_pico',units='<UNITS>',aggregate_variable=.false.)
+    type (type_bulk_standard_variable),parameter       :: PAR_dino = type_bulk_standard_variable(name='PAR_dino',units='<UNITS>',aggregate_variable=.false.)
 
    ! Standard benthic variables used to make implicit based on matching standard names coupling possible.
    type (type_horizontal_standard_variable),parameter :: depth_of_sediment_column = type_horizontal_standard_variable(name='depth_of_sediment_column',units='m')
