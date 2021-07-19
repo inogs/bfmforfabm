@@ -64,6 +64,9 @@ contains
 
       real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
 
+
+      write(*,*) "Pippo2"
+
       _GET_HORIZONTAL_(self%id_I_0,buffer)
 
       if (buffer.lt.0._rk) buffer=0._rk

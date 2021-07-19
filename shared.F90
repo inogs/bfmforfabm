@@ -28,6 +28,10 @@ module ogs_bfm_shared
    real(rk),parameter :: C2ALK         = 2.0_rk/MW_C   ! Conversion factor between inorganic carbon and alkalinity
    real(rk),parameter :: p_atm0         = 1013.25_rk    !reference sea level pressure
    real(rk),parameter :: ZERO_KELVIN   = -273.15_rk;
+   real(rk),parameter :: h_planck      = 6.6256E-34   !Plancks constant J sec
+   real(rk),parameter :: c_light       = 2.998E8      !speed of light m/sec
+   real(rk),parameter :: oavo          = 1.0D0/6.023E23   ! 1/Avogadros number
+
    real(rk)           :: flPTN6r    ! total rate of formation of reduction equivalent [mmolHS/m3/d] computed in PelBac and used in PelChem   
    real(rk)           :: qccPPY     ! PIC:POC ration in P2: compputed in Phyto and used in MicroZoo and MesoZoo only for prey P2 (crapy solution)
 
@@ -49,6 +53,16 @@ module ogs_bfm_shared
    ! Aggregate variables for benthic bioturbation and bioirrigation (summed over all fauna).
    type (type_bulk_standard_variable),parameter :: total_bioturbation_activity = type_bulk_standard_variable(name='total_bioturbation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_bioirrigation_activity = type_bulk_standard_variable(name='total_bioirrigation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
+
+   ! Spectral light variables
+   real(rk), allocatable, dimension(:)                 :: lam,aw,bw,bbw,acdom,apoc,bpoc,bbpoc,WtoQ
+   real(rk), allocatable, dimension(:)                 :: Ed_0,Es_0
+   real(rk), allocatable, dimension(:,:)               :: ac,bc,bbc
+!  real(rk), allocatable, dimension(:,:)               :: a_array, b_array, bb_array
+!  type (type_surface_standard_variable),parameter     :: surf_direct_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_direct_downward_irradiance_250_nm',units='W/m2')
+!  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_250_nm',units='W/m2')
+!  type (type_surface_standard_variable),parameter     :: surf_diffuse_direct_irradiance_325_nm = type_surface_standard_variable(name='surf_direct_downward_irradiance_325_nm',units='W/m2')
+!  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_325_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_325_nm',units='W/m2')
 
    ! Standard benthic variables used to make implicit based on matching standard names coupling possible.
    type (type_horizontal_standard_variable),parameter :: depth_of_sediment_column = type_horizontal_standard_variable(name='depth_of_sediment_column',units='m')
