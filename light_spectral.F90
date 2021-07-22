@@ -391,7 +391,7 @@ contains
           do l=1,self%nlt
              phy_a  = ac(1,l)*P1chl + ac(2,l)*P2chl + ac(3,l)*P3chl + ac(4,l)*P4chl
              phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
-             phy_bb = bbc(1,l)*P1chl+ bbc(2,l)*P2chl+ bbc(3,l)*P3chl+ bbc(4,l)*P4chl
+             phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl+ bc(3,l)*bbc(3,l)*P3chl+ bc(4,l)*bbc(4,l)*P4chl
              cdom_a = acdom(l)*X1c  + acdom(l)*X2c  + acdom(l)*X3c 
 
 ! Need to add also cdom
