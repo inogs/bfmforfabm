@@ -13,7 +13,19 @@ instances:
   lightspectral:
     model: ogs/light_spectral
     parameters:
-       nlt: 33                                              # number of wavelenghts considered
+       nlt: 33                                             # number of wavelenghts considered
+       Sdom: 0.017                                         # spectral slope acdom  [nm-1]
+       lambda_aCDOM: 450                                   # lambda at which reference acdom is given [nm]
+       cdomcoeff: 0.015                                    # acdom coeff at lambda_aCDOM [m2/mgC]
+       compute_acdom: .TRUE.                               # logical [T=comptute coeffs, F=use file]
+       Sapar: 0.013                                        # spectral slope anap [nm-1]
+       lambda_aPart: 440                                   # lambda at which reference anap is given [nm]
+       aparcoeff: 0.00133                                  # anap coeff at lambda_aPart [m2/mgC]
+       Sbpar: 0.5                                          # exponent bnap [-]
+       lambda_bPart: 550                                   # lambda at which reference bnap is given [nm]
+       bparcoeff: 0.02875                                  # bnap coeff at lambda_bPart [m2/mgC]
+       bb_to_b: 0.5                                        # back to total scatter POC [-]
+       compute_anap: .TRUE.                                # logical [T=comptute coeffs, F=use file]
     coupling:
        P1c: P1/c
        P2c: P2/c
@@ -210,6 +222,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=absorbed by P1, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -248,6 +262,11 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
+      PAR_tot: lightspectral/PAR_tot
+      PAR_dia: lightspectral/PAR_dia
+      PAR_flag: lightspectral/PAR_flag
+      PAR_pico: lightspectral/PAR_pico
+      PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P2 nanoflagellates ----------------------
   P2:
     long_name: nanoflagellates
@@ -302,6 +321,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -337,7 +358,11 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-
+      PAR_tot: lightspectral/PAR_tot
+      PAR_dia: lightspectral/PAR_dia
+      PAR_flag: lightspectral/PAR_flag
+      PAR_pico: lightspectral/PAR_pico
+      PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P3 Picophytoplankton ----------------------
   P3:
     long_name: Picoplankton
@@ -391,6 +416,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -425,7 +452,12 @@ instances:
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
-      O5c: O5/c 
+      O5c: O5/c
+      PAR_tot: lightspectral/PAR_tot
+      PAR_dia: lightspectral/PAR_dia
+      PAR_flag: lightspectral/PAR_flag
+      PAR_pico: lightspectral/PAR_pico
+      PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P4 dinoflagellates ----------------------
   P4:
     long_name: dinoflagellates
@@ -479,6 +511,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 4                          # [1-6]          source of light for PP, 4=absorbed by P4, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -514,7 +548,12 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-#   ---------------------- B1 Pelagic heteretrophyc bacteria ----------------------
+      PAR_tot: lightspectral/PAR_tot
+      PAR_dia: lightspectral/PAR_dia
+      PAR_flag: lightspectral/PAR_flag
+      PAR_pico: lightspectral/PAR_pico
+      PAR_dino: lightspectral/PAR_dino
+#   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #
   B1:
     long_name: Bacteria
@@ -855,10 +894,12 @@ instances:
       p_qon_dentri: 1.25   # [mmolO2/mmolN] Stoichiometric coefficient for denitrification
       p_rOS: 0.05          # [1/d]        Specific reoxidation rate of reduction equivalents
       p_sR6N5: 0.1         # [1/d]        Specific remineralization rate of biogenic silica
-      p_q10R6N5: 1.49       # [-]          Q10 factor for biogenic silica
-      p_rX1c: 0.03          #[1/d]         degradation rate X1c
-      p_rX2c: 0.03          #[1/d]         degradation rate X2c
-      p_rX3c: 0.00003       #[1/d]         degradation rate X3c
+      p_q10R6N5: 1.49      # [-]          Q10 factor for biogenic silica
+      p_rX1c: 0.03         #[1/d]         degradation rate X1c
+      p_rX2c: 0.03         #[1/d]         degradation rate X2c
+      p_rX3c: 0.00003      #[1/d]         degradation rate X3c
+      p_Icdom: 60.0        #[uE m-2 s-1]  light threshold for CDOM bleaching
+      p_Esource: 5         #[5 or 6]      source of light for CDOM bleaching, 5=spectral, 6=mono
     initialization:
     coupling:
       N3n: N3/n                                            # nitrate (mmol N/m^3)

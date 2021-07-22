@@ -44,9 +44,9 @@ contains
       call self%get_parameter(self%pEIR_eowX,'pEIR_eow','-',     'photosynthetically active fraction of shortwave radiation', default=.5_rk)
 
       ! Register diagnostic variables
-      call self%register_diagnostic_variable(self%id_EIR,'EIR','W/m^2','shortwave radiation', &
+      call self%register_diagnostic_variable(self%id_EIR,'EIR','uE m-2 d-1','shortwave radiation', &
               standard_variable=standard_variables%downwelling_shortwave_flux,source=source_do_column)
-      call self%register_diagnostic_variable(self%id_parEIR,'parEIR','W/m^2','photosynthetically active radiation', &
+      call self%register_diagnostic_variable(self%id_parEIR,'parEIR','uE m-2 d-1','photosynthetically active radiation', &
               standard_variable=standard_variables%downwelling_photosynthetic_radiative_flux,source=source_do_column)
       call self%register_diagnostic_variable(self%id_xEPS,'xEPS','1/m','attenuation coefficient of shortwave flux', &
               source=source_do_column)
@@ -78,7 +78,7 @@ contains
          xEPS = xEPS + self%EPS0X 
 !        xEPS = xEPS + self%EPS0X + self%EPSESSX*ESS
          xtnc = xEPS*dz
-         EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! Note: this computes the vertical average, not the value at the layer centre.
+         EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.
          buffer = buffer*exp(-xtnc)
          _SET_DIAGNOSTIC_(self%id_EIR,EIR)                     ! Local shortwave radiation
          _SET_DIAGNOSTIC_(self%id_parEIR,EIR*self%pEIR_eowX)   ! Local photosynthetically active radiation

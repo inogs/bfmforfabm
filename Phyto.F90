@@ -63,7 +63,7 @@
       ! from type_ogs_bfm_pelagic_base!
 
       ! Identifiers for state variables of other models
-      type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                  !  dissolved inorganic carbon, oxygen, total alkalinity
+      type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                 !  dissolved inorganic carbon, oxygen, total alkalinity
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
@@ -71,6 +71,8 @@
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
       type (type_dependency_id)            :: id_parEIR,id_ETW   ! PAR and temperature
+      type (type_dependency_id)            :: id_PAR_tot         ! scalar spectral PAR
+      type (type_dependency_id)            :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_iN1p  ! internal quota phosphorus limitation 
       type (type_diagnostic_variable_id) :: id_iNIn  ! internal quota nitrogen limitation 
@@ -130,10 +132,10 @@
       real(rk) :: p_chPs, p_Contois, p_qus, p_qslc ,p_qscPPY
       real(rk) :: p_esNI,p_res
       real(rk) :: p_caco3r
-      real(rk) :: p_sdchl, p_alpha_chl, p_qlcPPY, p_epsChla, p_tochl_relt,p_EpEk_or
+      real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_epsChla, p_tochl_relt,p_EpEk_or
       real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
-      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
+      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
    contains
@@ -230,9 +232,12 @@ contains
       call self%get_parameter(self%p_esNI,  'p_esNI',       '-', 'Nutrient stress threshold for sinking')
       call self%get_parameter(self%p_res,   'p_res',       'm/d', 'Maximum Sinking velocity ')
 !              --------- Chlorophyll parameters -----------
-      call self%get_parameter(self%p_switchChl,   'p_switchChl',  '1-4', 'Switch for Chla-a synthesis')
-      call self%get_parameter(self%p_sdchl,   'p_sdchl',  '1/d', 'Specific turnover rate for Chla')
-      call self%get_parameter(self%p_alpha_chl,   'p_alpha_chl',  'mgC s m2/mgChl/uE','Initial slope of the P-E curve')
+      call self%get_parameter(self%p_switchChl,     'p_switchChl',    '1-4',    'Switch for Chla-a synthesis')
+      call self%get_parameter(self%p_sdchl,         'p_sdchl',        '1/d',    'Specific turnover rate for Chla')
+      call self%get_parameter(self%p_alpha_chl,     'p_alpha_chl',    'mgC s m2/mgChl/uE','Initial slope of the P-E curve')
+      call self%get_parameter(self%p_quantum_yield, 'p_quantum_yield','mgC/uE', 'Photochemical efficiency')
+      call self%get_parameter(self%p_Esource,       'p_Esource',      '1-6',    'source of light for PP')
+      
       call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC','reference quotum Chla:C')
       call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
       call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')
@@ -285,6 +290,13 @@ contains
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
+      ! Dependency from multispectral model
+      call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))
+      call self%register_dependency(self%id_par_dia,type_bulk_standard_variable(name='PAR_dia'))
+      call self%register_dependency(self%id_par_flag,type_bulk_standard_variable(name='PAR_flag'))
+      call self%register_dependency(self%id_par_pico,type_bulk_standard_variable(name='PAR_pico'))
+      call self%register_dependency(self%id_par_dino,type_bulk_standard_variable(name='PAR_dino'))
+      
       ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_iN1p, 'iN1p', '-','internal quota phosphorus limitation')
       call self%register_diagnostic_variable(self%id_iNIn, 'iNIn', '-','internal quota nitrogen limitation')
@@ -356,7 +368,7 @@ contains
       _DECLARE_ARGUMENTS_DO_
 
    ! !LOCAL VARIABLES:
-      real(rk) :: ETW,et,parEIR
+      real(rk) :: ETW,et, parEIR
       real(rk) :: phytoc, phytop, phyton, phytol, phytos
       real(rk) :: N5s,N1p,N3n,N4n,O2o
       real(rk) :: R1c,R1n,R1p
@@ -368,7 +380,7 @@ contains
       real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY
       real(rk) :: fpplim
       real(rk) :: r
-      real(rk) :: eiPPY
+      real(rk) :: eiPPY,photochem
       real(rk) :: sum
       real(rk) :: sdo, sea, seo
       real(rk) :: pe_R6, rr1c, rr6c
@@ -419,8 +431,22 @@ contains
          ! Retrieve environmental dependencies (water temperature,
          ! photosynthetically active radation)
          _GET_(self%id_ETW,ETW)
-         _GET_(self%id_parEIR,parEIR)
-
+         ! From where to get the light
+         select case (self%p_Esource)
+         case (1)
+            _GET_(self%id_par_dia,  parEIR)   ! uE mgChl-1 d-1
+         case (2)
+            _GET_(self%id_par_flag, parEIR)   ! uE mgChl-1 d-1
+         case (3)
+            _GET_(self%id_par_pico, parEIR)   ! uE mgChl-1 d-1       
+         case (4)
+            _GET_(self%id_par_dino, parEIR)   ! uE mgChl-1 d-1
+         case (5)
+            _GET_(self%id_PAR_tot,  parEIR)   ! uE m-2 d-1
+         case (6)
+            _GET_(self%id_parEIR,   parEIR)   ! uE m-2 d-1
+         end select
+         
   ! Quota collectors
          qpcPPY = phytop/(phytoc+p_small) ! add some epsilon (add in shared) to avoid divide by 0
          qncPPY = phyton/(phytoc+p_small)
@@ -530,12 +556,18 @@ select case ( self%p_limnut)
 
   _SET_DIAGNOSTIC_(self%id_EIRd,parEIR)
 
-! Irradiance EIR is in uE m-2 s-1, 
+! Irradiance EIR is in uE m-2 d-1, 
 ! Irr is  average irradiance in uE m-2 day-1
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Compute exponent E_PAR/E_K = alpha0/PBmax
- !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- r = qlcPPY*self%p_alpha_chl/self%p_sum* parEIR
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     if (self%p_Esource<5) then
+       photochem = self%p_quantum_yield
+     else
+       photochem = self%p_alpha_chl
+     end if
+  r = qlcPPY*photochem/self%p_sum * parEIR
+  
 select case ( LightPeriodFlag)
    case ( 1 ) ! instantaneous light
 ! no other factors needed
@@ -880,20 +912,20 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
    select case (self%p_switchChl)
      case (1) ! PELAGOS
           rho_Chl = self%p_qlcPPY* min(ONE, self%p_sum * eiPPY* phytoc/( &
-                    self%p_alpha_chl*( phytol+ p_small)* parEIR))
+                    photochem*( phytol+ p_small)* parEIR))
           rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
      case (2) ! OPATM-BFM
-          rho_Chl  = self%p_qlcPPY * sum/( self%p_alpha_chl * qlcPPY * parEIR * et + p_small)
+          rho_Chl  = self%p_qlcPPY * sum/( photochem* qlcPPY * parEIR * et + p_small)
           rate_Chl = iN* rho_Chl* run- max( self%p_sdchl * ( ONE - iN), sdo)* &
               phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- self%p_qlcPPY * phytoc)
      case (3) ! UNIBO
           rho_Chl = self%p_qlcPPY*min(ONE,          &
                     (sum-seo-sea-sra) *phytoc /          &
-                    (self%p_alpha_chl*(phytol+p_small) *parEIR))
+                    (photochem*(phytol+p_small) *parEIR))
           ! The "optimal" chl concentration corresponds to the chl that
           ! (given the actual C biomass) would give (Epar/Ek)=p_EpEk
           chl_opt = self%p_EpEk_or * self%p_sum*phytoc/  &
-                    (self%p_alpha_chl*parEIR+p_small)
+                    (photochem*parEIR+p_small)
           !  Actual chlorophyll concentration exceeding the "optimal" value is 
           !  discarded with a p_tochl_relt relaxation.
           rate_Chl = rho_Chl*(sum-seo-sea-sra)*phytoc-(sdo+srs)*phytol - &
@@ -903,7 +935,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
          ! The fixed loss rate due to basal respiration is introduced to have 
          ! chl loss in the absence of light (< 1 uE/m2/s)
           rho_Chl = self%p_qlcPPY * min(ONE, self%p_sum * eiPPY* phytoc/( &
-                    self%p_alpha_chl * ( phytol+ p_small)* parEIR))
+                    photochem * ( phytol+ p_small)* parEIR))
              rate_Chl = rho_Chl*run - self%p_sdchl * phytol*max( ZERO, ( self%p_thdo-tN)) &
                     -srs * phytol * ONE/(parEIR+ONE)
    end select

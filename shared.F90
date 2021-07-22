@@ -55,9 +55,9 @@ module ogs_bfm_shared
    type (type_bulk_standard_variable),parameter :: total_bioirrigation_activity = type_bulk_standard_variable(name='total_bioirrigation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
 
    ! Spectral light variables
-   real(rk), allocatable, dimension(:)                 :: lam,aw,bw,bbw,acdom,apoc,bpoc,bbpoc,WtoQ
+   real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,acdom,apoc,bpoc,bbpoc,WtoQ
    real(rk), allocatable, dimension(:)                 :: Ed_0,Es_0
-   real(rk), allocatable, dimension(:,:)               :: ac,bc,bbc
+   real(rk), allocatable, dimension(:,:)               :: ac,ac_ps,bc,bbc
 !  real(rk), allocatable, dimension(:,:)               :: a_array, b_array, bb_array
 !  type (type_surface_standard_variable),parameter     :: surf_direct_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_direct_downward_irradiance_250_nm',units='W/m2')
 !  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_250_nm',units='W/m2')

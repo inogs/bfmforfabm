@@ -68,14 +68,14 @@
       
       ! Identifiers for state variables of other models
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h,id_O4n          !  dissolved inorganic carbon, oxygen, total alkalinity, N2
-      type (type_state_variable_id) :: id_N3n,id_N4n,id_N5s,id_N6r   !  nutrients: phosphate, nitrate, ammonium, silicate, iron
+      type (type_state_variable_id) :: id_N3n,id_N4n,id_N5s,id_N6r          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile, R3: semi-refractory)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       type (type_state_variable_id) :: id_X1c, id_X2c, id_X3c               !  CDOM
       ! Environmental dependencies
       type (type_dependency_id)    :: id_parEIR,id_ETW   ! PAR and temperature
-      type (type_dependency_id)    :: id_par_tot
+      type (type_dependency_id)    :: id_PAR_tot
 
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_eo      ! Oxygen limitation factor MM
@@ -94,8 +94,8 @@
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
-      real(rk) :: p_rX1c,p_rX2c,p_rX3c    
-        
+      real(rk) :: p_rX1c,p_rX2c,p_rX3c, p_Icdom    
+      integer :: p_Esource
   
     contains     
 
@@ -142,15 +142,16 @@ contains
       call self%get_parameter(self%p_qon_nitri,   'p_qon_nitri', '[mmolO2/mmolN]',  'Stoichiometric coefficient for nitrification')
       call self%get_parameter(self%p_qro,         'p_qro',       '[mmolHS-/mmolO2]','Stoichiometric coefficient for anaerobic reactions')
       call self%get_parameter(self%p_sN3O4n,      'p_sN3O4n',    '[1/d]'      ,     'Specific denitrification rate')
-      call self%get_parameter(self%p_rPAo,      'p_rPAo',      '[mmolO2/m3/d]' ,  'Reference anoxic mineralization rate')
+      call self%get_parameter(self%p_rPAo,        'p_rPAo',      '[mmolO2/m3/d]' ,  'Reference anoxic mineralization rate')
       call self%get_parameter(self%p_qon_dentri,  'p_qon_dentri','[mmolO2/mmolN]',  'Stoichiometric coefficient for denitrification')
       call self%get_parameter(self%p_rOS,         'p_rOS',       '[1/d]',           'Specific reoxidation rate of reduction equivalents')
       call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',          'Specific remineralization rate of biogenic silica')
       call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',            'Q10 factor for biogenic silica')
-      call self%get_parameter(self%p_rX1c,        'p_rX1c',      '[1/d]',            'degradation rate X1c')
-      call self%get_parameter(self%p_rX2c,        'p_rX2c',      '[1/d]',            'degradation rate X2c')
-      call self%get_parameter(self%p_rX3c,        'p_rX3c',      '[1/d]',            'degradation rate X3c')
-
+      call self%get_parameter(self%p_rX1c,        'p_rX1c',      '[1/d]',           'degradation rate X1c')
+      call self%get_parameter(self%p_rX2c,        'p_rX2c',      '[1/d]',           'degradation rate X2c')
+      call self%get_parameter(self%p_rX3c,        'p_rX3c',      '[1/d]',           'degradation rate X3c')
+      call self%get_parameter(self%p_Icdom,       'p_Icdom',     '[uE m-2 s-1]',    'light threshold for CDOM bleaching')
+      call self%get_parameter(self%p_Esource,     'p_Esource',   '5-6',             'source of light for CDOM bleaching')
 
       ! Register links to external nutrient pools.
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
@@ -170,8 +171,7 @@ contains
       call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
       ! Dependency from multispectral model
-      call self%register_dependency(self%id_par_tot,type_bulk_standard_variable(name='PAR_tot'))
-      
+      call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
 
       call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten')
       call self%register_diagnostic_variable(self%id_er,        'er'  ,       '-',           'reduction equiv. regulating factor with MichelisMenten')
@@ -196,7 +196,7 @@ contains
       _DECLARE_ARGUMENTS_DO_
 
    ! !LOCAL VARIABLES:
-      real(rk) :: ETW, parEIR, PAR_tot
+      real(rk) :: ETW, parEIR
       real(rk) :: N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
@@ -230,9 +230,14 @@ contains
          ! Retrieve environmental dependencies (water temperature,
          ! photosynthetically active radation)
          _GET_(self%id_ETW,ETW)
-         _GET_(self%id_parEIR,parEIR)
-         _GET_(self%id_PAR_tot,PAR_tot)
-
+         ! From where to get the light
+         ! Both parEIR and PAR_tot are in uE m-2 d-1, 6=parEIR from light, 5=PAR_tot from light_spectral
+         select case (self%p_Esource)
+         case (5)
+            _GET_(self%id_PAR_tot,   parEIR)   ! uE m-2 d-1
+         case (6)
+            _GET_(self%id_parEIR,    parEIR)   ! uE m-2 d-1
+         end select
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Regulating factors
@@ -346,10 +351,10 @@ contains
 !GP  BIOPTIMOD T2
 !GP   PAR(:) =EIR(:)
 
- ! Check unit of measure of PAR here! 
-  degX1c = X1c * ( self%p_rX1c * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13
-  degX2c = X2c * ( self%p_rX2c  * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13
-  degX3c = X3c * ( eTq( ETW, 2.95_rk ) * self%p_rX3c  + 0.03_rk * min(parEIR/60.0_rk,1.0_rk) ) ! Eq 13
+ ! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1 
+  degX1c = X1c * ( self%p_rX1c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX2c = X2c * ( self%p_rX2c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX3c = X3c * ( eTq( ETW, 2.95_rk ) * self%p_rX3c  + 0.03_rk * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
 
   _SET_DIAGNOSTIC_(self%id_degX1c,degX1c) ! degradation of CDOM
   _SET_DIAGNOSTIC_(self%id_degX2c,degX2c) ! degradation of CDOM

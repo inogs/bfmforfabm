@@ -13,7 +13,7 @@ module ogs_bfm_light_spectral
    type,extends(type_base_model),public :: type_ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
-      type (type_diagnostic_variable_id)   :: id_par_tot
+      type (type_diagnostic_variable_id)   :: id_PAR_tot
 
       type (type_dependency_id)            :: id_dz
       type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
@@ -41,6 +41,12 @@ module ogs_bfm_light_spectral
       ! Parameters
       integer  :: nlt
       real(rk) :: rd, rs, ru, vs, vu
+      real(rk) :: Sdom,  lambda_aCDOM, cdomcoeff
+      real(rk) :: Sapar, lambda_aPart, aparcoeff
+      real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
+      logical :: compute_acdom
+      logical :: compute_anap
+      
    contains
 !     Model procedures
       procedure :: initialize
@@ -60,7 +66,7 @@ contains
 ! !REVISION HISTORY:
 !
 ! !LOCAL VARIABLES:
-      real(rk) :: hc, hcoavo, rlamm, nl
+      real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2, nl
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -68,20 +74,37 @@ contains
       call self%get_parameter(self%rd,     'rd',   '-',   ' ', default=1.0_rk)
       call self%get_parameter(self%rs,     'rs',   '-',   ' ', default=1.5_rk)
       call self%get_parameter(self%ru,     'ru',   '-',   ' ', default=3.0_rk)
-      call self%get_parameter(self%vs,     'vs',   '',   'avg cosine diffuse down', default=0.83_rk)
+      call self%get_parameter(self%vs,     'vs',   '',    'avg cosine diffuse down', default=0.83_rk)
       call self%get_parameter(self%vu,     'vu',   '-',   'avg cosine diffuse up', default=0.4_rk)
-       
+
+      call self%get_parameter(self%Sdom,          'Sdom',          'nm-1',     'slope parameter for aCDOM wavelength dependence')
+      call self%get_parameter(self%lambda_aCDOM,  'lambda_aCDOM',  'nm',       'wavelength where reference aCDOM is given')
+      call self%get_parameter(self%cdomcoeff,     'cdomcoeff',     'm2 mgC-1', 'specific absorption at lambda_aCDOM ')
+      call self%get_parameter(self%Sapar,         'Sapar',         'nm-1',     'slope parameter for aNAP wavelength dependence')
+      call self%get_parameter(self%lambda_aPart,  'lambda_aPart',  'nm',       'wavelength where reference aNAP is given')
+      call self%get_parameter(self%aparcoeff,     'aparcoeff',     'm2 mgC-1', 'specific absorption at lambda_aPart ')
+      call self%get_parameter(self%Sbpar,         'Sbpar',         '-',        'exponent for bNAP wavelength dependence')
+      call self%get_parameter(self%lambda_bPart,  'lambda_bPart',  'nm',       'wavelength where reference bNAP is given')
+      call self%get_parameter(self%bparcoeff,     'bparcoeff',     'm2 mgC-1', 'specific scatter at lambda_bPart')
+      call self%get_parameter(self%bb_to_b,       'bb_to_b',       '-',        'backscatter to total scatter ratio') 
+      call self%get_parameter(self%compute_acdom, 'compute_acdom', '[T or F]', 'logical flag to compute acdom') 
+      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap') 
+      
       if (self%nlt>0) then
-          allocate(lam(self%nlt)); lam(:)=huge(lam(1))
+          allocate(lam(self%nlt));   lam(:)=huge(lam(1))
+          allocate(lam1(self%nlt));  lam1(:)=huge(lam1(1))
+          allocate(lam2(self%nlt));  lam2(:)=huge(lam2(1))
           allocate(aw(self%nlt));   aw(:)=huge(aw(1))
           allocate(bw(self%nlt));   bw(:)=huge(bw(1))
           allocate(bbw(self%nlt));  bbw(:)=huge(bbw(1))
           allocate(ac(4,self%nlt));   ac(4,:)=huge(ac(1,1))
+          allocate(ac_ps(4,self%nlt));   ac_ps(4,:)=huge(ac_ps(1,1))
           allocate(bc(4,self%nlt));   bc(4,:)=huge(bc(1,1))
           allocate(bbc(4,self%nlt));  bbc(4,:)=huge(bbc(1,1))
           allocate(apoc(self%nlt)); apoc(:)=huge(apoc(1))
           allocate(bpoc(self%nlt)); bpoc(:)=huge(bpoc(1))
           allocate(bbpoc(self%nlt)); bbpoc(:)=huge(bbpoc(1))
+          allocate(acdom(self%nlt)); acdom(:)=huge(acdom(1))
           allocate(Ed_0(self%nlt)); Ed_0(:)=huge(Ed_0(1))
           allocate(Es_0(self%nlt)); Es_0(:)=huge(Es_0(1))
           allocate(WtoQ(self%nlt)); WtoQ(:)=huge(WtoQ(1))
@@ -100,13 +123,45 @@ contains
        WtoQ(nl) = rlamm*hcoavo*1000000.0D0 !Watts to micro mol quanta conversion
       enddo
 
+
+      
+ !   CDOM absorption coefficients
+      if (self%compute_acdom) then     
+      do nl = 1,self%nlt
+ !      rlamm = real(lam(nl),8)
+       rlamm1 = real(lam1(nl),8)
+       rlamm2 = real(lam2(nl),8)
+ !      acdom(nl) = self%cdomcoeff * exp(-self%Sdom*(rlamm-self%lambda_aCDOM))
+       acdom(nl) = self%cdomcoeff*(exp(-self%Sdom*(rlamm2-self%lambda_aCDOM))-exp(-self%Sdom*(rlamm1-self%lambda_aCDOM)))/(-self%Sdom*(rlamm2-rlamm1))
+      enddo
+      endif
+
+ !   POC absorption/scatter coefficients
+      if (self%compute_anap) then
+      do nl = 1,self%nlt
+       rlamm = real(lam(nl),8)
+       rlamm1 = real(lam1(nl),8)
+       rlamm2 = real(lam2(nl),8)
+ !      apoc(nl) = self%aparcoeff * exp(-self%Sapar*(rlamm-self%lambda_aPart))
+       apoc(nl) = self%aparcoeff*(exp(-self%Sapar*(rlamm2-self%lambda_aPart))-exp(-self%Sapar*(rlamm1-self%lambda_aPart)))/(-self%Sapar*(rlamm2-rlamm1))     
+       bpoc(nl) = self%bparcoeff * ((self%lambda_bPart/rlamm)**self%Sbpar)
+       bbpoc(nl) = self%bparcoeff * ((self%lambda_bPart/rlamm)**self%Sbpar) * self%bb_to_b
+      enddo
+      endif
+
+       write(*,*) "acdom", acdom(1)
+       write(*,*) "apoc", apoc(1)
+       write(*,*) "bpoc", bpoc(1)
+       write(*,*) "bbpoc", bbpoc(1)
+
+      
      ! Register diagnostic variables
 
-      call self%register_diagnostic_variable(self%id_par_dia, 'PAR_dia','?????','PAR_diatoms', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_flag,'PAR_flag','?????','PAR_flagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_pico,'PAR_pico','?????','PAR_picophytoplankton', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_dino,'PAR_dino','?????','PAR_dinoflagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_tot,'PAR_tot','?????','PAR_total', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_dia, 'PAR_dia',  'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_flag,'PAR_flag', 'uE mgChl-1 d-1', 'PAR_flagellates', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_pico,'PAR_pico', 'uE mgChl-1 d-1', 'PAR_picophytoplankton', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_dino,'PAR_dino', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
 
       ! Register biogeochemical dependencies 
 
@@ -337,10 +392,10 @@ contains
              phy_a  = ac(1,l)*P1chl + ac(2,l)*P2chl + ac(3,l)*P3chl + ac(4,l)*P4chl
              phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
              phy_bb = bbc(1,l)*P1chl+ bbc(2,l)*P2chl+ bbc(3,l)*P3chl+ bbc(4,l)*P4chl
-!            cdom_a = acdom(l)*X1c  + acdom(l)*X2c  + acdom(l)*X3c 
+             cdom_a = acdom(l)*X1c  + acdom(l)*X2c  + acdom(l)*X3c 
 
 ! Need to add also cdom
-             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c !+ cdom_a
+             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a
              tot_b  =  bw(l) + phy_b  + bpoc(l) * R6c 
              tot_bb = bbw(l) + phy_bb + bbpoc(l)* R6c 
 
@@ -367,7 +422,7 @@ contains
 !double precision, dimension(nlt),intent(in) :: EdOASIM, EsOASIM !boundary values
 !double precision, dimension(3,m,nlt), intent(out):: E                     !the 3-stream solution on the zz grid
 
-     bb_array(:,:)=0.001_rk
+!    bb_array(:,:)=0.001_rk
 !    write(*,*) 'a_array(:,1)',  a_array(:,1)
 !    write(*,*) 'b_array(:,1)',  b_array(:,1)
 !    write(*,*) 'bb_array(:,1)', bb_array(:,1)
@@ -392,15 +447,15 @@ contains
 
      do l=1,self%nlt
 !    do l=5,17 or 19?  
-         PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + WtoQ(l) * ac(1,l) * E_scalar(:,l) *SEC_PER_DAY
-         PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + WtoQ(l) * ac(2,l) * E_scalar(:,l) *SEC_PER_DAY
-         PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + WtoQ(l) * ac(3,l) * E_scalar(:,l) *SEC_PER_DAY
-         PAR_dinoflagellates_array(:)   = PAR_dinoflagellates_array(:)   + WtoQ(l) * ac(4,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + WtoQ(l) * ac_ps(1,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + WtoQ(l) * ac_ps(2,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + WtoQ(l) * ac_ps(3,l) * E_scalar(:,l) *SEC_PER_DAY
+         PAR_dinoflagellates_array(:)   = PAR_dinoflagellates_array(:)   + WtoQ(l) * ac_ps(4,l) * E_scalar(:,l) *SEC_PER_DAY
      enddo
 
      do l=5,17
 !    do l=5,17 or 19?  
-         PAR_scalar_array(:)            = PAR_scalar_array(:) + E_scalar(:,l)
+         PAR_scalar_array(:)            = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
      enddo
 
       kk=0
@@ -413,7 +468,7 @@ contains
          _SET_DIAGNOSTIC_(self%id_par_flag,PAR_flagellates_array(kk))            
          _SET_DIAGNOSTIC_(self%id_par_pico,PAR_picophytoplankton_array(kk))
          _SET_DIAGNOSTIC_(self%id_par_dino,PAR_dinoflagellates_array(kk))           
-         _SET_DIAGNOSTIC_(self%id_par_tot,PAR_scalar_array(kk))           
+         _SET_DIAGNOSTIC_(self%id_PAR_tot,PAR_scalar_array(kk))           
 
      _DOWNWARD_LOOP_END_
 
