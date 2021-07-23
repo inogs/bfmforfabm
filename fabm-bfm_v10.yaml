@@ -262,11 +262,11 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR_tot: lightspectral/PAR_tot
+#     PAR_tot: lightspectral/PAR_tot
       PAR_dia: lightspectral/PAR_dia
-      PAR_flag: lightspectral/PAR_flag
-      PAR_pico: lightspectral/PAR_pico
-      PAR_dino: lightspectral/PAR_dino
+#     PAR_flag: lightspectral/PAR_flag
+#     PAR_pico: lightspectral/PAR_pico
+#     PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P2 nanoflagellates ----------------------
   P2:
     long_name: nanoflagellates
@@ -358,11 +358,11 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR_tot: lightspectral/PAR_tot
-      PAR_dia: lightspectral/PAR_dia
+#     PAR_tot: lightspectral/PAR_tot
+#     PAR_dia: lightspectral/PAR_dia
       PAR_flag: lightspectral/PAR_flag
-      PAR_pico: lightspectral/PAR_pico
-      PAR_dino: lightspectral/PAR_dino
+#     PAR_pico: lightspectral/PAR_pico
+#     PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P3 Picophytoplankton ----------------------
   P3:
     long_name: Picoplankton
@@ -453,11 +453,11 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR_tot: lightspectral/PAR_tot
-      PAR_dia: lightspectral/PAR_dia
-      PAR_flag: lightspectral/PAR_flag
+#     PAR_tot: lightspectral/PAR_tot
+#     PAR_dia: lightspectral/PAR_dia
+#     PAR_flag: lightspectral/PAR_flag
       PAR_pico: lightspectral/PAR_pico
-      PAR_dino: lightspectral/PAR_dino
+#     PAR_dino: lightspectral/PAR_dino
 #   ---------------------- P4 dinoflagellates ----------------------
   P4:
     long_name: dinoflagellates
@@ -548,10 +548,10 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR_tot: lightspectral/PAR_tot
-      PAR_dia: lightspectral/PAR_dia
-      PAR_flag: lightspectral/PAR_flag
-      PAR_pico: lightspectral/PAR_pico
+#     PAR_tot: lightspectral/PAR_tot
+#     PAR_dia: lightspectral/PAR_dia
+#     PAR_flag: lightspectral/PAR_flag
+#     PAR_pico: lightspectral/PAR_pico
       PAR_dino: lightspectral/PAR_dino
 #   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #

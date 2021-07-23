@@ -291,11 +291,20 @@ contains
       call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
       ! Dependency from multispectral model
-      call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))
-      call self%register_dependency(self%id_par_dia,type_bulk_standard_variable(name='PAR_dia'))
-      call self%register_dependency(self%id_par_flag,type_bulk_standard_variable(name='PAR_flag'))
-      call self%register_dependency(self%id_par_pico,type_bulk_standard_variable(name='PAR_pico'))
-      call self%register_dependency(self%id_par_dino,type_bulk_standard_variable(name='PAR_dino'))
+         select case (self%p_Esource)
+         case (1)
+            call self%register_dependency(self%id_par_dia,type_bulk_standard_variable(name='PAR_dia'))
+         case (2)
+            call self%register_dependency(self%id_par_flag,type_bulk_standard_variable(name='PAR_flag'))
+         case (3)
+            call self%register_dependency(self%id_par_pico,type_bulk_standard_variable(name='PAR_pico'))
+         case (4)
+             call self%register_dependency(self%id_par_dino,type_bulk_standard_variable(name='PAR_dino'))
+         case (5)
+             call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))
+         case (6)
+            write(*,*) 'Use monochromatic light'
+         end select
       
       ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_iN1p, 'iN1p', '-','internal quota phosphorus limitation')
