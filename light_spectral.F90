@@ -359,14 +359,6 @@ contains
 
 !END BLOCK3 python generated code
       
-
-      write(*,*) "Ed_0_250", Ed_0(1)
-      write(*,*) "Es_0_250", Es_0(1)
-      write(*,*) "Ed_0_325", Ed_0(2)
-      write(*,*) "Es_0_325", Es_0(2)
-      write(*,*) " size(a_array) ", size(a_array)
-
-
       kk=0
       zgrid(1)=0.0_rk
 
@@ -413,28 +405,8 @@ contains
      vs      = self%vs
      vu      = self%vu
 
-!integer, intent(in):: n,m                                             !n of layers and size of the vertical grid
-!integer, intent(in):: nlt                                             !n of wavelenghts to be considered
-!double precision, dimension(m), intent(in):: zz                       !must be some grid from z(1)=0 to z(n+1)=bottom
-!double precision, dimension(n+1), intent(in):: z                      !layer boundaries (depth levels); z(1)=0 (must be), z(n+1) = bottom
-!double precision, dimension(n,nlt), intent(in):: a, b, bb, vd         !input depth-dependent data
-!double precision, intent(in):: rd, rs, ru, vs, vu                     !input parameters
-!double precision, dimension(nlt),intent(in) :: EdOASIM, EsOASIM !boundary values
-!double precision, dimension(3,m,nlt), intent(out):: E                     !the 3-stream solution on the zz grid
-
-!    bb_array(:,:)=0.001_rk
-!    write(*,*) 'a_array(:,1)',  a_array(:,1)
-!    write(*,*) 'b_array(:,1)',  b_array(:,1)
-!    write(*,*) 'bb_array(:,1)', bb_array(:,1)
-
      call solve_direct(cache%n+1, zgrid, cache%n, zgrid, self%nlt, a_array, b_array, bb_array, rd, rs, ru, vd, vs, vu, Ed_0, Es_0, E, E_ave)
 
-!    write(*,*) 'E(1,:,:)', E(1,:,1:2)
-!    write(*,*) 'E(2,:,:)', E(2,:,1:2)
-!    write(*,*) 'E(3,:,:)', E(3,:,1:2)
-!    write(*,*) 'E_ave(1,:,:)', E_ave(1,:,1:2)
-!    write(*,*) 'E_ave(2,:,:)', E_ave(2,:,1:2)
-!    write(*,*) 'E_ave(3,:,:)', E_ave(3,:,1:2)
 
 ! Scalar irradiance
      E_scalar(:,:)=E_ave(1,:,:)/vd + E_ave(2,:,:)/vs + E_ave(3,:,:)/vu
@@ -446,7 +418,6 @@ contains
      PAR_scalar_array(:)            = 0.0_rk
 
      do l=1,self%nlt
-!    do l=5,17 or 19?  
          PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + WtoQ(l) * ac_ps(1,l) * E_scalar(:,l) *SEC_PER_DAY
          PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + WtoQ(l) * ac_ps(2,l) * E_scalar(:,l) *SEC_PER_DAY
          PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + WtoQ(l) * ac_ps(3,l) * E_scalar(:,l) *SEC_PER_DAY
@@ -454,7 +425,6 @@ contains
      enddo
 
      do l=5,17
-!    do l=5,17 or 19?  
          PAR_scalar_array(:)            = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
      enddo
 
@@ -464,11 +434,11 @@ contains
 
           kk = kk + 1
 
-         _SET_DIAGNOSTIC_(self%id_par_dia,PAR_diatoms_array(kk))                  
-         _SET_DIAGNOSTIC_(self%id_par_flag,PAR_flagellates_array(kk))            
-         _SET_DIAGNOSTIC_(self%id_par_pico,PAR_picophytoplankton_array(kk))
-         _SET_DIAGNOSTIC_(self%id_par_dino,PAR_dinoflagellates_array(kk))           
-         _SET_DIAGNOSTIC_(self%id_PAR_tot,PAR_scalar_array(kk))           
+         _SET_DIAGNOSTIC_(self%id_par_dia, max(p_small,PAR_diatoms_array(kk)))                  
+         _SET_DIAGNOSTIC_(self%id_par_flag,max(p_small,PAR_flagellates_array(kk)))            
+         _SET_DIAGNOSTIC_(self%id_par_pico,max(p_small,PAR_picophytoplankton_array(kk)))
+         _SET_DIAGNOSTIC_(self%id_par_dino,max(p_small,PAR_dinoflagellates_array(kk)))          
+         _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
 
      _DOWNWARD_LOOP_END_
 
