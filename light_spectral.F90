@@ -39,7 +39,7 @@ module ogs_bfm_light_spectral
 ! END BLOCK 1 python generated  code
 
       ! Parameters
-      integer  :: nlt
+      integer  :: nlt,npft
       real(rk) :: rd, rs, ru, vs, vu
       real(rk) :: Sdom,  lambda_aCDOM, cdomcoeff
       real(rk) :: Sapar, lambda_aPart, aparcoeff
@@ -71,6 +71,7 @@ contains
 !-----------------------------------------------------------------------
 !BOC
       call self%get_parameter(self%nlt,    'nlt',  '-',   'number of wavelenghts', default=-1)
+      call self%get_parameter(self%npft,   'npft', '-',   'number of PFT', default=-1)
       call self%get_parameter(self%rd,     'rd',   '-',   ' ', default=1.0_rk)
       call self%get_parameter(self%rs,     'rs',   '-',   ' ', default=1.5_rk)
       call self%get_parameter(self%ru,     'ru',   '-',   ' ', default=3.0_rk)
@@ -91,26 +92,26 @@ contains
       call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap') 
       
       if (self%nlt>0) then
-          allocate(lam(self%nlt));   lam(:)=huge(lam(1))
-          allocate(lam1(self%nlt));  lam1(:)=huge(lam1(1))
-          allocate(lam2(self%nlt));  lam2(:)=huge(lam2(1))
-          allocate(aw(self%nlt));   aw(:)=huge(aw(1))
-          allocate(bw(self%nlt));   bw(:)=huge(bw(1))
-          allocate(bbw(self%nlt));  bbw(:)=huge(bbw(1))
-          allocate(ac(4,self%nlt));   ac(4,:)=huge(ac(1,1))
-          allocate(ac_ps(4,self%nlt));   ac_ps(4,:)=huge(ac_ps(1,1))
-          allocate(bc(4,self%nlt));   bc(4,:)=huge(bc(1,1))
-          allocate(bbc(4,self%nlt));  bbc(4,:)=huge(bbc(1,1))
-          allocate(apoc(self%nlt)); apoc(:)=huge(apoc(1))
-          allocate(bpoc(self%nlt)); bpoc(:)=huge(bpoc(1))
-          allocate(bbpoc(self%nlt)); bbpoc(:)=huge(bbpoc(1))
-          allocate(acdom(self%nlt)); acdom(:)=huge(acdom(1))
-          allocate(Ed_0(self%nlt)); Ed_0(:)=huge(Ed_0(1))
-          allocate(Es_0(self%nlt)); Es_0(:)=huge(Es_0(1))
-          allocate(WtoQ(self%nlt)); WtoQ(:)=huge(WtoQ(1))
+          allocate(lam(self%nlt));             lam(:)=huge(lam(1))
+          allocate(lam1(self%nlt));            lam1(:)=huge(lam1(1))
+          allocate(lam2(self%nlt));            lam2(:)=huge(lam2(1))
+          allocate(aw(self%nlt));              aw(:)=huge(aw(1))
+          allocate(bw(self%nlt));              bw(:)=huge(bw(1))
+          allocate(bbw(self%nlt));             bbw(:)=huge(bbw(1))
+          allocate(ac(self%npft,self%nlt));    ac(:,:)=huge(ac(1,1))
+          allocate(ac_ps(self%npft,self%nlt)); ac_ps(:,:)=huge(ac_ps(1,1))
+          allocate(bc(self%npft,self%nlt));    bc(:,:)=huge(bc(1,1))
+          allocate(bbc(self%npft,self%nlt));   bbc(:,:)=huge(bbc(1,1))
+          allocate(apoc(self%nlt));            apoc(:)=huge(apoc(1))
+          allocate(bpoc(self%nlt));            bpoc(:)=huge(bpoc(1))
+          allocate(bbpoc(self%nlt));           bbpoc(:)=huge(bbpoc(1))
+          allocate(acdom(self%nlt));           acdom(:)=huge(acdom(1))
+          allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
+          allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
+          allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
 
 !         load the IOP for the biogeochemical variables considered
-          call lidata(self%nlt,4)
+          call lidata(self%nlt,self%npft)
 
       endif 
 
