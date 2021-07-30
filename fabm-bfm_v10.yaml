@@ -908,6 +908,7 @@ instances:
     parameters:
       p_kdca:   10.9     # [d-1]           Calcite dissolution rate constant
       p_nomega: 1.0       # [-]             Order of the dissolution rate dependence on Omega
+      p_wsinkPIC: 30      # [m d-1]         sinking velocity of PIC (Calcite)
       c0:       1.0e-05         #                 background concentration (mg C/m^3), default = 0.0
     initialization:
       c: 1.0                                         # carbon (mg C/m^3)

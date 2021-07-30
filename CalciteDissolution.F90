@@ -29,7 +29,7 @@
       type (type_state_variable_id)      :: id_O3c,id_O3h
       type (type_dependency_id)          :: id_OCalc
 
-      real(rk) :: p_kdca, p_nomega
+      real(rk) :: p_kdca, p_nomega, p_wsinkPIC
    contains
       procedure :: initialize
       procedure :: do
@@ -42,27 +42,22 @@ contains
 ! !INPUT PARAMETERS:
       class (type_ogs_bfm_CalciteDissolution), intent(inout), target :: self
       integer,                              intent(in)            :: configunit
-!
-!      real(rk) :: sedL2,c0
       real(rk) :: c0
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-      call self%register_state_variable(self%id_O5c,'c','mg C/m^3','PIC calcite',1._rk)
+      ! Set time unit to d-1
+      ! This implies that all rates (sink/source terms, vertical velocities) are
+      ! given in d-1.
+      self%dt = 86400._rk
+
+      call self%get_parameter(self%p_wsinkPIC, 'p_wsinkPIC', 'm d-1', 'sinking velocity of PIC')
+      call self%register_state_variable(self%id_O5c,'c','mg C/m^3','PIC calcite',vertical_movement=-self%p_wsinkPIC/self%dt,initial_value=1._rk)
 
       call self%get_parameter(self%p_kdca   ,'p_kdca'   ,'1/d','maximum specific dissolution rate')
       call self%get_parameter(self%p_nomega,'p_nomega','-'  ,'power of the dissolution law ')
  
       call self%get_parameter(c0,'c0','mg C/m^3','background concentration',default=0.0_rk)
-
-! perche' qui sinking?      call self%get_parameter(sedL2,'sedL2','m/d','sinking velocity')
-! serve per il sink di PIC?
-!      call self%initialize_ersem_base(rm=sedL2,sedimentation=.true.)
-
-
-!!!! QUESTO E' NECESSARIO???      call self%add_constituent('c',0.0_rk,c0)
-
-!      call self%register_diagnostic_variable(self%id_RainR,'RainR','1','rain ratio') !! SERVE??
 
       call self%register_diagnostic_variable(self%id_fCaCO3_2_O3c,'fCaCO2_2_O3c','mg C/m^3/d','calcite dissolution flux')
       call self%register_diagnostic_variable(self%id_fCaCO3_2_O3h,'fCaCO2_2_O3h','mmol/m3/d','production of O3h for calcite dissolution')
