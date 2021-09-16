@@ -70,9 +70,11 @@
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
-      type (type_dependency_id)            :: id_parEIR,id_ETW   ! PAR and temperature
-      type (type_dependency_id)            :: id_PAR_tot         ! scalar spectral PAR
-      type (type_dependency_id)            :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
+      type (type_dependency_id)            :: id_ETW   ! PAR and temperature
+!     type (type_dependency_id)            :: id_parEIR,id_ETW   ! PAR and temperature
+!     type (type_dependency_id)            :: id_PAR_tot         ! scalar spectral PAR
+!     type (type_dependency_id)            :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
+      type (type_dependency_id)            :: id_PAR
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_iN1p  ! internal quota phosphorus limitation 
       type (type_diagnostic_variable_id) :: id_iNIn  ! internal quota nitrogen limitation 
@@ -288,23 +290,27 @@ contains
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       ! Register environmental dependencies (temperature, shortwave radiation)
-      call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
+!     call self%register_dependency(self%id_par,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
       ! Dependency from multispectral model
-         select case (self%p_Esource)
-         case (1)
-            call self%register_dependency(self%id_par_dia,type_bulk_standard_variable(name='PAR_dia'))
-         case (2)
-            call self%register_dependency(self%id_par_flag,type_bulk_standard_variable(name='PAR_flag'))
-         case (3)
-            call self%register_dependency(self%id_par_pico,type_bulk_standard_variable(name='PAR_pico'))
-         case (4)
-             call self%register_dependency(self%id_par_dino,type_bulk_standard_variable(name='PAR_dino'))
-         case (5)
-             call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))
-         case (6)
-            write(*,*) 'Use monochromatic light'
-         end select
+!        select case (self%p_Esource)
+!        case (1)
+!           call self%register_dependency(self%id_par_dia,type_bulk_standard_variable(name='PAR_dia'))
+!           call self%register_dependency(self%id_par,type_bulk_standard_variable(name='PAR_dia'))
+!        case (2)
+!           call self%register_dependency(self%id_par_flag,type_bulk_standard_variable(name='PAR_flag'))
+!        case (3)
+!           call self%register_dependency(self%id_par_pico,type_bulk_standard_variable(name='PAR_pico'))
+!        case (4)
+!            call self%register_dependency(self%id_par_dino,type_bulk_standard_variable(name='PAR_dino'))
+!        case (5)
+!            call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))
+!        case (6)
+!            call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR'))
+!           write(*,*) 'Use monochromatic light'
+!        end select
+         call self%register_dependency(self%id_PAR, 'PAR', '?????', 'effective PAR')
+
       
       ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_iN1p, 'iN1p', '-','internal quota phosphorus limitation')
@@ -441,20 +447,22 @@ contains
          ! photosynthetically active radation)
          _GET_(self%id_ETW,ETW)
          ! From where to get the light
-         select case (self%p_Esource)
-         case (1)
-            _GET_(self%id_par_dia,  parEIR)   ! uE mgChl-1 d-1
-         case (2)
-            _GET_(self%id_par_flag, parEIR)   ! uE mgChl-1 d-1
-         case (3)
-            _GET_(self%id_par_pico, parEIR)   ! uE mgChl-1 d-1       
-         case (4)
-            _GET_(self%id_par_dino, parEIR)   ! uE mgChl-1 d-1
-         case (5)
-            _GET_(self%id_PAR_tot,  parEIR)   ! uE m-2 d-1
-         case (6)
-            _GET_(self%id_parEIR,   parEIR)   ! uE m-2 d-1
-         end select
+!        select case (self%p_Esource)
+!        case (1)
+!           _GET_(self%id_par_dia,  parEIR)   ! uE mgChl-1 d-1
+!        case (2)
+!           _GET_(self%id_par_flag, parEIR)   ! uE mgChl-1 d-1
+!        case (3)
+!           _GET_(self%id_par_pico, parEIR)   ! uE mgChl-1 d-1       
+!        case (4)
+!           _GET_(self%id_par_dino, parEIR)   ! uE mgChl-1 d-1
+!        case (5)
+!           _GET_(self%id_PAR_tot,  parEIR)   ! uE m-2 d-1
+!        case (6)
+!           _GET_(self%id_parEIR,   parEIR)   ! uE m-2 d-1
+!        end select
+
+            _GET_(self%id_PAR,   parEIR)   ! uE m-2 d-1
          
   ! Quota collectors
          qpcPPY = phytop/(phytoc+p_small) ! add some epsilon (add in shared) to avoid divide by 0

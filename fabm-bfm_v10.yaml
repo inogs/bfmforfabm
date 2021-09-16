@@ -263,7 +263,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR_dia: lightspectral/PAR_dia
+      PAR: lightspectral/PAR_dia
 #   ---------------------- P2 nanoflagellates ----------------------
   P2:
     long_name: nanoflagellates
@@ -355,7 +355,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR_flag: lightspectral/PAR_flag
+      PAR: lightspectral/PAR_flag
 #   ---------------------- P3 Picophytoplankton ----------------------
   P3:
     long_name: Picoplankton
@@ -446,7 +446,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR_pico: lightspectral/PAR_pico
+      PAR: lightspectral/PAR_pico
 #   ---------------------- P4 dinoflagellates ----------------------
   P4:
     long_name: dinoflagellates
@@ -537,7 +537,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR_dino: lightspectral/PAR_dino
+      PAR: lightspectral/PAR_dino
 #   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #
   B1:
