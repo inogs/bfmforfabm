@@ -28,6 +28,7 @@ module ogs_bfm_light
 contains
 
    subroutine initialize(self,configunit)
+
 !
 ! !DESCRIPTION:
 !
