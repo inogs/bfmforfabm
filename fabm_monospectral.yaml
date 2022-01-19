@@ -2,12 +2,19 @@ check_conservation: false
 require_initialization: true
 log: true
 instances:
+  zenith_angle:
+    model: ogs/zenith_angle
   light:
     model: ogs/light
     parameters:
-      EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
-      EPSESS: 4e-05                                        # specific shortwave attenuation of silt (m^2/mg), default = 4e-05
-      pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
+       pEPSCHL: 0.0088                                      # attenuation by Chlorophyll (m^2/mg Chl), default= 0.0088
+       EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
+       pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
+    coupling:
+       P1chl: P1/Chl
+       P2chl: P2/Chl
+       P3chl: P3/Chl
+       P4chl: P4/Chl
   N1:
     long_name: phosphate
     model: ogs/bfm_pelagic_base
@@ -46,7 +53,7 @@ instances:
   O3:
     long_name: dissolved inorganic carbon              
     model: ogs/PelagicCSYS
-    parameters:
+#    parameters:
 #      composition: c                                       # elemental composition
     initialization:
       c: 28500.00                                           # Dissolved Inorganic Carbon (mg C /m^3)
@@ -57,8 +64,8 @@ instances:
   O2:
     long_name: Dissolved Oxygen
     model: ogs/PelOxygen
-    parameters:
-  #    composition: o                                       # elemental composition
+#    parameters:
+#      composition: o                                       # elemental composition
     initialization:
       o: 300.0
   O3h:
@@ -103,12 +110,12 @@ instances:
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
-      rm:  15.000                                       # Sinking Velocity
+      rm:  3.000                                       # Sinking Velocity
     initialization:
       c: 1.0                                          # POC (mg C   /m^3)
       n: 1.260E-002                                   # PON (mmol N /m^3)
       p: 7.8620E-004                                  # POP (mmol P /m^3)
-      s: 10.0                                         # POS (mmol S /m^3)
+      s: 1.260E-002                                   # POS (mmol S /m^3)
   X1:
     long_name: labile CDOM
     model: ogs/bfm_pelagic_base
@@ -191,6 +198,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 6                          # [1-6]          source of light for PP, 1=absorbed by P1, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -229,6 +238,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
+      PAR: light/parEIR
 #   ---------------------- P2 nanoflagellates ----------------------
   P2:
     long_name: nanoflagellates
@@ -283,6 +293,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 6                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -318,7 +330,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-
+      PAR: light/parEIR
 #   ---------------------- P3 Picophytoplankton ----------------------
   P3:
     long_name: Picoplankton
@@ -372,6 +384,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 6                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -406,7 +420,8 @@ instances:
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
-      O5c: O5/c 
+      O5c: O5/c
+      PAR: light/parEIR
 #   ---------------------- P4 dinoflagellates ----------------------
   P4:
     long_name: dinoflagellates
@@ -460,6 +475,8 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
+      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_Esource: 6                          # [1-6]          source of light for PP, 4=absorbed by P4, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
@@ -495,7 +512,8 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-#   ---------------------- B1 Pelagic heteretrophyc bacteria ----------------------
+      PAR: light/parEIR
+#   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #
   B1:
     long_name: Bacteria
@@ -715,19 +733,19 @@ instances:
     model: ogs/MesoZoo
     parameters:
 #           --------------- Physiological parameters -----------------
-      p_q10: 2.0			# [-]             Q10 value for physiological rates
-      p_srs: 0.01       		# [1/d]           Respiration rate at 10 degrees C
-      p_sum: 2.0        		# [1/d]           Maximal productivity at 10 degrees C
-      p_sd:  0.02           		# [1/d]           Background natural mortality
-      p_vum: 0.008      		# [m3/mgC/d]      Specific search volume
-      p_puI: 0.6        		# [-]             Assimilation efficiency
-      p_peI: 0.3        		# [-]             Fraction of Faeces production
-      p_sdo: 0.01      	        	# [m3/mgC/d]      Specific density-dependent mortality
-      p_sds: 2.0        		# [-]             Exponent of density-dependent mortality
-      p_pecaco3: 0.75    		# [-]             Portion of egested calcified shells during grazing
-      p_qpcMEZ: 1.67e-3   		# [mmolP/mgC]     Maximum quotum P:C
-      p_qncMEZ: 0.015   		# [mmolN/mgC]     Maximum quotum N:C
-      p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
+      p_q10: 2.0                        # [-]             Q10 value for physiological rates
+      p_srs: 0.01                       # [1/d]           Respiration rate at 10 degrees C
+      p_sum: 2.0                        # [1/d]           Maximal productivity at 10 degrees C
+      p_sd:  0.02                       # [1/d]           Background natural mortality
+      p_vum: 0.008                      # [m3/mgC/d]      Specific search volume
+      p_puI: 0.6                        # [-]             Assimilation efficiency
+      p_peI: 0.3                        # [-]             Fraction of Faeces production
+      p_sdo: 0.01                       # [m3/mgC/d]      Specific density-dependent mortality
+      p_sds: 2.0                        # [-]             Exponent of density-dependent mortality
+      p_pecaco3: 0.75                   # [-]             Portion of egested calcified shells during grazing
+      p_qpcMEZ: 1.67e-3                 # [mmolP/mgC]     Maximum quotum P:C
+      p_qncMEZ: 0.015                   # [mmolN/mgC]     Maximum quotum N:C
+      p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
       suprey1:   1.0     # [-]           Availability of PhytoPlankton group P4
@@ -767,19 +785,19 @@ instances:
     model: ogs/MesoZoo
     parameters:
 #           ----------------- Physiological parameters -----------------
-      p_q10: 2.0			# [-]             Q10 value for physiological rates
-      p_srs: 0.02       		# [1/d]           Respiration rate at 10 degrees C
-      p_sum: 2.0        		# [1/d]           Maximal productivity at 10 degrees C
-      p_sd:  0.02           		# [1/d]           Background natural mortality
-      p_vum: 0.02       		# [m3/mgC/d]      Specific search volume
-      p_puI: 0.6        		# [-]             Assimilation efficiency
-      p_peI: 0.35        		# [-]             Fraction of Faeces production
-      p_sdo: 0.01      	        	# [m3/mgC/d]      Specific density-dependent mortality
-      p_sds: 2.0        		# [-]             Exponent of density-dependent mortality
-      p_pecaco3: 0.75    		# [-]             Portion of egested calcified shells during grazing
-      p_qpcMEZ: 1.67e-3   		# [mmolP/mgC]     Maximum quotum P:C
-      p_qncMEZ: 0.015   		# [mmolN/mgC]     Maximum quotum N:C
-      p_clO2o: 30.0     	      	# [mmolO2/m3]     Half-saturation oxygen concentration
+      p_q10: 2.0                        # [-]             Q10 value for physiological rates
+      p_srs: 0.02                       # [1/d]           Respiration rate at 10 degrees C
+      p_sum: 2.0                        # [1/d]           Maximal productivity at 10 degrees C
+      p_sd:  0.02                       # [1/d]           Background natural mortality
+      p_vum: 0.02                       # [m3/mgC/d]      Specific search volume
+      p_puI: 0.6                        # [-]             Assimilation efficiency
+      p_peI: 0.35                       # [-]             Fraction of Faeces production
+      p_sdo: 0.01                       # [m3/mgC/d]      Specific density-dependent mortality
+      p_sds: 2.0                        # [-]             Exponent of density-dependent mortality
+      p_pecaco3: 0.75                   # [-]             Portion of egested calcified shells during grazing
+      p_qpcMEZ: 1.67e-3                 # [mmolP/mgC]     Maximum quotum P:C
+      p_qncMEZ: 0.015                   # [mmolN/mgC]     Maximum quotum N:C
+      p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-------------------------------------------------------------------------------
       nprey:     5                      # [-]             Number of preys
       suprey1:   1.0     # [-]           Availability of PhytoPlankton group P1
@@ -836,10 +854,12 @@ instances:
       p_qon_dentri: 1.25   # [mmolO2/mmolN] Stoichiometric coefficient for denitrification
       p_rOS: 0.05          # [1/d]        Specific reoxidation rate of reduction equivalents
       p_sR6N5: 0.1         # [1/d]        Specific remineralization rate of biogenic silica
-      p_q10R6N5: 1.49       # [-]          Q10 factor for biogenic silica
-      p_rX1c: 0.03          #[1/d]         degradation rate X1c
-      p_rX2c: 0.03          #[1/d]         degradation rate X2c
-      p_rX3c: 0.00003       #[1/d]         degradation rate X3c
+      p_q10R6N5: 1.49      # [-]          Q10 factor for biogenic silica
+      p_rX1c: 0.03         #[1/d]         degradation rate X1c
+      p_rX2c: 0.03         #[1/d]         degradation rate X2c
+      p_rX3c: 0.00003      #[1/d]         degradation rate X3c
+      p_Icdom: 60.0        #[uE m-2 s-1]  light threshold for CDOM bleaching
+      p_Esource: 6         #[5 or 6]      source of light for CDOM bleaching, 5=spectral, 6=mono
     initialization:
     coupling:
       N3n: N3/n                                            # nitrate (mmol N/m^3)
@@ -854,6 +874,7 @@ instances:
       X3c: X3/c                                            # cdom X3c (mgC/m^3)
       R3c: R3/c                                            # cdom R3c (mgC/m^3)
       R6s: R6/s                                            # POSi (mgSi/m3)
+      PAR_tot: light/parEIR
 ##  --------------------- CalciteDissolution
   O5:
 #    use: false
@@ -862,6 +883,7 @@ instances:
     parameters:
       p_kdca:   10.9     # [d-1]           Calcite dissolution rate constant
       p_nomega: 1.0       # [-]             Order of the dissolution rate dependence on Omega
+      p_wsinkPIC: 30      # [m d-1]         sinking velocity of PIC (Calcite)
       c0:       1.0e-05         #                 background concentration (mg C/m^3), default = 0.0
     initialization:
       c: 1.0                                         # carbon (mg C/m^3)
