@@ -71,10 +71,10 @@ contains
       call self%register_state_variable(self%id_O2o,'o','mmol O_2/m^3','oxygen',300._rk)
 
       call self%register_diagnostic_variable(self%id_eO2mO2,'eO2mO2','1','relative saturation', &  
-         standard_variable=standard_variables%fractional_saturation_of_oxygen)
-      call self%register_diagnostic_variable(self%id_osat,'osat','mmol O_2/m^3','saturation concentration')
-      call self%register_diagnostic_variable(self%id_aou,'AOU','mmol O_2/m^3','apparent utilisation')
-      call self%register_diagnostic_variable(self%id_o2flux,'o2flux','mmolO_2/m^2/d','air-sea flux', source=source_do_surface)
+         standard_variable=standard_variables%fractional_saturation_of_oxygen,output=output_none)
+      call self%register_diagnostic_variable(self%id_osat,'osat','mmol O_2/m^3','saturation concentration',output=output_none)
+      call self%register_diagnostic_variable(self%id_aou,'AOU','mmol O_2/m^3','apparent utilisation',output=output_none)
+      call self%register_diagnostic_variable(self%id_o2flux,'o2flux','mmolO_2/m^2/d','air-sea flux', source=source_do_surface,output=output_none)
 
 
 

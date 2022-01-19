@@ -18,3 +18,4 @@ add_library(fabm_models_ogs OBJECT
            )
 
 add_dependencies(fabm_models_ogs fabm_base)
+target_link_libraries(fabm_models_ogs adj)

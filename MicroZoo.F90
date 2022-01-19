@@ -117,7 +117,7 @@
       type (type_state_variable_id)      :: id_N4n   ! Ammonium
       type (type_state_variable_id)      :: id_N1p   ! Phosphate
       type (type_state_variable_id)      :: id_R6c,id_R6s,id_R6n,id_R6p   ! particulate organic carbon, silicon, nitrogen, phosphorous
-      type (type_state_variable_id)      :: id_X1c   ! particulate organic carbon, silicon
+      type (type_state_variable_id)      :: id_X1c   ! colored dissolved organic carbon
       type (type_state_variable_id)      :: id_R1c,id_R1n,id_R1p   ! dissolved organic carbon, nitrogen, phosphorous (R1: labile)
 
       ! Environmental dependencies
@@ -304,40 +304,40 @@
         call self%register_dependency(self%id_ETW,standard_variables%temperature)
         
         ! Register diagnostic variables (i.e., model outputs)
-        call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C',     'temperature Celsius')
-        call self%register_diagnostic_variable(self%id_et,   'et',   '-',     'temperature factor')
-        call self%register_diagnostic_variable(self%id_eO2,  'eO2',  '-',     'Oxygen limitation')
-        call self%register_diagnostic_variable(self%id_rumc, 'rumc', 'mgC/m3',   'total potential food')
-        call self%register_diagnostic_variable(self%id_rugc, 'rugc', 'mgC/m3/d', 'total food uptake rate')
-        call self%register_diagnostic_variable(self%id_sut,  'sut',  '1/d',      'specific uptake rate')
-        call self%register_diagnostic_variable(self%id_rugn, 'rugn', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rugp, 'rugp', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rrtc, 'rrtc', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rrsc, 'rrsc', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rrac, 'rrac', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rric, 'rric', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_reac, 'reac', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rdc,  'rdc',  'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr6c, 'rr6c', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rrin, 'rrin', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr1n, 'rr1n', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr6n, 'rr6n', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rrip, 'rrip', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr1p, 'rr1p', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rr6p, 'rr6p', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_runc, 'runc', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_runn, 'runn', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_runp, 'runp', 'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_ren,  'ren',  'tbd',      'tbd')
-        call self%register_diagnostic_variable(self%id_rep,  'rep',  'tbd',      'tbd')
+        call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C',     'temperature Celsius',output=output_none)
+        call self%register_diagnostic_variable(self%id_et,   'et',   '-',     'temperature factor',output=output_none)
+        call self%register_diagnostic_variable(self%id_eO2,  'eO2',  '-',     'Oxygen limitation',output=output_none)
+        call self%register_diagnostic_variable(self%id_rumc, 'rumc', 'mgC/m3',   'total potential food',output=output_none)
+        call self%register_diagnostic_variable(self%id_rugc, 'rugc', 'mgC/m3/d', 'total food uptake rate',output=output_none)
+        call self%register_diagnostic_variable(self%id_sut,  'sut',  '1/d',      'specific uptake rate',output=output_none)
+        call self%register_diagnostic_variable(self%id_rugn, 'rugn', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rugp, 'rugp', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rrtc, 'rrtc', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rrsc, 'rrsc', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rrac, 'rrac', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rric, 'rric', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_reac, 'reac', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rdc,  'rdc',  'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr6c, 'rr6c', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rrin, 'rrin', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr1n, 'rr1n', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr6n, 'rr6n', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rrip, 'rrip', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr1p, 'rr1p', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr6p, 'rr6p', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_runc, 'runc', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_runn, 'runn', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_runp, 'runp', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_ren,  'ren',  'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rep,  'rep',  'tbd',      'tbd',output=output_none)
 
-       call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz')
-       call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz')
+       call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz',output=output_none)
+       call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz',output=output_none)
       do iprey=1,self%nprey
        if (self%p_isP2(iprey).eq.1) then
-         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip')
-         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_P2_consumeO3h_for_CaCO3precip','mmol/m^3/d','_P2_consumeO3h_for_CaCO3precip')
+         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip',output=output_none)
+         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_P2_consumeO3h_for_CaCO3precip','mmol/m^3/d','_P2_consumeO3h_for_CaCO3precip',output=output_none)
        endif
       end do
 

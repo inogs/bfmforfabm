@@ -172,6 +172,7 @@ contains
          ! Contribute to aggregate variable
          call self%add_to_aggregate_variable(aggregate_variable,variable_id,scale_factor)
 
+         self%ndeposition=-1.
          if (self%ndeposition>0.and.present(qx)) then
             ! Create array with fractions per depostion target
             allocate(qx(self%ndeposition))

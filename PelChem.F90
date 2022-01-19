@@ -173,20 +173,20 @@ contains
       ! Dependency from multispectral model
       call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
 
-      call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten')
-      call self%register_diagnostic_variable(self%id_er,        'er'  ,       '-',           'reduction equiv. regulating factor with MichelisMenten')
-      call self%register_diagnostic_variable(self%id_flN4N3n,   'flN4N3n' ,   'mmolN/m3/d',  'nitrification')
-      call self%register_diagnostic_variable(self%id_flN4N3n_o2,'flN4N3n_o2', 'mmolO/m3/d',  'consume of O2 for nitrification')
-      call self%register_diagnostic_variable(self%id_flN3O4n,   'flN3O4n',    'mmolN/m3/d',  'denitrification')
-      call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent')
-      call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents')
-      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate')
-      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'degradation of cdom X1c')
-      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c')
-      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c')
+      call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten',output=output_none)
+      call self%register_diagnostic_variable(self%id_er,        'er'  ,       '-',           'reduction equiv. regulating factor with MichelisMenten',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN4N3n,   'flN4N3n' ,   'mmolN/m3/d',  'nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN4N3n_o2,'flN4N3n_o2', 'mmolO/m3/d',  'consume of O2 for nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN3O4n,   'flN3O4n',    'mmolN/m3/d',  'denitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent',output=output_none)
+      call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents',output=output_none)
+      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'degradation of cdom X1c',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c',output=output_none)
 !     call self%register_diagnostic_dependency(self%id_flPTN6r,'flPTN6r','mmolHS/m3/d','total rate of formation of reduction equivalent') ! from PelBac
-      call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification')
-      call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification')
+      call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification',output=output_none)
 
   end subroutine
 
@@ -361,12 +361,9 @@ contains
   _SET_DIAGNOSTIC_(self%id_degX3c,degX3c) ! degradation of CDOM
 
 
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN *
-! GP  ! min(EIR(:)/120.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN *
-! GP ! min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = eTq_vector( ETW(:), 2.95_RLEN ) *  R1l * (0.003_RLEN + 0.167_RLEN *
-! GP ! min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! Eq A13
+! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/120.0_RLEN,1.0_RLEN) ) ! 
+! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! 
+! GP ! degCDOM = eTq_vector( ETW(:), 2.95_RLEN ) *  R1l * (0.003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! Eq A13
 
 !  call flux_vector( iiPel, ppR1l, ppR3c, degR1l )
  _SET_ODE_(self%id_R3c,degX1c)
