@@ -140,12 +140,12 @@ instances:
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
-      rm:  15.000                                       # Sinking Velocity
+      rm:  3.000                                       # Sinking Velocity
     initialization:
       c: 1.0                                          # POC (mg C   /m^3)
       n: 1.260E-002                                   # PON (mmol N /m^3)
       p: 7.8620E-004                                  # POP (mmol P /m^3)
-      s: 10.0                                         # POS (mmol S /m^3)
+      s: 1.260E-002                                   # POS (mmol S /m^3)
   X1:
     long_name: labile CDOM
     model: ogs/bfm_pelagic_base
