@@ -41,7 +41,7 @@ module ogs_bfm_light_spectral
       ! Parameters
       integer  :: nlt,npft
       real(rk) :: rd, rs, ru, vs, vu
-      real(rk) :: Sdom,  lambda_aCDOM, cdomcoeff
+      real(rk) :: SdomX1, X1coeff, SdomX2, X2coeff, SdomX3, X3coeff, lambda_aCDOM
       real(rk) :: Sapar, lambda_aPart, aparcoeff
       real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
       logical :: compute_acdom
@@ -78,9 +78,13 @@ contains
       call self%get_parameter(self%vs,     'vs',   '',    'avg cosine diffuse down', default=0.83_rk)
       call self%get_parameter(self%vu,     'vu',   '-',   'avg cosine diffuse up', default=0.4_rk)
 
-      call self%get_parameter(self%Sdom,          'Sdom',          'nm-1',     'slope parameter for aCDOM wavelength dependence')
+      call self%get_parameter(self%SdomX1,        'SdomX1',        'nm-1',     'slope for aCDOM [X1c] wavelength dependence')
+      call self%get_parameter(self%X1coeff,       'X1coeff',       'm2 mgC-1', 'specific absorption of X1c at lambda_aCDOM ')
+      call self%get_parameter(self%SdomX2,        'SdomX2',        'nm-1',     'slope for aCDOM [X2c] wavelength dependence')
+      call self%get_parameter(self%X2coeff,       'X2coeff',       'm2 mgC-1', 'specific absorption of X2c at lambda_aCDOM ')
+      call self%get_parameter(self%SdomX3,        'SdomX3',        'nm-1',     'slope for aCDOM [X3c] wavelength dependence')
+      call self%get_parameter(self%X3coeff,       'X3coeff',       'm2 mgC-1', 'specific absorption of X3c at lambda_aCDOM ')
       call self%get_parameter(self%lambda_aCDOM,  'lambda_aCDOM',  'nm',       'wavelength where reference aCDOM is given')
-      call self%get_parameter(self%cdomcoeff,     'cdomcoeff',     'm2 mgC-1', 'specific absorption at lambda_aCDOM ')
       call self%get_parameter(self%Sapar,         'Sapar',         'nm-1',     'slope parameter for aNAP wavelength dependence')
       call self%get_parameter(self%lambda_aPart,  'lambda_aPart',  'nm',       'wavelength where reference aNAP is given')
       call self%get_parameter(self%aparcoeff,     'aparcoeff',     'm2 mgC-1', 'specific absorption at lambda_aPart ')
@@ -105,7 +109,8 @@ contains
           allocate(apoc(self%nlt));            apoc(:)=huge(apoc(1))
           allocate(bpoc(self%nlt));            bpoc(:)=huge(bpoc(1))
           allocate(bbpoc(self%nlt));           bbpoc(:)=huge(bbpoc(1))
-          allocate(acdom(self%nlt));           acdom(:)=huge(acdom(1))
+!          allocate(acdom(self%nlt));           acdom(:)=huge(acdom(1))
+          allocate(acdom(3,self%nlt));         acdom(:,:)=huge(acdom(1,1))
           allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
           allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
           allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
@@ -133,7 +138,9 @@ contains
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
  !      acdom(nl) = self%cdomcoeff * exp(-self%Sdom*(rlamm-self%lambda_aCDOM))
-       acdom(nl) = self%cdomcoeff*(exp(-self%Sdom*(rlamm2-self%lambda_aCDOM))-exp(-self%Sdom*(rlamm1-self%lambda_aCDOM)))/(-self%Sdom*(rlamm2-rlamm1))
+       acdom(1,nl) = self%X1coeff*(exp(-self%SdomX1*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX1*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX1*(rlamm2-rlamm1))
+       acdom(2,nl) = self%X2coeff*(exp(-self%SdomX2*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX2*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX2*(rlamm2-rlamm1))
+       acdom(3,nl) = self%X3coeff*(exp(-self%SdomX3*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX3*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX3*(rlamm2-rlamm1))
       enddo
       endif
 
@@ -150,7 +157,7 @@ contains
       enddo
       endif
 
-       write(*,*) "acdom", acdom(1)
+       write(*,*) "acdom", acdom(1,1)
        write(*,*) "apoc", apoc(1)
        write(*,*) "bpoc", bpoc(1)
        write(*,*) "bbpoc", bbpoc(1)
@@ -385,7 +392,7 @@ contains
              phy_a  = ac(1,l)*P1chl + ac(2,l)*P2chl + ac(3,l)*P3chl + ac(4,l)*P4chl
              phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
              phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl+ bc(3,l)*bbc(3,l)*P3chl+ bc(4,l)*bbc(4,l)*P4chl
-             cdom_a = acdom(l)*X1c  + acdom(l)*X2c  + acdom(l)*X3c 
+             cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
 
 ! Need to add also cdom
              tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a

@@ -20,10 +20,14 @@ instances:
     parameters:
        nlt: 33                                             # number of wavelenghts considered
        npft: 4                                             # number of PFT considered
-       Sdom: 0.017                                         # spectral slope acdom  [nm-1]
+       SdomX1: 0.017                                       # spectral slope acdom of X1c [nm-1]
+       X1coeff: 0.015                                      # acdom coeff of X1c at lambda_aCDOM [m2/mgC]
+       SdomX2: 0.017                                       # spectral slope acdom of X2c [nm-1]
+       X2coeff: 0.015                                      # acdom coeff of X2c at lambda_aCDOM [m2/mgC]
+       SdomX3: 0.017                                       # spectral slope acdom of X3c [nm-1]
+       X3coeff: 0.015                                      # acdom coeff of X3c at lambda_aCDOM [m2/mgC]       
        lambda_aCDOM: 450                                   # lambda at which reference acdom is given [nm]
-       cdomcoeff: 0.015                                    # acdom coeff at lambda_aCDOM [m2/mgC]
-       compute_acdom: .TRUE.                               # logical [T=comptute coeffs, F=use file]
+       compute_acdom: .TRUE.                               # logical [T=compute coeffs, F=use file]
        Sapar: 0.013                                        # spectral slope anap [nm-1]
        lambda_aPart: 440                                   # lambda at which reference anap is given [nm]
        aparcoeff: 0.00133                                  # anap coeff at lambda_aPart [m2/mgC]
