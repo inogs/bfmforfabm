@@ -121,6 +121,7 @@
       real(rk) :: p_qpcPBA, p_qlnc, p_qlpc, p_qun, p_qup, p_chn, p_chp
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
+      real(rk) :: p_fX1b, p_fX2b, p_fX3b      
       integer :: p_version
 
    contains
@@ -185,7 +186,11 @@ contains
       call self%get_parameter(self%p_pe_R1c, 'p_pe_R1c'  , '-', 'Fractional content of C in cytoplasm')
       call self%get_parameter(self%p_pe_R1n, 'p_pe_R1n'  , '-', 'Fractional content of N in cytoplasm')
       call self%get_parameter(self%p_pe_R1p, 'p_pe_R1p'  , '-', 'Fractional content of P in cytoplasm')
-    
+!              --------- Flux partition CDOM parameters ------------
+      call self%get_parameter(self%p_fX1b,   'p_fX1b',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
+      call self%get_parameter(self%p_fX2b,   'p_fX2b',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
+      call self%get_parameter(self%p_fX3b,   'p_fX3b',  '-',  'colored fraction in semi-refractory dissolved organic carbon', default=0.02_rk)
+      
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
@@ -404,12 +409,12 @@ contains
 !SEAMLESS call quota_flux(iiPel, ppbacp, ppbacp, ppR6p, rd*qpcPBA(bac,:)*(ONE-p_pe_R1p), tfluxP)
   _SET_ODE_(self%id_R6p,rd*qpcPBA*(ONE-self%p_pe_R1p))
   _SET_ODE_(self%id_p,-(rd*qpcPBA*(ONE-self%p_pe_R1p)))
-!SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR1c, 0.98D0*rd*p_pe_R1c , tfluxC)
-  _SET_ODE_(self%id_R1c,0.98D0*rd*self%p_pe_R1c)
-  _SET_ODE_(self%id_c,-0.98D0*rd*self%p_pe_R1c)
-!SEAMLESS call quota_flux(iiPel, ppbacc, ppbacc, ppR1l, 0.02D0*rd*p_pe_R1c , tfluxC) ! flux to CDOM
-  _SET_ODE_(self%id_X1c,0.02D0*rd*self%p_pe_R1c)
-  _SET_ODE_(self%id_c,-0.02D0*rd*self%p_pe_R1c)
+!SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR1c, 0.98D0*rd*p_pe_R1c , tfluxC) ! flux to non CDOM
+  _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c)
+  _SET_ODE_(self%id_c,-(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c)
+!SEAMLESS call quota_flux(iiPel, ppbacc, ppbacc, ppR1l, 0.02D0*rd*p_pe_R1c , tfluxC)  ! flux to CDOM
+  _SET_ODE_(self%id_X1c,self%p_fX1b*rd*self%p_pe_R1c)
+  _SET_ODE_(self%id_c,-self%p_fX1b*rd*self%p_pe_R1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppbacn, ppR1n, rd*qncPBA(bac,:)*p_pe_R1n, tfluxN) 
   _SET_ODE_(self%id_R1n,rd*qncPBA*self%p_pe_R1n)
   _SET_ODE_(self%id_n,-rd*qncPBA*self%p_pe_R1n)
@@ -713,12 +718,12 @@ contains
       r     = min(run, (ruR6n+ruR1n-ren)/self%p_qlnc)
       reR3c = run - min(r, (ruR6p+ruR1p-rep)/self%p_qlpc)
       reR3c = max(ZERO, reR3c)
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, 0.98D0*reR3c ,tfluxC)
-  _SET_ODE_(self%id_R3c, 0.98D0*reR3c)
-  _SET_ODE_(self%id_c,  -0.98D0*reR3c)
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3l, 0.02D0*reR3c ,tfluxC) ! Flux to CDOM
-  _SET_ODE_(self%id_X3c, 0.02D0*reR3c)
-  _SET_ODE_(self%id_c,  -0.02D0*reR3c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, 0.98D0*reR3c ,tfluxC) ! flux to CDOM
+  _SET_ODE_(self%id_R3c, (1.00D0-self%p_fX3b)*reR3c)
+  _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX3b)*reR3c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3l, 0.02D0*reR3c ,tfluxC) ! flux to CDOM
+  _SET_ODE_(self%id_X3c, self%p_fX3b*reR3c)
+  _SET_ODE_(self%id_c,  -self%p_fX3b*reR3c)
  _SET_DIAGNOSTIC_(self%id_reR3c,reR3c)
 
     case ( BACT3 ) ! Polimene et al. (2006)
@@ -772,19 +777,19 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excretion fluxes (only losses to R2 and R3)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2c, 0.98D0*reR2c, tfluxC)
-  _SET_ODE_(self%id_R2c, 0.98D0*reR2c)
-  _SET_ODE_(self%id_c,  -0.98D0*reR2c)
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2l, 0.02D0*reR2c, tfluxC)! To CDOM
-  _SET_ODE_(self%id_X2c, 0.02D0*reR2c)
-  _SET_ODE_(self%id_c,  -0.02D0*reR2c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2c, 0.98D0*reR2c, tfluxC) ! flux to non CDOM
+  _SET_ODE_(self%id_R2c, (1.00D0-self%p_fX2b)*reR2c)
+  _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX2b)*reR2c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2l, 0.02D0*reR2c, tfluxC) ! flux to CDOM
+  _SET_ODE_(self%id_X2c, self%p_fX2b*reR2c)
+  _SET_ODE_(self%id_c,  -self%p_fX2b*reR2c)
 
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3c, 0.98D0*reR3c, tfluxC)
-  _SET_ODE_(self%id_R3c, 0.98D0*reR3c)
-  _SET_ODE_(self%id_c,  -0.98D0*reR3c)
-!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3l, 0.02D0*reR3c, tfluxC)! To CDOM
-  _SET_ODE_(self%id_X3c, 0.02D0*reR3c)
-  _SET_ODE_(self%id_c,  -0.02D0*reR3c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3c, 0.98D0*reR3c, tfluxC) ! flux to non CDOM
+  _SET_ODE_(self%id_R3c, (1.00D0-self%p_fX3b)*reR3c)
+  _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX3b)*reR3c)
+!SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3l, 0.02D0*reR3c, tfluxC) ! flux to CDOM
+  _SET_ODE_(self%id_X3c, self%p_fX3b*reR3c)
+  _SET_ODE_(self%id_c,  -self%p_fX3b*reR3c)
   
   end select
 

@@ -224,6 +224,9 @@ instances:
       p_res: 5.0                            # [m/d]          Maximum Sinking vel city (m/d)
 #                   ---- Calcification ----
       p_caco3r: 0.0                         # [-]            Reference PIC:POC (rain) ratio
+#                   ---- CDOM production ----
+      p_fX1p: 0.02                          # [-]            fraction of colored labile DOC
+      p_fX2p: 0.02                          # [-]            fraction of colored semi-labile DOC
 #              --------- Chlorophyll parameters -----------
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
@@ -319,6 +322,9 @@ instances:
 #                   ---- Calcification ----
       use_CaCO3: .TRUE.                     #                use CaCO3, default = false
       p_caco3r: 0.3                         # [-]            Reference PIC:POC (rain) ratio
+#                   ---- CDOM production ----
+      p_fX1p: 0.02                          # [-]            fraction of colored labile DOC
+      p_fX2p: 0.02                          # [-]            fraction of colored semi-labile DOC
 #              --------- Chlorophyll parameters -----------
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
@@ -410,6 +416,9 @@ instances:
       p_res: 0.0                            # [m/d]          Maximum Sinking vel city (m/d)
 #                   ---- Calcification ----
       p_caco3r: 0.0                         # [-]            Reference PIC:POC (rain) ratio
+#                   ---- CDOM production ----
+      p_fX1p: 0.02                          # [-]            fraction of colored labile DOC
+      p_fX2p: 0.02                          # [-]            fraction of colored semi-labile DOC
 #              --------- Chlorophyll parameters -----------
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
@@ -501,6 +510,9 @@ instances:
       p_res: 2.5                            # [m/d]          Maximum Sinking vel city (m/d)
 #                   ---- Calcification ----
       p_caco3r: 0.0                         # [-]            Reference PIC:POC (rain) ratio
+#                   ---- CDOM production ----
+      p_fX1p: 0.02                          # [-]            fraction of colored labile DOC
+      p_fX2p: 0.02                          # [-]            fraction of colored semi-labile DOC
 #              --------- Chlorophyll parameters -----------
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
@@ -584,7 +596,10 @@ instances:
       p_pe_R1c: 0.60  #[-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72  #[-]           Fractional content of N in cytoplasm
       p_pe_R1p: 0.832 #[-]           Fractional content of P in cytoplasm
-
+#                   ---- CDOM production ----
+      p_fX1b: 0.02    # [-]          fraction of colored labile DOC
+      p_fX2b: 0.02    # [-]          fraction of colored semi-labile DOC
+      p_fX3b: 0.02    # [-]          fraction of colored semi-refractory DOC
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
       n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
@@ -655,7 +670,8 @@ instances:
 #--------------------------------------------------------------------
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
-      p_pe_R1p: 0.832     # [-]           Fractional content of C in cytoplasm
+      p_pe_R1p: 0.832    # [-]           Fractional content of C in cytoplasm
+      p_fX1z: 0.02       # [-]           fraction of colored labile DOC      
     initialization:
       c: 1.0                             # carbon (mg C/m^3)
       n: 0.0167                          # nitrogen (mmol N/m^3)
@@ -729,7 +745,8 @@ instances:
 #-------------------------------------------------------------------- 
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
-      p_pe_R1p: 0.832     # [-]           Fractional content of C in cytoplasm
+      p_pe_R1p: 0.832    # [-]           Fractional content of C in cytoplasm
+      p_fX1z: 0.02       # [-]           fraction of colored labile DOC      
     initialization:
       c: 1.0                             # carbon (mg C/m^3)
       n: 0.0167                          # nitrogen (mmol N/m^3)
@@ -873,23 +890,27 @@ instances:
     long_name: pelagic chemistry
     model: ogs/PelChem
     parameters:
-      p_clO2o:  10.0       # [mmolO2/m3]  Half-saturation O2 concentration for nitrification and reoxidation
-      p_clN6r:   1.0       # [mmolHS/m3]  Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]
-      p_sN4N3:  0.01       # [1/d]        Specific nitrification rate at 10 degC
-      p_q10N4N3: 2.367     # [-]         Q10 factor for nitrification/denit
-      p_qon_nitri: 2.0     # [mmolO2/mmolN] stoichiometric coefficient for nitrification
+      p_clO2o:  10.0       # [mmolO2/m3]      Half-saturation O2 concentration for nitrification and reoxidation
+      p_clN6r:   1.0       # [mmolHS/m3]      Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]
+      p_sN4N3:  0.01       # [1/d]            Specific nitrification rate at 10 degC
+      p_q10N4N3: 2.367     # [-]              Q10 factor for nitrification/denit
+      p_qon_nitri: 2.0     # [mmolO2/mmolN]   stoichiometric coefficient for nitrification
       p_qro: 0.5           # [mmolHS-/mmolO2] Stoichiometric coefficient for anaerobic reactions
-      p_sN3O4n: 0.35       # [1/d]        Specific denitrification rate
-      p_rPAo: 1.0          # [mmolO2/m3/d] Reference anoxic mineralization rate
-      p_qon_dentri: 1.25   # [mmolO2/mmolN] Stoichiometric coefficient for denitrification
-      p_rOS: 0.05          # [1/d]        Specific reoxidation rate of reduction equivalents
-      p_sR6N5: 0.1         # [1/d]        Specific remineralization rate of biogenic silica
-      p_q10R6N5: 1.49      # [-]          Q10 factor for biogenic silica
-      p_rX1c: 0.03         #[1/d]         degradation rate X1c
-      p_rX2c: 0.03         #[1/d]         degradation rate X2c
-      p_rX3c: 0.00003      #[1/d]         degradation rate X3c
-      p_Icdom: 60.0        #[uE m-2 s-1]  light threshold for CDOM bleaching
-      p_Esource: 5         #[5 or 6]      source of light for CDOM bleaching, 5=spectral, 6=mono
+      p_sN3O4n: 0.35       # [1/d]            Specific denitrification rate
+      p_rPAo: 1.0          # [mmolO2/m3/d]    Reference anoxic mineralization rate
+      p_qon_dentri: 1.25   # [mmolO2/mmolN]   Stoichiometric coefficient for denitrification
+      p_rOS: 0.05          # [1/d]            Specific reoxidation rate of reduction equivalents
+      p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica
+      p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
+      p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
+      p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
+      p_bX3c: 0.167        # [1/d]            photodegradation (bleaching) rate X3c
+      p_IX1: 60.0          # [uE m-2 s-1]     light threshold for X1c bleaching
+      p_IX2: 60.0          # [uE m-2 s-1]     light threshold for X2c bleaching
+      p_IX3: 60.0          # [uE m-2 s-1]     light threshold for X3c bleaching
+      p_rX3c: 0.00003      # [1/d]            degradation rate X3c
+      p_q10X: 2.95         # [-]              q10 for CDOM degradation
+      p_Esource: 5         # [5 or 6]         source of light for CDOM bleaching, 5=spectral, 6=mono
     initialization:
     coupling:
       N3n: N3/n                                            # nitrate (mmol N/m^3)

@@ -171,7 +171,7 @@
       real(rk) :: p_pu, p_pu_ea, p_chro, p_chuc, p_minfood
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
-      
+      real(rk) :: p_fX1z
       
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -239,6 +239,8 @@
         call self%get_parameter(self%p_pe_R1c,  'p_pe_R1c',  '-',         'Fractional content of C in cytoplasm')
         call self%get_parameter(self%p_pe_R1n,  'p_pe_R1n',  '-',         'Fractional content of N in cytoplasm')
         call self%get_parameter(self%p_pe_R1p,  'p_pe_R1p',  '-',         'Fractional content of P in cytoplasm')
+!              --------- Flux partition CDOM parameters ------------
+        call self%get_parameter(self%p_fX1z,    'p_fX1z',    '-',         'colored fraction in labile DOC', default=0.02_rk)
         
         ! Register state variables (handled by type_bfm_pelagic_base)
         call self%initialize_bfm_base()
@@ -575,12 +577,12 @@
       rric = reac + rdc
       rr1c = rric*self%p_pe_R1c
       rr6c = rric*(ONE - self%p_pe_R1c)
-      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC)
-      _SET_ODE_(self%id_c, -0.98D0*rr1c) !anna cambiare la costante in yaml?
-      _SET_ODE_(self%id_R1c,0.98D0*rr1c)
-      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! To  CDOM
-      _SET_ODE_(self%id_c, -0.02D0*rr1c) !anna cambiare la costante in yaml?
-      _SET_ODE_(self%id_X1c,0.02D0*rr1c) ! anna: è corretto?
+      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC) ! flux to non CDOM
+      _SET_ODE_(self%id_c, -(1.00D0-self%p_fX1z)*rr1c)
+      _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1z)*rr1c)
+      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! flux to CDOM
+      _SET_ODE_(self%id_c, -self%p_fX1z*rr1c)
+      _SET_ODE_(self%id_X1c,self%p_fX1z*rr1c)
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR6c, rr6c, tfluxC)
       _SET_ODE_(self%id_c, -rr6c)
       _SET_ODE_(self%id_R6c,rr6c)

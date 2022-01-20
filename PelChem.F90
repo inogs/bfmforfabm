@@ -94,7 +94,7 @@
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
-      real(rk) :: p_rX1c,p_rX2c,p_rX3c, p_Icdom    
+      real(rk) :: p_bX1c, p_bX2c, p_bX3c, p_IX1, p_IX2, p_IX3, p_rX3c, p_q10X    
       integer :: p_Esource
   
     contains     
@@ -145,12 +145,16 @@ contains
       call self%get_parameter(self%p_rPAo,        'p_rPAo',      '[mmolO2/m3/d]' ,  'Reference anoxic mineralization rate')
       call self%get_parameter(self%p_qon_dentri,  'p_qon_dentri','[mmolO2/mmolN]',  'Stoichiometric coefficient for denitrification')
       call self%get_parameter(self%p_rOS,         'p_rOS',       '[1/d]',           'Specific reoxidation rate of reduction equivalents')
-      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',          'Specific remineralization rate of biogenic silica')
-      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',            'Q10 factor for biogenic silica')
-      call self%get_parameter(self%p_rX1c,        'p_rX1c',      '[1/d]',           'degradation rate X1c')
-      call self%get_parameter(self%p_rX2c,        'p_rX2c',      '[1/d]',           'degradation rate X2c')
+      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',           'Specific remineralization rate of biogenic silica')
+      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',             'Q10 factor for biogenic silica')
+      call self%get_parameter(self%p_bX1c,        'p_bX1c',      '[1/d]',           'photodegradation (bleaching) rate X1c')
+      call self%get_parameter(self%p_bX2c,        'p_bX2c',      '[1/d]',           'photodegradation (bleaching) rate X2c')
+      call self%get_parameter(self%p_bX3c,        'p_bX3c',      '[1/d]',           'photodegradation (bleaching) rate X3c')
+      call self%get_parameter(self%p_IX1,         'p_IX1',       '[uE m-2 s-1]',    'light threshold for X1c bleaching')
+      call self%get_parameter(self%p_IX2,         'p_IX2',       '[uE m-2 s-1]',    'light threshold for X2c bleaching')
+      call self%get_parameter(self%p_IX3,         'p_IX3',       '[uE m-2 s-1]',    'light threshold for X3c bleaching')
       call self%get_parameter(self%p_rX3c,        'p_rX3c',      '[1/d]',           'degradation rate X3c')
-      call self%get_parameter(self%p_Icdom,       'p_Icdom',     '[uE m-2 s-1]',    'light threshold for CDOM bleaching')
+      call self%get_parameter(self%p_q10X,        'p_q10X',      '[-]',             'q10 for CDOM degradation')
       call self%get_parameter(self%p_Esource,     'p_Esource',   '5-6',             'source of light for CDOM bleaching')
 
       ! Register links to external nutrient pools.
@@ -351,20 +355,19 @@ contains
 !GP  BIOPTIMOD T2
 !GP   PAR(:) =EIR(:)
 
- ! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1 
-  degX1c = X1c * ( self%p_rX1c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-  degX2c = X2c * ( self%p_rX2c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-  degX3c = X3c * ( eTq( ETW, 2.95_rk ) * self%p_rX3c  + 0.03_rk * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-
-  _SET_DIAGNOSTIC_(self%id_degX1c,degX1c) ! degradation of CDOM
-  _SET_DIAGNOSTIC_(self%id_degX2c,degX2c) ! degradation of CDOM
-  _SET_DIAGNOSTIC_(self%id_degX3c,degX3c) ! degradation of CDOM
-
-
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/120.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = eTq_vector( ETW(:), 2.95_RLEN ) *  R1l * (0.003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! Eq A13
-
+! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1, p_IXn in uE m-2 s-1                             
+  degX1c = X1c * (                                         self%p_bX1c * min(parEIR/(self%p_IX1*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX2c = X2c * (                                         self%p_bX2c * min(parEIR/(self%p_IX2*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX3c = X3c * ( eTq( ETW, self%p_q10X ) * self%p_rX3c + self%p_bX3c * min(parEIR/(self%p_IX3*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  
+!EA  degR1l = R1l * ( 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+!EA  degR2l = R2l * ( 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+!EA  degR3l = R3l * ( eTq( ETW(:), 2.95D0 ) * 0.00003D0 + 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+  
+  _SET_DIAGNOSTIC_(self%id_degX1c,degX1c) ! degradation of labile CDOM
+  _SET_DIAGNOSTIC_(self%id_degX2c,degX2c) ! degradation of semi-labile CDOM
+  _SET_DIAGNOSTIC_(self%id_degX3c,degX3c) ! degradation of semi-refractory CDOM
+  
 !  call flux_vector( iiPel, ppR1l, ppR3c, degR1l )
  _SET_ODE_(self%id_R3c,degX1c)
  _SET_ODE_(self%id_X1c,-degX1c)
