@@ -36,6 +36,21 @@ instances:
        bparcoeff: 0.02875                                  # bnap coeff at lambda_bPart [m2/mgC]
        bb_to_b: 0.5                                        # back to total scatter POC [-]
        compute_anap: .TRUE.                                # logical [T=comptute coeffs, F=use file]
+       p_epsP1: 0.0130                            # mean absorption coefficient from 400-700nm for P1 [m2 mgChl-1]
+       p_epsP2: 0.0167                            # mean absorption coefficient from 400-700nm for P2 [m2 mgChl-1]
+       p_epsP3: 0.0221                            # mean absorption coefficient from 400-700nm for P3 [m2 mgChl-1]
+       p_epsP4: 0.0163                            # mean absorption coefficient from 400-700nm for P4 [m2 mgChl-1]
+       compute_aph: .TRUE.         # logical flag to scale aph [T=use file scaled to p_epsPn or F=use file unscaled]
+       p_bpsP1: 0.2413                            # mean scattering coefficient from 400-700nm for P1 [m2 mgChl-1]
+       p_bpsP2: 0.0413                            # mean scattering coefficient from 400-700nm for P2 [m2 mgChl-1]
+       p_bpsP3: 0.1490                            # mean scattering coefficient from 400-700nm for P3 [m2 mgChl-1]
+       p_bpsP4: 0.0358                            # mean scattering coefficient from 400-700nm for P4 [m2 mgChl-1]
+       compute_bph: .TRUE.         # logical flag to scale bph [T=use file scaled to p_bpsPn or F=use file unscaled]
+       p_bbrP1: 0.0047                            # non-spectral backscattering to total scattering ratio for P1 [-]
+       p_bbrP2: 0.0038                            # non-spectral backscattering to total scattering ratio for P2 [-]
+       p_bbrP3: 0.0036                            # non-spectral backscattering to total scattering ratio for P3 [-]
+       p_bbrP4: 0.0022                            # non-spectral backscattering to total scattering ratio for P4 [-]
+       compute_bbc: .TRUE.         # logical flag to compute bbc or read it from file [T=compute bc*bbr or F=use file]
     coupling:
        P1c: P1/c
        P2c: P2/c
@@ -235,7 +250,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 1.34e-3              # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=absorbed by P1, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -333,7 +348,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 3.91e-4              # [mgC / uE]     Photochemical efficiency
       p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -427,7 +442,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 1.25e-3              # [mgC / uE]     Photochemical efficiency
       p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -521,7 +536,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 5.28e-4              # [mgC / uE]     Photochemical efficiency
       p_Esource: 4                          # [1-6]          source of light for PP, 4=absorbed by P4, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 

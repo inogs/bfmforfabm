@@ -46,6 +46,10 @@ module ogs_bfm_light_spectral
       real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
       logical :: compute_acdom
       logical :: compute_anap
+      real(rk) :: p_epsP1, p_epsP2, p_epsP3, p_epsP4
+      real(rk) :: p_bpsP1, p_bpsP2, p_bpsP3, p_bpsP4
+      real(rk) :: p_bbrP1, p_bbrP2, p_bbrP3, p_bbrP4
+      logical :: compute_aph, compute_bph, compute_bbc
       
    contains
 !     Model procedures
@@ -67,6 +71,7 @@ contains
 !
 ! !LOCAL VARIABLES:
       real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2, nl
+      real(rk) :: n, dummy_p, cu_area, aph_mean, bph_mean
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -77,7 +82,6 @@ contains
       call self%get_parameter(self%ru,     'ru',   '-',   ' ', default=3.0_rk)
       call self%get_parameter(self%vs,     'vs',   '',    'avg cosine diffuse down', default=0.83_rk)
       call self%get_parameter(self%vu,     'vu',   '-',   'avg cosine diffuse up', default=0.4_rk)
-
       call self%get_parameter(self%SdomX1,        'SdomX1',        'nm-1',     'slope for aCDOM [X1c] wavelength dependence')
       call self%get_parameter(self%X1coeff,       'X1coeff',       'm2 mgC-1', 'specific absorption of X1c at lambda_aCDOM ')
       call self%get_parameter(self%SdomX2,        'SdomX2',        'nm-1',     'slope for aCDOM [X2c] wavelength dependence')
@@ -93,7 +97,22 @@ contains
       call self%get_parameter(self%bparcoeff,     'bparcoeff',     'm2 mgC-1', 'specific scatter at lambda_bPart')
       call self%get_parameter(self%bb_to_b,       'bb_to_b',       '-',        'backscatter to total scatter ratio') 
       call self%get_parameter(self%compute_acdom, 'compute_acdom', '[T or F]', 'logical flag to compute acdom') 
-      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap') 
+      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap')
+      call self%get_parameter(self%p_epsP1,       'p_epsP1',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P1', default=0.03_rk)
+      call self%get_parameter(self%p_epsP2,       'p_epsP2',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P2', default=0.03_rk)
+      call self%get_parameter(self%p_epsP3,       'p_epsP3',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P3', default=0.03_rk)
+      call self%get_parameter(self%p_epsP4,       'p_epsP4',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P4', default=0.03_rk)
+      call self%get_parameter(self%compute_aph,   'compute_aph',   '[T or F]',    'logical flag to scale aph')
+      call self%get_parameter(self%p_bpsP1,       'p_bpsP1',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P1')
+      call self%get_parameter(self%p_bpsP2,       'p_bpsP2',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P2')
+      call self%get_parameter(self%p_bpsP3,       'p_bpsP3',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P3')
+      call self%get_parameter(self%p_bpsP4,       'p_bpsP4',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P4')
+      call self%get_parameter(self%compute_bph,   'compute_bph',   '[T or F]',    'logical flag to scale bph')
+      call self%get_parameter(self%p_bbrP1,       'p_bbrP1',       '-',           'backscattering to total scattering ratio for P1')
+      call self%get_parameter(self%p_bbrP2,       'p_bbrP2',       '-',           'backscattering to total scattering ratio for P2')
+      call self%get_parameter(self%p_bbrP3,       'p_bbrP3',       '-',           'backscattering to total scattering ratio for P3')
+      call self%get_parameter(self%p_bbrP4,       'p_bbrP4',       '-',           'backscattering to total scattering ratio for P4')
+      call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
       
       if (self%nlt>0) then
           allocate(lam(self%nlt));             lam(:)=huge(lam(1))
@@ -157,11 +176,79 @@ contains
       enddo
       endif
 
-       write(*,*) "acdom", acdom(1,1)
-       write(*,*) "apoc", apoc(1)
-       write(*,*) "bpoc", bpoc(1)
-       write(*,*) "bbpoc", bbpoc(1)
+       write(*,*) "acdom", acdom(1,7), acdom(2,7), acdom(3,7)
+       write(*,*) "apoc", apoc(7)
+       write(*,*) "bpoc", bpoc(7)
+       write(*,*) "bbpoc", bbpoc(7)
+       
+ !   PHYTO absorption coefficients
+      if (self%compute_aph) then
+         do n = 1,self%npft
+            if (n == 1) dummy_p = self%p_epsP1
+            if (n == 2) dummy_p = self%p_epsP2
+            if (n == 3) dummy_p = self%p_epsP3
+            if (n == 4) dummy_p = self%p_epsP4
+            ! find mean
+            cu_area = 0.0_rk
+            do nl = 5,17   ! indexes for 400-700nm
+!                rlamm = real(lam(nl),8)
+                rlamm1 = real(lam1(nl),8)
+                rlamm2 = real(lam2(nl),8)
+                cu_area = cu_area + ((rlamm2-rlamm1) * ac(n,nl))
+            enddo
+            aph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
+            do nl = 1,self%nlt
+                ac(n,nl) = ac(n,nl) * (dummy_p/aph_mean)
+            enddo 
+         enddo
+      endif
+       
+ !   PHYTO scattering coefficients
+      if (self%compute_bph) then
+         do n = 1,self%npft
+            if (n == 1) dummy_p = self%p_bpsP1
+            if (n == 2) dummy_p = self%p_bpsP2
+            if (n == 3) dummy_p = self%p_bpsP3
+            if (n == 4) dummy_p = self%p_bpsP4
+            ! find mean
+            cu_area = 0.0_rk
+            do nl = 5,17   ! indexes for 400-700nm
+                rlamm1 = real(lam1(nl),8)
+                rlamm2 = real(lam2(nl),8)
+                cu_area = cu_area + ((rlamm2-rlamm1) * bc(n,nl))
+            enddo
+            bph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
+            do nl = 1,self%nlt
+                bc(n,nl) = bc(n,nl) * (dummy_p/bph_mean)
+            enddo 
+         enddo
+      endif
 
+ !   PHYTO backscattering coefficients       
+      if (self%compute_bbc) then      
+       do nl = 1,self%nlt
+          bbc(1,nl) = self%p_bbrP1
+          bbc(2,nl) = self%p_bbrP2
+          bbc(3,nl) = self%p_bbrP3
+          bbc(4,nl) = self%p_bbrP4
+       enddo
+      endif
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), ac(1,nl), ac_ps(1,nl), bc(1,nl), bbc(1,nl)
+      enddo
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), ac(2,nl), ac_ps(2,nl), bc(2,nl), bbc(2,nl)
+      enddo
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), ac(3,nl), ac_ps(3,nl), bc(3,nl), bbc(3,nl)
+      enddo
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), ac(4,nl), ac_ps(4,nl), bc(4,nl), bbc(4,nl)
+      enddo
       
      ! Register diagnostic variables
 

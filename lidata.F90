@@ -69,7 +69,7 @@
       close(4)
 30    format(i4,4f10.4)
 
-!  POC absoprion, scattering and back scattering normalized to mgC/m3
+!  POC absorption, scattering and back scattering normalized to mgC/m3
       cfle = cdir//cacbpoc
       open(4,file=cfle,status='old',form='formatted')
       do i = 1,6
