@@ -250,7 +250,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 1.34e-3              # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 1.06e-3              # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=absorbed by P1, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -348,7 +348,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 3.91e-4              # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 3.10e-4              # [mgC / uE]     Photochemical efficiency
       p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -442,7 +442,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 1.25e-3              # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 9.95e-4              # [mgC / uE]     Photochemical efficiency
       p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
@@ -536,7 +536,7 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 5.28e-4              # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 4.17e-4              # [mgC / uE]     Photochemical efficiency
       p_Esource: 4                          # [1-6]          source of light for PP, 4=absorbed by P4, 5=scalar, 6=mono
                                               
       p_qlcPPY: 0.02                        # [mgChla/mgC]   Reference quotum Chla:C 
