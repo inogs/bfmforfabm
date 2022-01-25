@@ -14,7 +14,9 @@ module ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
       type (type_diagnostic_variable_id)   :: id_PAR_tot
-
+      type (type_diagnostic_variable_id)   :: id_Scdom, id_acdom, id_anap, id_aph
+!      type (type_horizontal_diagnostic_variable_id) :: id_Rrs, id_kd
+      
       type (type_dependency_id)            :: id_dz
       type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
@@ -72,6 +74,7 @@ contains
 ! !LOCAL VARIABLES:
       real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2, nl
       real(rk) :: n, dummy_p, cu_area, aph_mean, bph_mean
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -133,7 +136,10 @@ contains
           allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
           allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
           allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
+!          allocate(equis(7));                  equis(:)=huge(equis(1))
+!          allocate(ies(7));                    ies(:)=huge(ies(1))
 
+          
 !         load the IOP for the biogeochemical variables considered
           call lidata(self%nlt,self%npft)
 
@@ -257,7 +263,13 @@ contains
       call self%register_diagnostic_variable(self%id_par_pico,'PAR_pico', 'uE mgChl-1 d-1', 'PAR_picophytoplankton', source=source_do_column)
       call self%register_diagnostic_variable(self%id_par_dino,'PAR_dino', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
-
+      call self%register_diagnostic_variable(self%id_Scdom, 'Scdom', 'nm-1','spectral slope acdom', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_acdom, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_anap,  'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_aph,   'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_Rrs,   'Rrs',   '-',   'subsurface reflectance', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_kd,    'kd',    '-',   'extinction coefficient', source=source_do_column)
+      
       ! Register biogeochemical dependencies 
 
       call self%register_state_dependency(self%id_P1c,'P1c','mg C/m^3', 'Diatoms carbon')
@@ -360,7 +372,10 @@ contains
       real(rk) :: tot_a,tot_b,tot_bb
       real(rk) :: R6c,X1c,X2c,X3c
       real(rk) :: P1c,P2c,P3c,P4c
-      real(rk) :: P1chl, P2chl, P3chl, P4chl 
+      real(rk) :: P1chl, P2chl, P3chl, P4chl
+      real(rk) :: Scdom, acdom450, aph450, anap450
+      real(rk) :: equis(self%nlt),ies(self%nlt)
+      real(rk) :: rlamm
       real(rk) :: zgrid(cache%n+1)
       real(rk) :: a_array(cache%n, self%nlt)
       real(rk) :: b_array(cache%n, self%nlt)
@@ -490,7 +505,26 @@ contains
              b_array(kk,l)  = tot_b
              bb_array(kk,l) = tot_bb
           enddo
+          
+       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl
+       acdom450 = acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c 
+       anap450  = apoc(7) * R6c
 
+         _SET_DIAGNOSTIC_(self%id_aph, max(p_small,aph450))                  
+         _SET_DIAGNOSTIC_(self%id_acdom, max(p_small,acdom450))            
+         _SET_DIAGNOSTIC_(self%id_anap, max(p_small,anap450))
+       
+       ! linear fit of ln-transformed aCDOM(l) between 350 and 500 nm against wavelength data (Babin et al 2013)
+       ! Organelli 2014 uses non-linear least-squares fit!
+          do l=1,self%nlt
+             rlamm = real(lam(l),8)     
+             equis(l) = rlamm-self%lambda_aCDOM
+             ies(l) = LOG(acdom(1,l)*X1c+acdom(2,l)*X2c+acdom(3,l)*X3c)
+          enddo
+          call linear_regression(equis(3:9),ies(3:9),7,acdom450,Scdom) ! indexes for 350-500nm
+      
+         _SET_DIAGNOSTIC_(self%id_Scdom, -Scdom)          
+       
      _DOWNWARD_LOOP_END_
   
      rd      = self%rd

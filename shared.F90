@@ -140,8 +140,24 @@ module ogs_bfm_shared
 
     end function MM_POWER
 
-
-
+    subroutine linear_regression(x, y, n, a, b)
+      
+        IMPLICIT NONE
+        real(rk), intent(IN) :: x(:), y(:)
+        integer,  intent(IN) :: n
+        real(rk), intent(OUT) :: a, b
+        real(rk) :: s1,s2,s3,s4
+        integer :: i
+        do i=1,n
+           s1=s1+x(i)
+           s2=s2+x(i)**2
+           s3=s3+y(i)
+           s4=s4+x(i)*y(i)
+        enddo
+        b=((n*s4)-(s1*s3))/((n*s2)-(s1**2))
+        a=(s3-(s1*b))/n
+        
+    end subroutine linear_regression
 
 
 end module
