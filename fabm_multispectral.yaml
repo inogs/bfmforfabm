@@ -153,7 +153,7 @@ instances:
     parameters:
       composition: c                                   # elemental composition
     initialization:
-      c: 1.0                                         # Dissolved Organic Carbon (mg C /m^3)
+      c: 3.3                                           # Dissolved Organic Carbon (mg C /m^3)
   R6: 
     long_name: Particulate Organic carbon 
     model: ogs/bfm_pelagic_base
@@ -185,7 +185,7 @@ instances:
     parameters:
       composition: c                                     # elemental composition
     initialization:
-      c:  3.000000000000000E-002
+      c:  1.000000000000000E-000
 #   ---------------------- P1 Diatom ----------------------
   P1:
     long_name: diatoms
