@@ -522,7 +522,7 @@ contains
              ies(l) = LOG(acdom(1,l)*X1c+acdom(2,l)*X2c+acdom(3,l)*X3c)
           enddo
           call linear_regression(equis(3:9),ies(3:9),7,acdom450,Scdom) ! indexes for 350-500nm
-      
+!      acdom450=EXP(acdom450)
          _SET_DIAGNOSTIC_(self%id_Scdom, -Scdom)          
        
      _DOWNWARD_LOOP_END_
