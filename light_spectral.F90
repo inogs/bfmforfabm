@@ -22,6 +22,7 @@ module ogs_bfm_light_spectral
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
+      type (type_horizontal_diagnostic_variable_id) :: id_Rrs
 ! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
@@ -267,7 +268,7 @@ contains
       call self%register_diagnostic_variable(self%id_acdom, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_anap,  'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_aph,   'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs,   'Rrs',   '-',   'subsurface reflectance', source=source_do_column)
+       call self%register_diagnostic_variable(self%id_Rrs,   'Rrs',   '-',   'subsurface reflectance', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_kd,    'kd',    '-',   'extinction coefficient', source=source_do_column)
       
       ! Register biogeochemical dependencies 
@@ -556,6 +557,15 @@ contains
      do l=5,17
          PAR_scalar_array(:)            = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
      enddo
+
+!    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
+
+     _HORIZONTAL_LOOP_BEGIN_
+
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs,E(3,1,7)/(E(1,1,7)+E(2,1,7)))  ! diagnostic in m/s! 
+!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs,E(3,1,7)/(Ed_0(7)+Es_0(7)))  ! diagnostic in m/s! 
+
+      _HORIZONTAL_LOOP_END_
 
       kk=0
 
