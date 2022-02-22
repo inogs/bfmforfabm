@@ -15,14 +15,16 @@ module ogs_bfm_light_spectral
       type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
       type (type_diagnostic_variable_id)   :: id_PAR_tot
       type (type_diagnostic_variable_id)   :: id_Scdom, id_acdom, id_anap, id_aph
-!      type (type_horizontal_diagnostic_variable_id) :: id_Rrs, id_kd
+      type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
+      type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575
+      type (type_horizontal_diagnostic_variable_id) :: id_kd475, id_kd500
       
       type (type_dependency_id)            :: id_dz
       type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
-      type (type_horizontal_diagnostic_variable_id) :: id_Rrs
+
 ! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
@@ -268,8 +270,16 @@ contains
       call self%register_diagnostic_variable(self%id_acdom, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_anap,  'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_aph,   'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
-       call self%register_diagnostic_variable(self%id_Rrs,   'Rrs',   '-',   'subsurface reflectance', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd,    'kd',    '-',   'extinction coefficient', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs400,   'Rrs400',   '-',  'subsurface reflectance in 400nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs425,   'Rrs425',   '-',  'subsurface reflectance in 425nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs450,   'Rrs450',   '-',  'subsurface reflectance in 450nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs475,   'Rrs475',   '-',  'subsurface reflectance in 475nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs500,   'Rrs500',   '-',  'subsurface reflectance in 500nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs525,   'Rrs525',   '-',  'subsurface reflectance in 525nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs550,   'Rrs550',   '-',  'subsurface reflectance in 550nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs575,   'Rrs575',   '-',  'subsurface reflectance in 575nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
       
       ! Register biogeochemical dependencies 
 
@@ -561,10 +571,21 @@ contains
 !    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
 
      _HORIZONTAL_LOOP_BEGIN_
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/(E(1,1,5)+E(2,1,5)))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/(E(1,1,6)+E(2,1,6)))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/(E(1,1,7)+E(2,1,7))) 
+!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/(Ed_0(7)+Es_0(7))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs475,E(3,1,8)/(E(1,1,8)+E(2,1,8)))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs500,E(3,1,9)/(E(1,1,9)+E(2,1,9)))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs525,E(3,1,10)/(E(1,1,10)+E(2,1,10))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs550,E(3,1,11)/(E(1,1,11)+E(2,1,11))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs575,E(3,1,12)/(E(1,1,12)+E(2,1,12))) 
 
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs,E(3,1,7)/(E(1,1,7)+E(2,1,7)))  ! diagnostic in m/s! 
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs,E(3,1,7)/(Ed_0(7)+Es_0(7)))  ! diagnostic in m/s! 
-
+!    write(*,*) 'Z9= ', zgrid(26))
+     
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG((E(1,26,8)+E(2,26,8))/(E(1,1,8)+E(2,1,8)))/9.05_rk)
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG((E(1,26,9)+E(2,26,9))/(E(1,1,9)+E(2,1,9)))/9.05_rk)
+     
       _HORIZONTAL_LOOP_END_
 
       kk=0
