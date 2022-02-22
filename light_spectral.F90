@@ -185,10 +185,18 @@ contains
       enddo
       endif
 
-       write(*,*) "acdom", acdom(1,7), acdom(2,7), acdom(3,7)
-       write(*,*) "apoc", apoc(7)
-       write(*,*) "bpoc", bpoc(7)
-       write(*,*) "bbpoc", bbpoc(7)
+!       write(*,*) "acdom", acdom(1,7), acdom(2,7), acdom(3,7)
+!       write(*,*) "apoc", apoc(7)
+!       write(*,*) "bpoc", bpoc(7)
+!       write(*,*) "bbpoc", bbpoc(7)
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), acdom(1,nl), acdom(2,nl), acdom(3,nl)
+      enddo
+
+      do nl = 1,self%nlt
+        write(*,*) real(lam(nl),8), apoc(nl), bpoc(nl), bbpoc(nl)
+      enddo
        
  !   PHYTO absorption coefficients
       if (self%compute_aph) then
