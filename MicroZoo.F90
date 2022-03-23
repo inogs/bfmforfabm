@@ -172,7 +172,8 @@
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1z
-      
+      real(rk) :: p_qo2cr
+
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
       ! integer       :: ppzooc, ppzoon, ppzoop
@@ -241,7 +242,8 @@
         call self%get_parameter(self%p_pe_R1p,  'p_pe_R1p',  '-',         'Fractional content of P in cytoplasm')
 !              --------- Flux partition CDOM parameters ------------
         call self%get_parameter(self%p_fX1z,    'p_fX1z',    '-',         'colored fraction in labile DOC', default=0.02_rk)
-        
+        call self%get_parameter(self%p_qo2cr,  'p_qo2cr',  'mmolO2/mmolC','oxygen consumed per unit of carbon respired (mmol O2/mmol C ')
+
         ! Register state variables (handled by type_bfm_pelagic_base)
         call self%initialize_bfm_base()
         call self%add_constituent('c',1.e-4_rk)
@@ -562,7 +564,7 @@
       _SET_ODE_(self%id_c, -rrtc)
       _SET_ODE_(self%id_O3c,rrtc)
       ! call flux_vector(iiPel, ppO2o, ppO2o, -rrtc/MW_C)
-      _SET_ODE_(self%id_O2o,-(rrtc/MW_C))
+      _SET_ODE_(self%id_O2o,-(rrtc/MW_C * self%p_qo2cr))
       
       _SET_DIAGNOSTIC_(self%id_rrsc,rrsc)
       _SET_DIAGNOSTIC_(self%id_rrac,rrac)

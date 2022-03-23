@@ -122,6 +122,7 @@
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1b, p_fX2b, p_fX3b      
+      real(rk) :: p_qo2cr
       integer :: p_version
 
    contains
@@ -186,6 +187,7 @@ contains
       call self%get_parameter(self%p_pe_R1c, 'p_pe_R1c'  , '-', 'Fractional content of C in cytoplasm')
       call self%get_parameter(self%p_pe_R1n, 'p_pe_R1n'  , '-', 'Fractional content of N in cytoplasm')
       call self%get_parameter(self%p_pe_R1p, 'p_pe_R1p'  , '-', 'Fractional content of P in cytoplasm')
+      call self%get_parameter(self%p_qo2cr,  'p_qo2cr',  'mmolO2/mmolC','oxygen consumed per unit of carbon respired (mmol O2/mmol C ')
 !              --------- Flux partition CDOM parameters ------------
       call self%get_parameter(self%p_fX1b,   'p_fX1b',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2b,   'p_fX2b',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
@@ -580,7 +582,7 @@ contains
   _SET_ODE_(self%id_O3c,rrc)
   _SET_ODE_(self%id_c,-rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
-  _SET_ODE_(self%id_O2o,-eO2*rrc/MW_C )
+  _SET_ODE_(self%id_O2o,-eO2*rrc/MW_C * self%p_qo2cr)
 
   flN6rPBA = (ONE- eO2)*rrc/ MW_C* self%p_qro
 !SEAMLESS  call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )

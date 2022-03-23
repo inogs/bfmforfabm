@@ -138,6 +138,7 @@
       real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
+      real(rk) :: p_qo2cf, p_qo2cr
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
@@ -259,7 +260,10 @@ contains
 !              --------- Flux partition CDOM parameters ------------
       call self%get_parameter(self%p_fX1p,   'p_fX1p',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2p,   'p_fX2p',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
-      
+!              --------- parameter for  O2:C ratio -------------- 
+      call self%get_parameter(self%p_qo2cf,       'p_qo2cf',     '[mmolO2/mmolC]' ,    'oxygen produced per unit of carbon fixed (mmol O2/mmol C ')
+      call self%get_parameter(self%p_qo2cr,       'p_qo2cr',     '[mmolO2/mmolC]' ,    'oxygen consumed per unit of carbon respired (mmol O2/mmol C ')
+
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
@@ -699,9 +703,9 @@ end select
   _SET_ODE_(self%id_c,-rrc)
   _SET_ODE_(self%id_O3c,rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
-  _SET_ODE_(self%id_O2o,-(rrc/MW_C))
+  _SET_ODE_(self%id_O2o,-(rrc/MW_C * self%p_qo2cr))
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
-  _SET_ODE_(self%id_O2o,rugc/MW_C)
+  _SET_ODE_(self%id_O2o,rugc/MW_C * self%p_qo2cf)
 !SEAMLESS
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Potential-Net prim prod. (mgC /m3/d)

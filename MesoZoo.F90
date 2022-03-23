@@ -177,6 +177,7 @@
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
+      real(rk) :: p_qo2cr
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
 !      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
@@ -232,6 +233,7 @@ contains
       call self%get_parameter(self%p_qpcMEZ, 'p_qpcMEZ',  'mmolP/mgC',  'maximum quotum P:C')
       call self%get_parameter(self%p_qncMEZ, 'p_qncMEZ',  'mmolN/mgC',  'maximum quotum N:C')
       call self%get_parameter(self%p_clO2o,  'p_clO2o',   'mmolO2/m3',  'half-saturation oxygen concentration')
+      call self%get_parameter(self%p_qo2cr,  'p_qo2cr',  'mmolO2/mmolC','oxygen consumed per unit of carbon respired (mmol O2/mmol C ')
 
 ! Register state variables (handled by type_bfm_pelagic_base)
 !     call self%initialize_ogs_bfm_base(sedimentation=.true.)
@@ -656,7 +658,7 @@ contains
    prI = ONE - self%p_puI - self%p_peI
    rrc = prI * rut_c + self%p_srs*et*zooc
 !  call flux_vector(iiPel, ppO2o, ppO2o, -rrc/MW_C)
-   _SET_ODE_(self%id_O2o,-(rrc/MW_C))
+   _SET_ODE_(self%id_O2o,-(rrc/MW_C * self%p_qo2cr))
 !  call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrc, tfluxC)
    _SET_ODE_(self%id_c,-rrc)
    _SET_ODE_(self%id_O3c,rrc)
