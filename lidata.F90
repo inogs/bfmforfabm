@@ -69,7 +69,7 @@
       close(4)
 30    format(i4,4f10.4)
 
-!  POC absorption, scattering and back scattering normalized to mgC/m3
+!  POC absoprion, scattering and back scattering normalized to mgC/m3
       cfle = cdir//cacbpoc
       open(4,file=cfle,status='old',form='formatted')
       do i = 1,6
@@ -94,9 +94,7 @@
       do nl = 1,nlt
        read(4,50)lambda,sacdom
        write(*,*) lambda,sacdom
-       acdom(1,nl) = sacdom
-       acdom(2,nl) = sacdom
-       acdom(3,nl) = sacdom       
+       acdom(nl) = sacdom
       enddo
       close(4)
 50    format(i5,1E14.6)

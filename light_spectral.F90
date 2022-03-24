@@ -14,17 +14,12 @@ module ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
       type (type_diagnostic_variable_id)   :: id_PAR_tot
-      type (type_diagnostic_variable_id)   :: id_Scdom, id_acdom, id_anap, id_aph
-      type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
-      type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575
-      type (type_horizontal_diagnostic_variable_id) :: id_kd475, id_kd500
-      
+
       type (type_dependency_id)            :: id_dz
       type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
-
 ! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
@@ -46,15 +41,11 @@ module ogs_bfm_light_spectral
       ! Parameters
       integer  :: nlt,npft
       real(rk) :: rd, rs, ru, vs, vu
-      real(rk) :: SdomX1, X1coeff, SdomX2, X2coeff, SdomX3, X3coeff, lambda_aCDOM
+      real(rk) :: Sdom,  lambda_aCDOM, cdomcoeff
       real(rk) :: Sapar, lambda_aPart, aparcoeff
       real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
       logical :: compute_acdom
       logical :: compute_anap
-      real(rk) :: p_epsP1, p_epsP2, p_epsP3, p_epsP4
-      real(rk) :: p_bpsP1, p_bpsP2, p_bpsP3, p_bpsP4
-      real(rk) :: p_bbrP1, p_bbrP2, p_bbrP3, p_bbrP4
-      logical :: compute_aph, compute_bph, compute_bbc
       
    contains
 !     Model procedures
@@ -76,8 +67,6 @@ contains
 !
 ! !LOCAL VARIABLES:
       real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2, nl
-      real(rk) :: n, dummy_p, cu_area, aph_mean, bph_mean
-
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -88,13 +77,10 @@ contains
       call self%get_parameter(self%ru,     'ru',   '-',   ' ', default=3.0_rk)
       call self%get_parameter(self%vs,     'vs',   '',    'avg cosine diffuse down', default=0.83_rk)
       call self%get_parameter(self%vu,     'vu',   '-',   'avg cosine diffuse up', default=0.4_rk)
-      call self%get_parameter(self%SdomX1,        'SdomX1',        'nm-1',     'slope for aCDOM [X1c] wavelength dependence')
-      call self%get_parameter(self%X1coeff,       'X1coeff',       'm2 mgC-1', 'specific absorption of X1c at lambda_aCDOM ')
-      call self%get_parameter(self%SdomX2,        'SdomX2',        'nm-1',     'slope for aCDOM [X2c] wavelength dependence')
-      call self%get_parameter(self%X2coeff,       'X2coeff',       'm2 mgC-1', 'specific absorption of X2c at lambda_aCDOM ')
-      call self%get_parameter(self%SdomX3,        'SdomX3',        'nm-1',     'slope for aCDOM [X3c] wavelength dependence')
-      call self%get_parameter(self%X3coeff,       'X3coeff',       'm2 mgC-1', 'specific absorption of X3c at lambda_aCDOM ')
+
+      call self%get_parameter(self%Sdom,          'Sdom',          'nm-1',     'slope parameter for aCDOM wavelength dependence')
       call self%get_parameter(self%lambda_aCDOM,  'lambda_aCDOM',  'nm',       'wavelength where reference aCDOM is given')
+      call self%get_parameter(self%cdomcoeff,     'cdomcoeff',     'm2 mgC-1', 'specific absorption at lambda_aCDOM ')
       call self%get_parameter(self%Sapar,         'Sapar',         'nm-1',     'slope parameter for aNAP wavelength dependence')
       call self%get_parameter(self%lambda_aPart,  'lambda_aPart',  'nm',       'wavelength where reference aNAP is given')
       call self%get_parameter(self%aparcoeff,     'aparcoeff',     'm2 mgC-1', 'specific absorption at lambda_aPart ')
@@ -103,22 +89,7 @@ contains
       call self%get_parameter(self%bparcoeff,     'bparcoeff',     'm2 mgC-1', 'specific scatter at lambda_bPart')
       call self%get_parameter(self%bb_to_b,       'bb_to_b',       '-',        'backscatter to total scatter ratio') 
       call self%get_parameter(self%compute_acdom, 'compute_acdom', '[T or F]', 'logical flag to compute acdom') 
-      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap')
-      call self%get_parameter(self%p_epsP1,       'p_epsP1',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P1', default=0.03_rk)
-      call self%get_parameter(self%p_epsP2,       'p_epsP2',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P2', default=0.03_rk)
-      call self%get_parameter(self%p_epsP3,       'p_epsP3',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P3', default=0.03_rk)
-      call self%get_parameter(self%p_epsP4,       'p_epsP4',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P4', default=0.03_rk)
-      call self%get_parameter(self%compute_aph,   'compute_aph',   '[T or F]',    'logical flag to scale aph')
-      call self%get_parameter(self%p_bpsP1,       'p_bpsP1',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P1')
-      call self%get_parameter(self%p_bpsP2,       'p_bpsP2',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P2')
-      call self%get_parameter(self%p_bpsP3,       'p_bpsP3',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P3')
-      call self%get_parameter(self%p_bpsP4,       'p_bpsP4',       'm2 mgChl-1',  'mean scattering coefficient from 400-700nm for P4')
-      call self%get_parameter(self%compute_bph,   'compute_bph',   '[T or F]',    'logical flag to scale bph')
-      call self%get_parameter(self%p_bbrP1,       'p_bbrP1',       '-',           'backscattering to total scattering ratio for P1')
-      call self%get_parameter(self%p_bbrP2,       'p_bbrP2',       '-',           'backscattering to total scattering ratio for P2')
-      call self%get_parameter(self%p_bbrP3,       'p_bbrP3',       '-',           'backscattering to total scattering ratio for P3')
-      call self%get_parameter(self%p_bbrP4,       'p_bbrP4',       '-',           'backscattering to total scattering ratio for P4')
-      call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
+      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap') 
       
       if (self%nlt>0) then
           allocate(lam(self%nlt));             lam(:)=huge(lam(1))
@@ -134,15 +105,11 @@ contains
           allocate(apoc(self%nlt));            apoc(:)=huge(apoc(1))
           allocate(bpoc(self%nlt));            bpoc(:)=huge(bpoc(1))
           allocate(bbpoc(self%nlt));           bbpoc(:)=huge(bbpoc(1))
-!          allocate(acdom(self%nlt));           acdom(:)=huge(acdom(1))
-          allocate(acdom(3,self%nlt));         acdom(:,:)=huge(acdom(1,1))
+          allocate(acdom(self%nlt));           acdom(:)=huge(acdom(1))
           allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
           allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
           allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
-!          allocate(equis(7));                  equis(:)=huge(equis(1))
-!          allocate(ies(7));                    ies(:)=huge(ies(1))
 
-          
 !         load the IOP for the biogeochemical variables considered
           call lidata(self%nlt,self%npft)
 
@@ -166,9 +133,7 @@ contains
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
  !      acdom(nl) = self%cdomcoeff * exp(-self%Sdom*(rlamm-self%lambda_aCDOM))
-       acdom(1,nl) = self%X1coeff*(exp(-self%SdomX1*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX1*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX1*(rlamm2-rlamm1))
-       acdom(2,nl) = self%X2coeff*(exp(-self%SdomX2*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX2*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX2*(rlamm2-rlamm1))
-       acdom(3,nl) = self%X3coeff*(exp(-self%SdomX3*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX3*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX3*(rlamm2-rlamm1))
+       acdom(nl) = self%cdomcoeff*(exp(-self%Sdom*(rlamm2-self%lambda_aCDOM))-exp(-self%Sdom*(rlamm1-self%lambda_aCDOM)))/(-self%Sdom*(rlamm2-rlamm1))
       enddo
       endif
 
@@ -185,87 +150,11 @@ contains
       enddo
       endif
 
-!       write(*,*) "acdom", acdom(1,7), acdom(2,7), acdom(3,7)
-!       write(*,*) "apoc", apoc(7)
-!       write(*,*) "bpoc", bpoc(7)
-!       write(*,*) "bbpoc", bbpoc(7)
+       write(*,*) "acdom", acdom(1)
+       write(*,*) "apoc", apoc(1)
+       write(*,*) "bpoc", bpoc(1)
+       write(*,*) "bbpoc", bbpoc(1)
 
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), acdom(1,nl), acdom(2,nl), acdom(3,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), apoc(nl), bpoc(nl), bbpoc(nl)
-      enddo
-       
- !   PHYTO absorption coefficients
-      if (self%compute_aph) then
-         do n = 1,self%npft
-            if (n == 1) dummy_p = self%p_epsP1
-            if (n == 2) dummy_p = self%p_epsP2
-            if (n == 3) dummy_p = self%p_epsP3
-            if (n == 4) dummy_p = self%p_epsP4
-            ! find mean
-            cu_area = 0.0_rk
-            do nl = 5,17   ! indexes for 400-700nm
-!                rlamm = real(lam(nl),8)
-                rlamm1 = real(lam1(nl),8)
-                rlamm2 = real(lam2(nl),8)
-                cu_area = cu_area + ((rlamm2-rlamm1) * ac(n,nl))
-            enddo
-            aph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
-            do nl = 1,self%nlt
-                ac(n,nl) = ac(n,nl) * (dummy_p/aph_mean)
-            enddo 
-         enddo
-      endif
-       
- !   PHYTO scattering coefficients
-      if (self%compute_bph) then
-         do n = 1,self%npft
-            if (n == 1) dummy_p = self%p_bpsP1
-            if (n == 2) dummy_p = self%p_bpsP2
-            if (n == 3) dummy_p = self%p_bpsP3
-            if (n == 4) dummy_p = self%p_bpsP4
-            ! find mean
-            cu_area = 0.0_rk
-            do nl = 5,17   ! indexes for 400-700nm
-                rlamm1 = real(lam1(nl),8)
-                rlamm2 = real(lam2(nl),8)
-                cu_area = cu_area + ((rlamm2-rlamm1) * bc(n,nl))
-            enddo
-            bph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
-            do nl = 1,self%nlt
-                bc(n,nl) = bc(n,nl) * (dummy_p/bph_mean)
-            enddo 
-         enddo
-      endif
-
- !   PHYTO backscattering coefficients       
-      if (self%compute_bbc) then      
-       do nl = 1,self%nlt
-          bbc(1,nl) = self%p_bbrP1
-          bbc(2,nl) = self%p_bbrP2
-          bbc(3,nl) = self%p_bbrP3
-          bbc(4,nl) = self%p_bbrP4
-       enddo
-      endif
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(1,nl), ac_ps(1,nl), bc(1,nl), bbc(1,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(2,nl), ac_ps(2,nl), bc(2,nl), bbc(2,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(3,nl), ac_ps(3,nl), bc(3,nl), bbc(3,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(4,nl), ac_ps(4,nl), bc(4,nl), bbc(4,nl)
-      enddo
       
      ! Register diagnostic variables
 
@@ -274,21 +163,7 @@ contains
       call self%register_diagnostic_variable(self%id_par_pico,'PAR_pico', 'uE mgChl-1 d-1', 'PAR_picophytoplankton', source=source_do_column)
       call self%register_diagnostic_variable(self%id_par_dino,'PAR_dino', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Scdom, 'Scdom', 'nm-1','spectral slope acdom', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_acdom, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_anap,  'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_aph,   'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs400,   'Rrs400',   '-',  'subsurface reflectance in 400nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs425,   'Rrs425',   '-',  'subsurface reflectance in 425nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs450,   'Rrs450',   '-',  'subsurface reflectance in 450nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs475,   'Rrs475',   '-',  'subsurface reflectance in 475nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs500,   'Rrs500',   '-',  'subsurface reflectance in 500nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs525,   'Rrs525',   '-',  'subsurface reflectance in 525nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs550,   'Rrs550',   '-',  'subsurface reflectance in 550nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_Rrs575,   'Rrs575',   '-',  'subsurface reflectance in 575nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
-      
+
       ! Register biogeochemical dependencies 
 
       call self%register_state_dependency(self%id_P1c,'P1c','mg C/m^3', 'Diatoms carbon')
@@ -391,10 +266,7 @@ contains
       real(rk) :: tot_a,tot_b,tot_bb
       real(rk) :: R6c,X1c,X2c,X3c
       real(rk) :: P1c,P2c,P3c,P4c
-      real(rk) :: P1chl, P2chl, P3chl, P4chl
-      real(rk) :: Scdom, acdom450, aph450, anap450
-      real(rk) :: equis(self%nlt),ies(self%nlt)
-      real(rk) :: rlamm
+      real(rk) :: P1chl, P2chl, P3chl, P4chl 
       real(rk) :: zgrid(cache%n+1)
       real(rk) :: a_array(cache%n, self%nlt)
       real(rk) :: b_array(cache%n, self%nlt)
@@ -513,7 +385,7 @@ contains
              phy_a  = ac(1,l)*P1chl + ac(2,l)*P2chl + ac(3,l)*P3chl + ac(4,l)*P4chl
              phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
              phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl+ bc(3,l)*bbc(3,l)*P3chl+ bc(4,l)*bbc(4,l)*P4chl
-             cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
+             cdom_a = acdom(l)*X1c  + acdom(l)*X2c  + acdom(l)*X3c 
 
 ! Need to add also cdom
              tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a
@@ -524,26 +396,7 @@ contains
              b_array(kk,l)  = tot_b
              bb_array(kk,l) = tot_bb
           enddo
-          
-       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl
-       acdom450 = acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c 
-       anap450  = apoc(7) * R6c
 
-         _SET_DIAGNOSTIC_(self%id_aph, max(p_small,aph450))                  
-         _SET_DIAGNOSTIC_(self%id_acdom, max(p_small,acdom450))            
-         _SET_DIAGNOSTIC_(self%id_anap, max(p_small,anap450))
-       
-       ! linear fit of ln-transformed aCDOM(l) between 350 and 500 nm against wavelength data (Babin et al 2013)
-       ! Organelli 2014 uses non-linear least-squares fit!
-          do l=1,self%nlt
-             rlamm = real(lam(l),8)     
-             equis(l) = rlamm-self%lambda_aCDOM
-             ies(l) = LOG(acdom(1,l)*X1c+acdom(2,l)*X2c+acdom(3,l)*X3c)
-          enddo
-          call linear_regression(equis(3:9),ies(3:9),7,acdom450,Scdom) ! indexes for 350-500nm
-!      acdom450=EXP(acdom450)
-         _SET_DIAGNOSTIC_(self%id_Scdom, -Scdom)          
-       
      _DOWNWARD_LOOP_END_
   
      rd      = self%rd
@@ -575,26 +428,6 @@ contains
      do l=5,17
          PAR_scalar_array(:)            = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
      enddo
-
-!    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
-
-     _HORIZONTAL_LOOP_BEGIN_
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/(E(1,1,5)+E(2,1,5)))
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/(E(1,1,6)+E(2,1,6)))
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/(E(1,1,7)+E(2,1,7))) 
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/(Ed_0(7)+Es_0(7))) 
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs475,E(3,1,8)/(E(1,1,8)+E(2,1,8)))
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs500,E(3,1,9)/(E(1,1,9)+E(2,1,9)))
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs525,E(3,1,10)/(E(1,1,10)+E(2,1,10))) 
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs550,E(3,1,11)/(E(1,1,11)+E(2,1,11))) 
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs575,E(3,1,12)/(E(1,1,12)+E(2,1,12))) 
-
-!    write(*,*) 'Z9= ', zgrid(26))
-     
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG((E(1,26,8)+E(2,26,8))/(E(1,1,8)+E(2,1,8)))/9.05_rk)
-     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG((E(1,26,9)+E(2,26,9))/(E(1,1,9)+E(2,1,9)))/9.05_rk)
-     
-      _HORIZONTAL_LOOP_END_
 
       kk=0
 

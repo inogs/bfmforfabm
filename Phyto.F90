@@ -67,7 +67,7 @@
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
-      type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
+      type (type_state_variable_id) :: id_X1c,id_X2c                        !  particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
       type (type_dependency_id)            :: id_ETW   ! PAR and temperature
@@ -137,7 +137,6 @@
       real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_epsChla, p_tochl_relt,p_EpEk_or
       real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
-      real(rk) :: p_fX1p, p_fX2p
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
@@ -256,10 +255,7 @@ contains
 !              --------- Calcite parameters only for P2 ------------
       call self%get_parameter(self%use_CaCO3,   'use_CaCO3','',          'use calcite',default=.false.)
       call self%get_parameter(self%p_caco3r,   'p_caco3r',  '-',  'reference PIC:POC rain ratio', default=0._rk)
-!              --------- Flux partition CDOM parameters ------------
-      call self%get_parameter(self%p_fX1p,   'p_fX1p',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
-      call self%get_parameter(self%p_fX2p,   'p_fX2p',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
-      
+ 
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
@@ -685,11 +681,11 @@ end select
   _SET_ODE_(self%id_c,rugc)
   _SET_ODE_(self%id_O3c,-rugc)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1c, 0.98D0 * rr1c, tfluxC ) !  flux is partitioned to non CDOM
-  _SET_ODE_(self%id_c,-(1.00D0-self%p_fX1p) * rr1c)
-  _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1p) * rr1c)
+  _SET_ODE_(self%id_c,-0.98D0 * rr1c)
+  _SET_ODE_(self%id_R1c,0.98D0 * rr1c)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1l, 0.02D0 * rr1c, tfluxC ) !  flux is partitioned to CDOM
-  _SET_ODE_(self%id_c,-self%p_fX1p * rr1c)
-  _SET_ODE_(self%id_X1c, self%p_fX1p * rr1c)
+  _SET_ODE_(self%id_c,-0.02D0 * rr1c)
+  _SET_ODE_(self%id_X1c,0.02D0 * rr1c)
 
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR6c, rr6c, tfluxC )
   _SET_ODE_(self%id_c,-rr6c)
@@ -756,12 +752,12 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 
  _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
 
-!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC ) ! flux to non CDOM
-  _SET_ODE_(self%id_c,-(1.00D0-self%p_fX2p) * flPIR2c)
-  _SET_ODE_(self%id_R2c,(1.00D0-self%p_fX2p) * flPIR2c)
-!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-  _SET_ODE_(self%id_c,-self%p_fX2p * flPIR2c)
-  _SET_ODE_(self%id_X2c,self%p_fX2p * flPIR2c)
+!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC )
+  _SET_ODE_(self%id_c,-0.98D0 * flPIR2c)
+  _SET_ODE_(self%id_R2c,0.98D0 * flPIR2c)
+!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) !  flux to CDOM
+  _SET_ODE_(self%id_c,-0.02D0 * flPIR2c)
+  _SET_ODE_(self%id_X2c,0.02D0 * flPIR2c)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)

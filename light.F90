@@ -28,8 +28,6 @@ module ogs_bfm_light
 contains
 
    subroutine initialize(self,configunit)
-
-
 !
 ! !DESCRIPTION:
 !
@@ -46,7 +44,7 @@ contains
       call self%get_parameter(self%EPS0X,    'EPS0r',   '1/m',   'background shortwave attenuation', default=4.E-2_rk)
       call self%get_parameter(self%EPSESSX,  'EPSESS',  'm^2/mg','specific shortwave attenuation of silt', default=4.E-5_rk)
       call self%get_parameter(self%pEIR_eowX,'pEIR_eow','-',     'photosynthetically active fraction of shortwave radiation', default=.4_rk)
-      call self%get_parameter(self%pEPSCHL,  'pEPSCHL', 'm^2/mg Chl', 'attenuation by Chlorophyll', default=.0088_rk)
+      call self%get_parameter(self%pEPSCHL,'pEPSCHL','m^2/mg Chl', 'attenuation by Chlorophyll', default=.0088_rk)
 
       ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_EIR,'EIR','uE m-2 d-1','shortwave radiation', &

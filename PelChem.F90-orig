@@ -68,16 +68,14 @@
       
       ! Identifiers for state variables of other models
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h,id_O4n          !  dissolved inorganic carbon, oxygen, total alkalinity, N2
-      type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s,id_N6r   !  nutrients: phosphate, nitrate, ammonium, silicate, iron
+      type (type_state_variable_id) :: id_N3n,id_N4n,id_N5s,id_N6r          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile, R3: semi-refractory)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       type (type_state_variable_id) :: id_X1c, id_X2c, id_X3c               !  CDOM
-      type (type_dependency_id)     :: id_dz
       ! Environmental dependencies
       type (type_dependency_id)    :: id_parEIR,id_ETW   ! PAR and temperature
       type (type_dependency_id)    :: id_PAR_tot
-      type (type_dependency_id)    :: id_isBen
 
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_eo      ! Oxygen limitation factor MM
@@ -97,16 +95,15 @@
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
       real(rk) :: p_rX1c,p_rX2c,p_rX3c, p_Icdom    
-      real(rk) :: p_TauC,p_TauP,p_TauN
-      real(rk) :: p_Amm_rem
-      integer :: p_Esource,p_use_benthic
+      integer :: p_Esource
   
     contains     
 
    ! Model procedures
       procedure :: initialize
-      procedure :: do
+      procedure :: do 
      end type type_ogs_bfm_PelChem
+
 
 contains
 
@@ -155,26 +152,16 @@ contains
       call self%get_parameter(self%p_rX3c,        'p_rX3c',      '[1/d]',           'degradation rate X3c')
       call self%get_parameter(self%p_Icdom,       'p_Icdom',     '[uE m-2 s-1]',    'light threshold for CDOM bleaching')
       call self%get_parameter(self%p_Esource,     'p_Esource',   '5-6',             'source of light for CDOM bleaching')
-      call self%get_parameter(self%p_use_benthic, 'p_use_benthic','0-1',             'activate first-order benthic return', default=0)
-      call self%get_parameter(self%p_TauC,        'P_TauC',       '[d]',             'remineralization of Carbon in detritus', default=365.0_rk)
-      call self%get_parameter(self%p_TauN,        'p_TauN',       '[d]',             'remineralization of Nitrogen in detritus', default=365.0_rk)
-      call self%get_parameter(self%p_TauP,        'p_TauP',       '[d]',             'remineralization of Phosphorus in detritus', default=365.0_rk)
-      call self%get_parameter(self%p_Amm_rem,     'p_Amm_rem',    '[0-1]',           'Fraction of remineralization to NH4', default=0.0_rk)
 
       ! Register links to external nutrient pools.
-      call self%register_state_dependency(self%id_O3c,'O3c','mg C /m^3','DIC')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
-      call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
       call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
       call self%register_state_dependency(self%id_N6r,'N6r','mmol HS/m^3','reduction equivalent')
       call self%register_state_dependency(self%id_R3c,'R3c','mgC /m^3','semi-refractory DOC')
       call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','biogenic silicate')
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','detritus-C')
-      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','detritus-P')
-      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','detritus-N')
       call self%register_state_dependency(self%id_X1c,'X1c','mgC/m^3','labile cdom')
       call self%register_state_dependency(self%id_X2c,'X2c','mgC/m^3','semilabile cdom')
       call self%register_state_dependency(self%id_X3c,'X3c','mgC/m^3','semi refractory cdom')
@@ -185,64 +172,56 @@ contains
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
       ! Dependency from multispectral model
       call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
-      call self%register_dependency(self%id_isBen,type_bulk_standard_variable(name='isBen'))      
 
-      call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_er,        'er'  ,       '-',           'reduction equiv. regulating factor with MichelisMenten',source=source_do_column, output=output_none)
-      call self%register_diagnostic_variable(self%id_flN4N3n,   'flN4N3n' ,   'mmolN/m3/d', 'nitrification',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_flN4N3n_o2,'flN4N3n_o2', 'mmolO/m3/d',  'consume of O2 for nitrification',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_flN3O4n,   'flN3O4n',    'mmolN/m3/d',  'denitrification',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'degradation of cdom X1c',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c',source=source_do_column,output=output_none)
+      call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten',output=output_none)
+      call self%register_diagnostic_variable(self%id_er,        'er'  ,       '-',           'reduction equiv. regulating factor with MichelisMenten',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN4N3n,   'flN4N3n' ,   'mmolN/m3/d',  'nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN4N3n_o2,'flN4N3n_o2', 'mmolO/m3/d',  'consume of O2 for nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN3O4n,   'flN3O4n',    'mmolN/m3/d',  'denitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent',output=output_none)
+      call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents',output=output_none)
+      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'degradation of cdom X1c',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c',output=output_none)
 !     call self%register_diagnostic_dependency(self%id_flPTN6r,'flPTN6r','mmolHS/m3/d','total rate of formation of reduction equivalent') ! from PelBac
-      call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification',source=source_do_column,output=output_none)
+      call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification',output=output_none)
+      call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification',output=output_none)
 
   end subroutine
 
-    subroutine do(self,_ARGUMENTS_DO_)
+   subroutine do(self,_ARGUMENTS_DO_)
 
       class (type_ogs_bfm_PelChem),intent(in) :: self
       _DECLARE_ARGUMENTS_DO_
 
    ! !LOCAL VARIABLES:
       real(rk) :: ETW, parEIR
-      real(rk) :: N1p,N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h, O3c
-      real(rk) :: R6c,R6n,R6p
+      real(rk) :: N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
       real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo,fR6N5s
       real(rk) :: degX1c, degX2c, degX3c
-      real(rk) :: isBen
 
 
      ! Enter spatial loops (if any)
-
       _LOOP_BEGIN_
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Allocate local memory
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
          ! Retrieve ambient nutrient concentrations
-         _GET_(self%id_N1p,N1p)
          _GET_(self%id_N3n,N3n)
          _GET_(self%id_N4n,N4n)
          _GET_(self%id_N5s,N5s)
          _GET_(self%id_N6r,N6r)
          _GET_(self%id_R3c,R3c)
          _GET_(self%id_R6s,R6s)
-         _GET_(self%id_R6c,R6c)
-         _GET_(self%id_R6p,R6p)
-         _GET_(self%id_R6n,R6n)
 
          _GET_(self%id_O2o,O2o)
          _GET_(self%id_O3h,O3h)
-         _GET_(self%id_O3c,O3c)
          _GET_(self%id_O4n,O4n)
          _GET_(self%id_X1c,X1c)
          _GET_(self%id_X2c,X2c)
@@ -260,7 +239,6 @@ contains
             _GET_(self%id_parEIR,    parEIR)   ! uE m-2 d-1
          end select
 
-         _GET_(self%id_isBen,    isBen)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Regulating factors
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -400,28 +378,11 @@ contains
  _SET_ODE_(self%id_R3c,degX3c)
  _SET_ODE_(self%id_X3c,-degX3c)
 
-
-  if (self%p_use_benthic .EQ. 1) then
-
-   _SET_ODE_(self%id_R6c,- 1.0D0/self%p_TauC * R6c * isBen)
-   _SET_ODE_(self%id_O3c,+ 1.0D0/self%p_TauC * R6c * isBen)
-   _SET_ODE_(self%id_O2o,- 1.0D0/self%p_TauC * R6c * isBen/12.0D0)
-
-   _SET_ODE_(self%id_R6n,- 1.0D0/self%p_TauN * R6n * isBen)
-   _SET_ODE_(self%id_N3n,+ (1.00 - self%p_Amm_rem)/self%p_TauN * R6n * isBen)
-   _SET_ODE_(self%id_N4n,+ self%p_Amm_rem/self%p_TauN * R6n * isBen)
-!  _SET_ODE_(self%id_O3h,- 1.0D0/self%p_TauN * R6n * isBen)
-
-   _SET_ODE_(self%id_R6p,- 1.0D0/self%p_TauP * R6p * isBen)
-   _SET_ODE_(self%id_N1p,+ 1.0D0/self%p_TauP * R6p * isBen)
-
-   endif
-
-! Leave spatial loops (if any)
+      ! Leave spatial loops (if any)
       _LOOP_END_
 
+      write(*,*) 'Check'
    end subroutine do
-
 end module
 
 ! GP !EOC
