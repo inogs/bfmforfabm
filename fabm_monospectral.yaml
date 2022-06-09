@@ -4,6 +4,14 @@ log: true
 instances:
   zenith_angle:
     model: ogs/zenith_angle
+  FLUC:
+    model: ogs/ornstein_uhlenbeck
+    parameters:
+       D_rnd: 0.0
+       k_rnd: 0.0
+    initialization:
+       FLUC: FLUC
+
   light:
     model: ogs/light
     parameters:
