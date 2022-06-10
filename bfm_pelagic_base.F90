@@ -14,6 +14,7 @@ module ogs_bfm_pelagic_base
    ! type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
    type,extends(type_particle_model),public :: type_ogs_bfm_pelagic_base
       type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_h
+      type (type_surface_state_variable_id)         :: id_fluc, id_seed
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
       type (type_dependency_id)                     :: id_dens
@@ -145,6 +146,10 @@ contains
          call register(self%id_r,'r','mmol/Eq','mmol Eq',total_reduction_equivalent)
       case ('h')
          call register(self%id_h,'h','mmol eq','mmol Eq alkalinity',alkalinity)
+      case('fluc')
+         call register_surface(self%id_fluc,'fluc',' -','',fluctuation)
+      case('seed')
+         call register_surface(self%id_seed,'seed',' -','',seed)
       case default
          call self%fatal_error('add_constituent','Unknown constituent "'//trim(name)//'".')
       end select
@@ -196,6 +201,15 @@ contains
             end do
          end if
       end subroutine register
+
+      subroutine register_surface(variable_id, name, base_units, long_name, aggregate_variable, scale_factor)
+         type (type_surface_state_variable_id),          intent(inout), target :: variable_id
+         character(len=*),                              intent(in)            :: name,base_units,long_name
+         type (type_horizontal_standard_variable),            intent(in)            :: aggregate_variable
+         real(rk),                                      intent(in), optional  :: scale_factor
+
+         call self%register_state_variable(variable_id, name, base_units//'/m^2', long_name, initial_value, minimum=0._rk,background_value=background_value)
+      end subroutine register_surface
    end subroutine add_constituent
 
 end module

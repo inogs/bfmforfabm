@@ -53,6 +53,8 @@ module ogs_bfm_shared
    ! Aggregate variables for benthic bioturbation and bioirrigation (summed over all fauna).
    type (type_bulk_standard_variable),parameter :: total_bioturbation_activity = type_bulk_standard_variable(name='total_bioturbation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_bioirrigation_activity = type_bulk_standard_variable(name='total_bioirrigation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
+   type (type_horizontal_standard_variable),parameter :: fluctuation = type_horizontal_standard_variable(name='fluctuation',units='-',aggregate_variable=.false.)
+   type (type_horizontal_standard_variable),parameter :: seed        = type_horizontal_standard_variable(name='seed',units='-',aggregate_variable=.false.)
 
    ! Spectral light variables
    real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,apoc,bpoc,bbpoc,WtoQ

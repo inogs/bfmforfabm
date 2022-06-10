@@ -4,14 +4,15 @@ log: true
 instances:
   zenith_angle:
     model: ogs/zenith_angle
-  FLUC:
+  FLUClight:
     model: ogs/ornstein_uhlenbeck
     parameters:
        D_rnd: 0.0
        k_rnd: 0.0
+       time_step: 600.0
     initialization:
-       FLUC: FLUC
-
+       seed: 20220610.
+       fluc: 0.0
   light:
     model: ogs/light
     parameters:
