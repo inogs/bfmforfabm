@@ -14,6 +14,8 @@ module ogs_bfm_light
       type (type_diagnostic_variable_id)   :: id_EIR, id_parEIR, id_xEPS
       type (type_dependency_id)            :: id_dz, id_xEPSp, id_ESS
       type (type_horizontal_dependency_id) :: id_I_0
+      type (type_horizontal_dependency_id) :: id_zenithA
+      type (type_horizontal_dependency_id) :: id_Lfluc
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
 
       ! Parameters
@@ -60,6 +62,9 @@ contains
       call self%register_dependency(self%id_I_0,standard_variables%surface_downwelling_shortwave_flux)
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
       call self%register_dependency(self%id_xEPSp,standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux)
+      call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
+      call self%register_horizontal_dependency(self%id_Lfluc,'Lfluc','[]','stochastic fluctuation')
+
       call self%register_state_dependency(self%id_P1chl,'P1chl','mg chl/m^3', 'Diatoms chlorophyll')
       call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Flagellates chlorophyll')
       call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'PicoPhytoplankton chlorophyll')
@@ -73,11 +78,20 @@ contains
 
       real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
       real(rk) :: P1chl, P2chl, P3chl, P4chl
+      real(rk) :: zenithA,mud
+      real(rk) :: Lfluc
 
 
       _GET_HORIZONTAL_(self%id_I_0,buffer)
+      _GET_HORIZONTAL_(self%id_Lfluc,Lfluc)
+      _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
+      call getrmud(zenithA,mud) ! average cosine direct component in the water
 
-      if (buffer.lt.0._rk) buffer=0._rk
+      buffer=buffer*(1._rk+ Lfluc)
+
+!     if ( (buffer.lt.0._rk) .and. (mud.lt.0._rk) ) buffer=0._rk
+      if (buffer.lt.0._rk)     buffer=0._rk
+      if (zenithA.gt. 89.9_rk) buffer=0._rk
 
       _VERTICAL_LOOP_BEGIN_
          _GET_(self%id_P1chl,P1chl)

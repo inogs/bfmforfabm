@@ -7,12 +7,13 @@ instances:
   FLUClight:
     model: ogs/ornstein_uhlenbeck
     parameters:
-       D_rnd: 0.0
-       k_rnd: 0.0
+       D_rnd: 0.37                                       # Noise amplitude '[-]2*d'
+       k_rnd: 1.0                                        # inverse of correlation time d-1
        time_step: 600.0
+       FLUCm: 10.0
     initialization:
        seed: 20220610.
-       fluc: 0.0
+       fluc: 10.0
   light:
     model: ogs/light
     parameters:
@@ -24,6 +25,7 @@ instances:
        P2chl: P2/Chl
        P3chl: P3/Chl
        P4chl: P4/Chl
+       Lfluc: FLUClight/fluc
   N1:
     long_name: phosphate
     model: ogs/bfm_pelagic_base

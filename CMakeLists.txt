@@ -15,6 +15,9 @@ add_library(fabm_models_ogs OBJECT
             zenith_angle.F90
             CalciteDissolution.F90
             PelagicCSYS.F90
+	    random_generator.F90
+	    gaussian_generator.F90
+	    ornstein_uhlenbeck.F90
            )
 
 add_dependencies(fabm_models_ogs fabm_base)
