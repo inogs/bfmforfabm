@@ -23,8 +23,8 @@ module ogs_bfm_light_spectral
       type (type_horizontal_diagnostic_variable_id) :: id_kd375, id_kd400, id_kd425, id_kd475, id_kd500
       
       type (type_dependency_id)            :: id_dz
-      type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c
-      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
+      type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c, id_P5c, id_P6c, id_P7c, id_P8c, id_P9c
+      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl, id_P5chl, id_P6chl, id_P7chl, id_P8chl, id_P9chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
 
@@ -161,38 +161,6 @@ contains
        WtoQ(nl) = rlamm*hcoavo*1000000.0D0 !Watts to micro mol quanta conversion
        acdom_min(nl)= 0.0_rk
       enddo
-
-!   CDOM minimum absorption (m-1)
-!   hardcoded
-!      acdom_min(1)= 0.1715_rk
-!      acdom_min(2)= 0.0373_rk
-!      acdom_min(3)= 0.0239_rk
-!      acdom_min(4)= 0.0153_rk
-!      acdom_min(5)= 0.0098_rk
-!      acdom_min(6)= 0.0063_rk
-!      acdom_min(7)= 0.0040_rk
-!      acdom_min(8)= 0.0026_rk
-!      acdom_min(9)= 0.0016_rk
-!      acdom_min(10)= 0.0010_rk
-!      acdom_min(11)= 0.00068_rk
-!      acdom_min(12)= 0.00043_rk
-!      acdom_min(13)= 0.00028_rk
-!      acdom_min(14)= 0.00018_rk
-!      acdom_min(15)= 0.00011_rk
-!      acdom_min(16)= 0.000073_rk
-!      acdom_min(17)= 0.000047_rk
-!      acdom_min(18)= 0.000027_rk
-!!      acdom_min(19)= 0.000013_rk
-!!      acdom_min(20)= 0.0000037_rk
-!!      acdom_min(21)= 0.00000062_rk
-!!      acdom_min(22)= 0.00000010_rk
-!!      acdom_min(23)= 0.000000017_rk
-!!      acdom_min(24)= 0.0000000030_rk
-!!      acdom_min(25)= 0.00000000050_rk
-!!      acdom_min(26)= 0.000000000084_rk
-!!      acdom_min(27)= 0.000000000014_rk
-!!      acdom_min(28)= 0.0000000000024_rk
-!!      acdom_min(29)= 0.00000000000040_rk      
 
 !   with parameter in namelist     
       do nl = 1,self%nlt
@@ -349,14 +317,24 @@ contains
       
       ! Register biogeochemical dependencies
       call self%register_state_dependency(self%id_P1c,'P1c','mg C/m^3', 'Diatoms carbon')
-      call self%register_state_dependency(self%id_P2c,'P2c','mg C/m^3', 'Flagellates carbon')
-      call self%register_state_dependency(self%id_P3c,'P3c','mg C/m^3', 'PicoPhytoplankton carbon')
+      call self%register_state_dependency(self%id_P2c,'P2c','mg C/m^3', 'Prymnesiophyta carbon')
+      call self%register_state_dependency(self%id_P3c,'P3c','mg C/m^3', 'SmallEukaryotes carbon')
       call self%register_state_dependency(self%id_P4c,'P4c','mg C/m^3', 'DinoFlagellates carbon')
+      call self%register_state_dependency(self%id_P5c,'P5c','mg C/m^3', 'Coccolithophores carbon')
+      call self%register_state_dependency(self%id_P6c,'P6c','mg C/m^3', 'Prochlorococcus carbon')
+      call self%register_state_dependency(self%id_P7c,'P7c','mg C/m^3', 'Green algae 1 carbon')
+      call self%register_state_dependency(self%id_P8c,'P8c','mg C/m^3', 'Green algae 2 carbon')
+      call self%register_state_dependency(self%id_P9c,'P9c','mg C/m^3', 'Synechococcus carbon')
 
       call self%register_state_dependency(self%id_P1chl,'P1chl','mg chl/m^3', 'Diatoms chlorophyll')
-      call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Flagellates chlorophyll')
-      call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'PicoPhytoplankton chlorophyll')
+      call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Prymnesiophyta chlorophyll')
+      call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'SmallEukaryotes chlorophyll')
       call self%register_state_dependency(self%id_P4chl,'P4chl','mg chl/m^3', 'DinoFlagellates chlorophyll')
+      call self%register_state_dependency(self%id_P5chl,'P5chl','mg chl/m^3', 'Coccolithophores chlorophyll')
+      call self%register_state_dependency(self%id_P6chl,'P6chl','mg chl/m^3', 'Procholorococcus chlorophyll')
+      call self%register_state_dependency(self%id_P7chl,'P7chl','mg chl/m^3', 'Green algae 1 chlorophyll')
+      call self%register_state_dependency(self%id_P8chl,'P8chl','mg chl/m^3', 'Green algae 2 chlorophyll')
+      call self%register_state_dependency(self%id_P9chl,'P9chl','mg chl/m^3', 'Synechococcus chlorophyll')
 
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3', 'labile CDOM')
@@ -447,8 +425,9 @@ contains
       real(rk) :: cdom_a
       real(rk) :: tot_a,tot_b,tot_bb
       real(rk) :: R6c,X1c,X2c,X3c
-      real(rk) :: P1c,P2c,P3c,P4c
-      real(rk) :: P1chl, P2chl, P3chl, P4chl
+      real(rk) :: P1c,P2c,P3c,P4c,P5c,P6c,P7c,P8c,P9c
+      real(rk) :: P1chl,P2chl,P3chl,P4chl
+      real(rk) :: P5chl,P6chl,P7chl,P8chl,P9chl      
       real(rk) :: aph450, anap450
       real(rk) :: acdom250,acdom325,acdom400,acdom425,acdom450
       real(rk) :: Scdom350_500, Scdom250_325
@@ -561,11 +540,21 @@ contains
        _GET_(self%id_P2chl,P2chl)
        _GET_(self%id_P3chl,P3chl)
        _GET_(self%id_P4chl,P4chl)
+       _GET_(self%id_P5chl,P5chl)
+       _GET_(self%id_P6chl,P6chl)
+       _GET_(self%id_P7chl,P7chl)
+       _GET_(self%id_P8chl,P8chl)
+       _GET_(self%id_P9chl,P9chl)
 
        _GET_(self%id_P1c,P1c)
        _GET_(self%id_P2c,P2c)
        _GET_(self%id_P3c,P3c)
        _GET_(self%id_P4c,P4c)       
+       _GET_(self%id_P5c,P5c)
+       _GET_(self%id_P6c,P6c)
+       _GET_(self%id_P7c,P7c)
+       _GET_(self%id_P8c,P8c)       
+       _GET_(self%id_P9c,P9c)       
        
        _GET_(self%id_R6c,R6c)
 
@@ -575,10 +564,10 @@ contains
 
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
-             phy_a  = ac(1,l)*P1chl + ac(2,l)*P2chl + ac(3,l)*P3chl + ac(4,l)*P4chl
-             phy_b  = bc(1,l)*P1c + bc(2,l)*P2c + bc(3,l)*P3c + bc(4,l)*P4c
+             phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
+             phy_b  = bc(1,l)*P1c + bc(2,l)*P2c + bc(3,l)*P3c + bc(4,l)*P4c   +bc(2,l)*P5c + bc(3,l)*P6c + bc(2,l)*P7c + bc(2,l)*P8c+ bc(3,l)*P9c
 !             phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
-             phy_bb = bc(1,l)*bbc(1,l)*P1c + bc(2,l)*bbc(2,l)*P2c + bc(3,l)*bbc(3,l)*P3c + bc(4,l)*bbc(4,l)*P4c
+             phy_bb = bc(1,l)*bbc(1,l)*P1c + bc(2,l)*bbc(2,l)*P2c + bc(3,l)*bbc(3,l)*P3c + bc(4,l)*bbc(4,l)*P4c + bc(2,l)*bbc(2,l)*P5c + bc(3,l)*bbc(3,l)*P6c + bc(2,l)*bbc(2,l)*P7c + bc(2,l)*bbc(2,l)*P8c + bc(3,l)*bbc(3,l)*P9c
 !             phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl + bc(3,l)*bbc(3,l)*P3chl + bc(4,l)*bbc(4,l)*P4chl
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
              cdom_a = MAX(cdom_a, acdom_min(l))
@@ -599,11 +588,11 @@ contains
        acdom400 = MAX(acdom(1,5)*X1c + acdom(2,5)*X2c + acdom(3,5)*X3c, acdom_min(5))
        acdom425 = MAX(acdom(1,6)*X1c + acdom(2,6)*X2c + acdom(3,6)*X3c, acdom_min(6))
        acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
-       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl
+       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
        anap450  = apoc(7) * R6c
-       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c) + bbpoc(7)*R6c
-       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c) + bbpoc(11)*R6c
-       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c) + bbpoc(17)*R6c
+       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c
+       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c
+       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c + bc(2,17)*bbc(2,17)*P5c + bc(3,17)*bbc(3,17)*P6c + bc(2,17)*bbc(2,17)*P7c + bc(2,17)*bbc(2,17)*P8c + bc(3,17)*bbc(3,17)*P9c) + bbpoc(17)*R6c
 
          _SET_DIAGNOSTIC_(self%id_acdom250, max(p_small,acdom250))            
          _SET_DIAGNOSTIC_(self%id_acdom325, max(p_small,acdom325))            
