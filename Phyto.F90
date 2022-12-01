@@ -94,7 +94,10 @@
       type (type_diagnostic_variable_id) :: id_rr1c  ! lysis fraction to labile DOC
       type (type_diagnostic_variable_id) :: id_rrc   ! total respiration
       type (type_diagnostic_variable_id) :: id_rugc  ! gross primary production
-      type (type_diagnostic_variable_id) :: id_flPIR2c  ! release to semi-labile DOC
+      type (type_diagnostic_variable_id) :: id_flPIR2c  ! release to semi-labile transparent DOC
+      type (type_diagnostic_variable_id) :: id_flPIR2c_act  ! activity release to semi-labile DOC
+      type (type_diagnostic_variable_id) :: id_flPIR2c_tot  ! total release to semi-labile DOC      
+      type (type_diagnostic_variable_id) :: id_f2cdom  ! fraction to CDOM    
       type (type_diagnostic_variable_id) :: id_run   ! net primary production
       type (type_diagnostic_variable_id) :: id_sadap  ! adaptation
       type (type_diagnostic_variable_id) :: id_cqun3  ! preference for ammonia 
@@ -327,29 +330,32 @@ contains
                  call self%register_diagnostic_variable(self%id_iN5s, 'iN5s', '-','internal quota silicon limitation',output=output_none)
          end select
       end if
-      call self%register_diagnostic_variable(self%id_iN,   'iN'  , '-','N and P  nutrient limitation',output=output_none)
-      call self%register_diagnostic_variable(self%id_tN,   'tN',   '-','total nutrient limitation',output=output_none)
+      call self%register_diagnostic_variable(self%id_iN,   'iN'  , '-','N and P  nutrient limitation')
+      call self%register_diagnostic_variable(self%id_tN,   'tN',   '-','total nutrient limitation')
       call self%register_diagnostic_variable(self%id_ETWd, 'ETW',  'C','temperature Celsius',output=output_none)
       call self%register_diagnostic_variable(self%id_et,   'et',   '-','temperature factor',output=output_none)
-      call self%register_diagnostic_variable(self%id_EIRd, 'EIR',  'uE/m2/s','PAR',output=output_none)
-      call self%register_diagnostic_variable(self%id_rr, 'r',  '-','light limitation exponent',output=output_none)
-      call self%register_diagnostic_variable(self%id_eiPPY, 'eiPPY',  '-','light limitation',output=output_none)
-      call self%register_diagnostic_variable(self%id_sum, 'sum',  '1/d','growth time scale',output=output_none)
-      call self%register_diagnostic_variable(self%id_sdo, 'sdo', 'mgC/m3/d','nutrient stress lysis',output=output_none)
-      call self%register_diagnostic_variable(self%id_sea, 'sea', 'mgC/m3/d','activity excretion',output=output_none)
-      call self%register_diagnostic_variable(self%id_seo, 'seo', 'mgC/m3/d','nutrient stress excretion',output=output_none)
-      call self%register_diagnostic_variable(self%id_rr1c,'rr1c', 'mgC/m3/d','lysis fraction to labile DOC',output=output_none)
-      call self%register_diagnostic_variable(self%id_rrc, 'rrc', 'mgC/m3/d','total respiration',output=output_none)
-      call self%register_diagnostic_variable(self%id_rugc,'rugc', 'mgC/m3/d','Gross primary production',output=output_none)
-      call self%register_diagnostic_variable(self%id_flPIR2c,'flPIR2c', 'mgC/m3/d','flux to semilabile DOC',output=output_none)
-      call self%register_diagnostic_variable(self%id_run,'run', 'mgC/m3/d','net primary production')
-      call self%register_diagnostic_variable(self%id_sadap,'sadap', 'mgC/m3/d',' adaptation',output=output_none)
-      call self%register_diagnostic_variable(self%id_cqun3,'cqun3', '-',' preference for ammonia',output=output_none)
-      call self%register_diagnostic_variable(self%id_rumn3,'rumn3', '-',' max pot. uptake of N3',output=output_none)
-      call self%register_diagnostic_variable(self%id_rumn4,'rumn4', '-',' max pot. uptake of N4',output=output_none)
+      call self%register_diagnostic_variable(self%id_EIRd, 'EIR',  'uE/m2/s','PAR')
+      call self%register_diagnostic_variable(self%id_rr,   'r',    '-',  'light limitation exponent')
+      call self%register_diagnostic_variable(self%id_eiPPY,'eiPPY','-',  'light limitation',output=output_none)
+      call self%register_diagnostic_variable(self%id_sum,  'sum',  '1/d','growth time scale')
+      call self%register_diagnostic_variable(self%id_sdo,  'sdo', 'mgC/m3/d','nutrient stress lysis')
+      call self%register_diagnostic_variable(self%id_sea,  'sea', 'mgC/m3/d','activity excretion')
+      call self%register_diagnostic_variable(self%id_seo,  'seo', 'mgC/m3/d','nutrient stress excretion')
+      call self%register_diagnostic_variable(self%id_rr1c, 'rr1c','mgC/m3/d','lysis fraction to labile DOC')
+      call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration')
+      call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production')
+      call self%register_diagnostic_variable(self%id_flPIR2c_tot,'flPIR2c_tot', 'mgC/m3/d', 'total flux to semilabile DOC')      
+      call self%register_diagnostic_variable(self%id_flPIR2c_act,'flPIR2c_act', 'mgC/m3/d', 'activity flux to semilabile DOC')
+      call self%register_diagnostic_variable(self%id_flPIR2c,    'flPIR2c',     'mgC/m3/d', 'flux to transparent semilabile DOC')
+      call self%register_diagnostic_variable(self%id_f2cdom,  'f2cdom', '-', 'fraction to semilabile CDOM')      
+      call self%register_diagnostic_variable(self%id_run,   'run',   'mgC/m3/d','net primary production')
+      call self%register_diagnostic_variable(self%id_sadap, 'sadap', 'mgC/m3/d',' adaptation',output=output_none)
+      call self%register_diagnostic_variable(self%id_cqun3, 'cqun3', '-',' preference for ammonia',output=output_none)
+      call self%register_diagnostic_variable(self%id_rumn3, 'rumn3', '-',' max pot. uptake of N3',output=output_none)
+      call self%register_diagnostic_variable(self%id_rumn4, 'rumn4', '-',' max pot. uptake of N4',output=output_none)
       call self%register_diagnostic_variable(self%id_rumn,  'rumn', '?',' max pot. uptake of DIN',output=output_none)
       call self%register_diagnostic_variable(self%id_rump,  'rump', '?',' max pot. uptake of DIN',output=output_none)
-      call self%register_diagnostic_variable(self%id_netgrowth,  'netgrowth', 'mgC/m3/d',' netgrowth',output=output_none)
+      call self%register_diagnostic_variable(self%id_netgrowth,  'netgrowth', 'mgC/m3/d',' netgrowth')
       call self%register_diagnostic_variable(self%id_sunPPY,  'sunPPY', '?',' Specific net growth rate',output=output_none)
       call self%register_diagnostic_variable(self%id_misn,  'misn', '?',' Intracellular missing amount of N',output=output_none)
       call self%register_diagnostic_variable(self%id_rupn,  'rupn', '?',' N uptake based on net assimilat. C',output=output_none)
@@ -372,8 +378,8 @@ contains
          call self%register_diagnostic_variable(self%id_rups,  'rups', '?',' S uptake based on C uptake',output=output_none)
          call self%register_diagnostic_variable(self%id_runs,  'runs', '?',' actual S uptake ',output=output_none)
       endif
-      call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ',output=output_none)
-      call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ',output=output_none)
+      call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ')
+      call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ')
       if (self%use_CaCO3) then
          call self%register_diagnostic_variable(self%id_O3hconume_for_CaCO3prec,'consO3h_caco3','mmol/m3/d','consume of O3h for CaCO3 precipitation',output=output_none)
       endif
@@ -404,7 +410,7 @@ contains
       real(rk) :: sdo, sea, seo
       real(rk) :: pe_R6, rr1c, rr6c
       real(rk) :: sra, srs, srt, rrc
-      real(rk) :: rugc, slc, flPIR2c
+      real(rk) :: rugc, slc, flPIR2c, flPIR2c_tot, f2cdom
       real(rk) :: run, sadap 
       real(rk) :: cqun3, rumn3, rumn4, rumn, rump
       real(rk) :: netgrowth, sunPPY  
@@ -691,6 +697,15 @@ end select
   _SET_ODE_(self%id_c,-self%p_fX1p * rr1c)
   _SET_ODE_(self%id_X1c, self%p_fX1p * rr1c)
 
+!CEA Activity excretion produces CDOM, nutrient-stress excretion dont  
+!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
+  f2cdom = self%p_fX2p * ( (phytol/phytoc)/self%p_qlcPPY ) 
+  _SET_ODE_(self%id_c, -f2cdom * flPIR2c)
+  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c)
+
+  _SET_DIAGNOSTIC_(self%id_flPIR2c_act, flPIR2c)
+  _SET_DIAGNOSTIC_(self%id_f2cdom, f2cdom)
+  
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR6c, rr6c, tfluxC )
   _SET_ODE_(self%id_c,-rr6c)
   _SET_ODE_(self%id_R6c,rr6c)
@@ -750,19 +765,27 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
    ! Correct the net C uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth  =   max(  netgrowth,  ZERO)
-      flPIR2c  =   flPIR2c+ run- netgrowth
+      flPIR2c_tot  =   flPIR2c+ run- netgrowth
+      flPIR2c  =  ((1.00D0-f2cdom)*flPIR2c) + run - netgrowth
       run  =   netgrowth
   end if
 
  _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
 
-!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC ) ! flux to non CDOM
-  _SET_ODE_(self%id_c,-(1.00D0-self%p_fX2p) * flPIR2c)
-  _SET_ODE_(self%id_R2c,(1.00D0-self%p_fX2p) * flPIR2c)
-!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-  _SET_ODE_(self%id_c,-self%p_fX2p * flPIR2c)
-  _SET_ODE_(self%id_X2c,self%p_fX2p * flPIR2c)
+!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC ) ! flux to non CDOM
+!  _SET_ODE_(self%id_c, -(1.00D0-f2cdom) * flPIR2c_tot)
+!  _SET_ODE_(self%id_R2c,(1.00D0-f2cdom) * flPIR2c_tot)
+!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
+!  _SET_ODE_(self%id_c, -f2cdom * flPIR2c_tot)
+!  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c_tot)
 
+! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
+  _SET_ODE_(self%id_c,-flPIR2c)
+  _SET_ODE_(self%id_R2c,flPIR2c)
+
+ _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
+ _SET_DIAGNOSTIC_(self%id_flPIR2c_tot, flPIR2c_tot)
+  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

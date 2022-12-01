@@ -57,7 +57,7 @@ module ogs_bfm_shared
    type (type_horizontal_standard_variable),parameter :: seed        = type_horizontal_standard_variable(name='seed',units='-',aggregate_variable=.false.)
 
    ! Spectral light variables
-   real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,apoc,bpoc,bbpoc,WtoQ
+   real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,apoc,bpoc,bbpoc,WtoQ,acdom_min
    real(rk), allocatable, dimension(:)                 :: Ed_0,Es_0
    real(rk), allocatable, dimension(:,:)               :: ac,ac_ps,bc,bbc,acdom
 !  real(rk), allocatable, dimension(:,:)               :: a_array, b_array, bb_array

@@ -40,7 +40,7 @@
       close(4)
 20    format(i5,f8.1,f8.1,f14.4,f8.4,f9.5)
  
-!  Phytoplankton group chl-specific absorption and total scattering 
+!  Phytoplankton group chl-specific absorption and c-specific scattering 
 !  data.  Chl-specific absorption data is normalized to 440 nm (?);
 !  convert here to actual ac*(440)
 
@@ -67,7 +67,8 @@
        enddo
       enddo
       close(4)
-30    format(i4,4f10.4)
+30    format(i4,2f10.4,1f10.5,1f10.4)
+!30    format(i4,4f10.4)      
 
 !  POC absorption, scattering and back scattering normalized to mgC/m3
       cfle = cdir//cacbpoc

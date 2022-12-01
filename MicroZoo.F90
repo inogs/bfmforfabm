@@ -138,7 +138,7 @@
       type (type_diagnostic_variable_id) :: id_rric   ! tbd
       type (type_diagnostic_variable_id) :: id_reac   ! tbd
       type (type_diagnostic_variable_id) :: id_rdc    ! tbd
-      type (type_diagnostic_variable_id) :: id_rr1c   ! tbd
+      type (type_diagnostic_variable_id) :: id_rr1c   ! exudation flux to DOC
       type (type_diagnostic_variable_id) :: id_rr6c   ! tbd
       type (type_diagnostic_variable_id) :: id_rrin   ! tbd
       type (type_diagnostic_variable_id) :: id_rr1n   ! tbd
@@ -320,7 +320,7 @@
         call self%register_diagnostic_variable(self%id_rric, 'rric', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_reac, 'reac', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rdc,  'rdc',  'tbd',      'tbd',output=output_none)
-        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'mgC/m3/d', 'exudation flux to DOC')
         call self%register_diagnostic_variable(self%id_rr6c, 'rr6c', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rrin, 'rrin', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rr1n, 'rr1n', 'tbd',      'tbd',output=output_none)
@@ -577,12 +577,21 @@
       rric = reac + rdc
       rr1c = rric*self%p_pe_R1c
       rr6c = rric*(ONE - self%p_pe_R1c)
+
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC) ! flux to non CDOM
       _SET_ODE_(self%id_c, -(1.00D0-self%p_fX1z)*rr1c)
       _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1z)*rr1c)
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! flux to CDOM
       _SET_ODE_(self%id_c, -self%p_fX1z*rr1c)
       _SET_ODE_(self%id_X1c,self%p_fX1z*rr1c)
+
+      !CEA to DOC: (1-fX1) of reac and all rdc
+!      _SET_ODE_(self%id_c, -(((1.00D0-self%p_fX1z)*(reac*rr1c/rric))+(rdc*rr1c/rric))  )
+!      _SET_ODE_(self%id_R1c,(((1.00D0-self%p_fX1z)*(reac*rr1c/rric))+(rdc*rr1c/rric))  )
+      !CEA to CDOM: fX1 of reac
+!      _SET_ODE_(self%id_c, -self%p_fX1z*(reac*rr1c/rric))
+!      _SET_ODE_(self%id_X1c,self%p_fX1z*(reac*rr1c/rric))
+
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR6c, rr6c, tfluxC)
       _SET_ODE_(self%id_c, -rr6c)
       _SET_ODE_(self%id_R6c,rr6c)
