@@ -264,8 +264,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.750e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 1                          # [1-6]          source of light for PP, 1=absorbed by P1, 5=scalar, 6=mono
-                                              
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 1                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.026                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -303,7 +303,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_dia
+      PAR: lightspectral/PAR_P1
 #   ------------------------------------------------------------------
   P4:
     long_name: dinoflagellates
@@ -348,7 +348,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.257e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 4                          # [1-6]          source of light for PP, 4=absorbed by P4, 5=scalar, 6=mono 
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 4                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.019                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]          Relaxation rate towards maximum Chla:C
@@ -383,7 +384,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_dino
+      PAR: lightspectral/PAR_P4
 #   ------------------------------------------------------------------
 #   ---------------------- P2 Nanophytoplankton ----------------------
   P2:
@@ -430,7 +431,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.198e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 2                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -465,7 +467,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_flag
+      PAR: lightspectral/PAR_P2
 #   ------------------------------------------------------------------
   P5:
     long_name: coccolithophores
@@ -511,7 +513,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.198e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 5                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -546,7 +549,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_flag
+      PAR: lightspectral/PAR_P5
 #   -----------------------------------------------------------------
   P7:
     long_name: chlorophyceae
@@ -592,7 +595,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.198e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 7                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -627,7 +631,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_flag
+      PAR: lightspectral/PAR_P7
 #  ------------------------------------------------------------------
   P8:
     long_name: prasinophyceae
@@ -673,7 +677,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.198e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 2                          # [1-6]          source of light for PP, 2=absorbed by P2, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 8                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -708,7 +713,7 @@ instances:
       X2c: X2/c 
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_flag
+      PAR: lightspectral/PAR_P8
 #   ------------------------------------------------------------------
 #   ---------------------- P3 Picophytoplankton ----------------------
   P3:
@@ -767,8 +772,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.990e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
-                                              
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 3                               # [1-9]          type of absorption/scattering spectra                                            
       p_qlcPPY: 0.014                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -803,7 +808,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_pico
+      PAR: lightspectral/PAR_P3
 # ---------------------------------------------------------------
   P6:
     long_name: prochlorococcus
@@ -848,7 +853,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.990e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 6                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.014                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -883,7 +889,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_pico
+      PAR: lightspectral/PAR_P6
 # ----------------------------------------------------------------      
   P9:
     long_name: synechococcus
@@ -928,7 +934,8 @@ instances:
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
       p_quantum_yield: 0.990e-3             # [mgC / uE]     Photochemical efficiency
-      p_Esource: 3                          # [1-6]          source of light for PP, 3=absorbed by P3, 5=scalar, 6=mono
+      p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
+      p_OT: 9                               # [1-9]          type of absorption/scattering spectra
       p_qlcPPY: 0.014                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
@@ -963,7 +970,7 @@ instances:
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
-      PAR: lightspectral/PAR_pico
+      PAR: lightspectral/PAR_P9
 #   -------------------------------------------------------------------------------
 #   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #

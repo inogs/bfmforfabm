@@ -144,6 +144,7 @@
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
+      integer :: optical_type
    contains
 
       ! Model procedures
@@ -262,6 +263,9 @@ contains
 !              --------- Flux partition CDOM parameters ------------
       call self%get_parameter(self%p_fX1p,   'p_fX1p',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2p,   'p_fX2p',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
+!              --------- Optical type ------------
+      call self%get_parameter(self%p_OT,   'optical_type',  '1-9',  'label for absorption/scattering spectra')
+
       
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
@@ -385,6 +389,38 @@ contains
       endif
          call self%register_diagnostic_variable(self%id_Nutil_O3h,'varO3h_for_Nutil','mmol/m3/d','variation of O3h due to N uptake/release',output=output_none)
          call self%register_diagnostic_variable(self%id_Putil_O3h,'varO3h_for_Putil','mmol/m3/d','variation of O3h due to P uptake/release',output=output_none)
+
+      ! Register aggregated chlorophyll and carbon per optical type
+      select case (self%optical_type) 
+         case (1)
+                 call self%add_to_aggregate_variable(carbon_P1,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P1, self%id_chl,include_background=.true.)
+         case (2)
+                 call self%add_to_aggregate_variable(carbon_P2,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P2, self%id_chl,include_background=.true.)
+         case (3)
+                 call self%add_to_aggregate_variable(carbon_P3,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P3, self%id_chl,include_background=.true.)
+         case (4)
+                 call self%add_to_aggregate_variable(carbon_P4,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P4, self%id_chl,include_background=.true.)
+         case (5)
+                 call self%add_to_aggregate_variable(carbon_P5,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P5, self%id_chl,include_background=.true.)
+         case (6)
+                 call self%add_to_aggregate_variable(carbon_P6,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P6, self%id_chl,include_background=.true.)
+         case (7)
+                 call self%add_to_aggregate_variable(carbon_P7,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P7, self%id_chl,include_background=.true.)
+         case (8)
+                 call self%add_to_aggregate_variable(carbon_P8,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P8, self%id_chl,include_background=.true.)
+         case (9)
+                 call self%add_to_aggregate_variable(carbon_P9,      self%id_c,  include_background=.true.)
+                 call self%add_to_aggregate_variable(chlorophyll_P9, self%id_chl,include_background=.true.)                 
+      end select
+
    end subroutine
 
    subroutine do(self,_ARGUMENTS_DO_)
