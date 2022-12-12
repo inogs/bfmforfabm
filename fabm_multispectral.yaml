@@ -8,6 +8,7 @@ instances:
     model: ogs/light
     parameters:
       pEPSCHL: 0.0088                                      # attenuation by Chlorophyll (m^2/mg Chl), default= 0.0088
+      pEPSCDOM: 0.01476                                    # attenuation by CDOM (m^2/mg C), default= 0.0646      
       EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
       pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
     coupling:
@@ -15,6 +16,9 @@ instances:
        P2chl: P2/Chl
        P3chl: P3/Chl
        P4chl: P4/Chl
+       X1c: X1/c
+       X2c: X2/c
+       X3c: X3/c       
   lightspectral:
     model: ogs/light_spectral
     parameters:
