@@ -243,8 +243,7 @@ contains
       call self%get_parameter(self%p_sdchl,         'p_sdchl',        '1/d',    'Specific turnover rate for Chla')
       call self%get_parameter(self%p_alpha_chl,     'p_alpha_chl',    'mgC s m2/mgChl/uE','Initial slope of the P-E curve')
       call self%get_parameter(self%p_quantum_yield, 'p_quantum_yield','mgC/uE', 'Photochemical efficiency')
-      call self%get_parameter(self%p_Esource,       'p_Esource',      '1-6',    'source of light for PP')
-      
+      call self%get_parameter(self%p_Esource,       'p_Esource',      '1-6',    'source of light for PP')      
       call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC','reference quotum Chla:C')
       call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
       call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')

@@ -23,8 +23,8 @@ module ogs_bfm_light_spectral
       type (type_horizontal_diagnostic_variable_id) :: id_kd375, id_kd400, id_kd425, id_kd475, id_kd500
       
       type (type_dependency_id)            :: id_dz
-      type (type_state_variable_id)        :: id_P1c, id_P2c, id_P3c, id_P4c, id_P5c, id_P6c, id_P7c, id_P8c, id_P9c
-      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl, id_P5chl, id_P6chl, id_P7chl, id_P8chl, id_P9chl
+      type (type_dependency_id)            :: id_aP1c, id_aP2c, id_aP3c, id_aP4c, id_aP5c, id_aP6c, id_aP7c, id_aP8c, id_aP9c
+      type (type_dependency_id)            :: id_aP1chl, id_aP2chl, id_aP3chl, id_aP4chl, id_aP5chl, id_aP6chl, id_aP7chl, id_aP8chl, id_aP9chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
 
@@ -283,10 +283,15 @@ contains
       enddo
       
      ! Register diagnostic variables
-      call self%register_diagnostic_variable(self%id_par_dia, 'PAR_dia',  'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_flag,'PAR_flag', 'uE mgChl-1 d-1', 'PAR_flagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_pico,'PAR_pico', 'uE mgChl-1 d-1', 'PAR_picophytoplankton', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_dino,'PAR_dino', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P1, 'PAR_P1', 'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P2, 'PAR_P2', 'uE mgChl-1 d-1', 'PAR_flagellates', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P3, 'PAR_P3', 'uE mgChl-1 d-1', 'PAR_picoeukaryotes', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P4, 'PAR_P4', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P5, 'PAR_P5', 'uE mgChl-1 d-1', 'PAR_coccoloithophores', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P6, 'PAR_P6', 'uE mgChl-1 d-1', 'PAR_prochlorococcus', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P7, 'PAR_P7', 'uE mgChl-1 d-1', 'PAR_green1', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P8, 'PAR_P8', 'uE mgChl-1 d-1', 'PAR_green2', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_par_P9, 'PAR_P9', 'uE mgChl-1 d-1', 'PAR_synechococcus', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Scdom350_500, 'Scdom350_500', 'nm-1','visible spectral slope acdom', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Scdom250_325, 'Scdom250_325', 'nm-1','UV spectral slope acdom', source=source_do_column)
@@ -315,27 +320,28 @@ contains
       call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
       
+      ! Register dependencies on aggregated variables
+      call self%register_state_dependency(self%id_P1c,'carbon_P1','mg C/m^3', 'Diatoms carbon')
+      call self%register_state_dependency(self%id_P2c,'carbon_P2','mg C/m^3', 'Prymnesiophyta carbon')
+      call self%register_state_dependency(self%id_P3c,'carbon_P3','mg C/m^3', 'SmallEukaryotes carbon')
+      call self%register_state_dependency(self%id_P4c,'carbon_P4','mg C/m^3', 'DinoFlagellates carbon')
+      call self%register_state_dependency(self%id_P5c,'carbon_P5','mg C/m^3', 'Coccolithophores carbon')
+      call self%register_state_dependency(self%id_P6c,'carbon_P6','mg C/m^3', 'Prochlorococcus carbon')
+      call self%register_state_dependency(self%id_P7c,'carbon_P7','mg C/m^3', 'Green algae 1 carbon')
+      call self%register_state_dependency(self%id_P8c,'carbon_P8','mg C/m^3', 'Green algae 2 carbon')
+      call self%register_state_dependency(self%id_P9c,'carbon_P9','mg C/m^3', 'Synechococcus carbon')
+
+      call self%register_state_dependency(self%id_aP1chl,'chlorophyll_P1','mg chl/m^3', 'Diatoms chlorophyll')
+      call self%register_state_dependency(self%id_aP2chl,'chlorophyll_P2','mg chl/m^3', 'Prymnesiophyta chlorophyll')
+      call self%register_state_dependency(self%id_aP3chl,'chlorophyll_P3','mg chl/m^3', 'SmallEukaryotes chlorophyll')
+      call self%register_state_dependency(self%id_aP4chl,'chlorophyll_P4','mg chl/m^3', 'DinoFlagellates chlorophyll')
+      call self%register_state_dependency(self%id_aP5chl,'chlorophyll_P5','mg chl/m^3', 'Coccolithophores chlorophyll')
+      call self%register_state_dependency(self%id_aP6chl,'chlorophyll_P6','mg chl/m^3', 'Procholorococcus chlorophyll')
+      call self%register_state_dependency(self%id_aP7chl,'chlorophyll_P7','mg chl/m^3', 'Green algae 1 chlorophyll')
+      call self%register_state_dependency(self%id_aP8chl,'chlorophyll_P8','mg chl/m^3', 'Green algae 2 chlorophyll')
+      call self%register_state_dependency(self%id_aP9chl,'chlorophyll_P9','mg chl/m^3', 'Synechococcus chlorophyll')
+
       ! Register biogeochemical dependencies
-      call self%register_state_dependency(self%id_P1c,'P1c','mg C/m^3', 'Diatoms carbon')
-      call self%register_state_dependency(self%id_P2c,'P2c','mg C/m^3', 'Prymnesiophyta carbon')
-      call self%register_state_dependency(self%id_P3c,'P3c','mg C/m^3', 'SmallEukaryotes carbon')
-      call self%register_state_dependency(self%id_P4c,'P4c','mg C/m^3', 'DinoFlagellates carbon')
-      call self%register_state_dependency(self%id_P5c,'P5c','mg C/m^3', 'Coccolithophores carbon')
-      call self%register_state_dependency(self%id_P6c,'P6c','mg C/m^3', 'Prochlorococcus carbon')
-      call self%register_state_dependency(self%id_P7c,'P7c','mg C/m^3', 'Green algae 1 carbon')
-      call self%register_state_dependency(self%id_P8c,'P8c','mg C/m^3', 'Green algae 2 carbon')
-      call self%register_state_dependency(self%id_P9c,'P9c','mg C/m^3', 'Synechococcus carbon')
-
-      call self%register_state_dependency(self%id_P1chl,'P1chl','mg chl/m^3', 'Diatoms chlorophyll')
-      call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Prymnesiophyta chlorophyll')
-      call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'SmallEukaryotes chlorophyll')
-      call self%register_state_dependency(self%id_P4chl,'P4chl','mg chl/m^3', 'DinoFlagellates chlorophyll')
-      call self%register_state_dependency(self%id_P5chl,'P5chl','mg chl/m^3', 'Coccolithophores chlorophyll')
-      call self%register_state_dependency(self%id_P6chl,'P6chl','mg chl/m^3', 'Procholorococcus chlorophyll')
-      call self%register_state_dependency(self%id_P7chl,'P7chl','mg chl/m^3', 'Green algae 1 chlorophyll')
-      call self%register_state_dependency(self%id_P8chl,'P8chl','mg chl/m^3', 'Green algae 2 chlorophyll')
-      call self%register_state_dependency(self%id_P9chl,'P9chl','mg chl/m^3', 'Synechococcus chlorophyll')
-
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3', 'labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3', 'semi-labile CDOM')
@@ -443,15 +449,19 @@ contains
       real(rk) :: E_ave(3, cache%n, self%nlt)
       real(rk) :: rd, rs, ru, vs, vu 
       real(rk) :: E_scalar(cache%n, self%nlt)
-      real(rk) :: PAR_diatoms_array(cache%n)
-      real(rk) :: PAR_flagellates_array(cache%n)
-      real(rk) :: PAR_picophytoplankton_array(cache%n)
-      real(rk) :: PAR_dinoflagellates_array(cache%n)
+      real(rk) :: PAR_P1_array(cache%n)
+      real(rk) :: PAR_P2_array(cache%n)
+      real(rk) :: PAR_P3_array(cache%n)
+      real(rk) :: PAR_P4_array(cache%n)
+      real(rk) :: PAR_P5_array(cache%n)
+      real(rk) :: PAR_P6_array(cache%n)
+      real(rk) :: PAR_P7_array(cache%n)
+      real(rk) :: PAR_P8_array(cache%n)
+      real(rk) :: PAR_P9_array(cache%n)      
       real(rk) :: PAR_scalar_array(cache%n)
-      real(rk) :: PAR_diatoms
-      real(rk) :: PAR_flagellates
-      real(rk) :: PAR_picophytoplankton
-      real(rk) :: PAR_dinoflagellates
+      real(rk) :: PAR_P1,PAR_P4
+      real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
+      real(rk) :: PAR_P3,PAR_P6,PAR_P9
       real(rk) :: PAR_scalar
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
@@ -536,25 +546,25 @@ contains
 
          zgrid(kk+1)=zgrid(kk)+dz
 
-       _GET_(self%id_P1chl,P1chl)
-       _GET_(self%id_P2chl,P2chl)
-       _GET_(self%id_P3chl,P3chl)
-       _GET_(self%id_P4chl,P4chl)
-       _GET_(self%id_P5chl,P5chl)
-       _GET_(self%id_P6chl,P6chl)
-       _GET_(self%id_P7chl,P7chl)
-       _GET_(self%id_P8chl,P8chl)
-       _GET_(self%id_P9chl,P9chl)
+       _GET_(self%id_aP1chl,P1chl)
+       _GET_(self%id_aP2chl,P2chl)
+       _GET_(self%id_aP3chl,P3chl)
+       _GET_(self%id_aP4chl,P4chl)
+       _GET_(self%id_aP5chl,P5chl)
+       _GET_(self%id_aP6chl,P6chl)
+       _GET_(self%id_aP7chl,P7chl)
+       _GET_(self%id_aP8chl,P8chl)
+       _GET_(self%id_aP9chl,P9chl)
 
-       _GET_(self%id_P1c,P1c)
-       _GET_(self%id_P2c,P2c)
-       _GET_(self%id_P3c,P3c)
-       _GET_(self%id_P4c,P4c)       
-       _GET_(self%id_P5c,P5c)
-       _GET_(self%id_P6c,P6c)
-       _GET_(self%id_P7c,P7c)
-       _GET_(self%id_P8c,P8c)       
-       _GET_(self%id_P9c,P9c)       
+       _GET_(self%id_aP1c,P1c)
+       _GET_(self%id_aP2c,P2c)
+       _GET_(self%id_aP3c,P3c)
+       _GET_(self%id_aP4c,P4c)       
+       _GET_(self%id_aP5c,P5c)
+       _GET_(self%id_aP6c,P6c)
+       _GET_(self%id_aP7c,P7c)
+       _GET_(self%id_aP8c,P8c)       
+       _GET_(self%id_aP9c,P9c)       
        
        _GET_(self%id_R6c,R6c)
 
@@ -635,22 +645,32 @@ contains
 ! Scalar irradiance
      E_scalar(:,:)=E_ave(1,:,:)/vd + E_ave(2,:,:)/vs + E_ave(3,:,:)/vu
 
-     PAR_diatoms_array(:)           = 0.0_rk
-     PAR_flagellates_array(:)       = 0.0_rk
-     PAR_picophytoplankton_array(:) = 0.0_rk
-     PAR_dinoflagellates_array(:)   = 0.0_rk
-     PAR_scalar_array(:)            = 0.0_rk
+     PAR_P1_array(:)       = 0.0_rk
+     PAR_P2_array(:)       = 0.0_rk
+     PAR_P3_array(:)       = 0.0_rk
+     PAR_P4_array(:)       = 0.0_rk
+     PAR_P5_array(:)       = 0.0_rk
+     PAR_P6_array(:)       = 0.0_rk
+     PAR_P7_array(:)       = 0.0_rk
+     PAR_P8_array(:)       = 0.0_rk
+     PAR_P9_array(:)       = 0.0_rk
+     PAR_scalar_array(:)   = 0.0_rk
 
 !     do l=1,self%nlt
      do l=5,17     
-         PAR_diatoms_array(:)           = PAR_diatoms_array(:)           + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_flagellates_array(:)       = PAR_flagellates_array(:)       + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_picophytoplankton_array(:) = PAR_picophytoplankton_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_dinoflagellates_array(:)   = PAR_dinoflagellates_array(:)   + (WtoQ(l) * ac_ps(4,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P1_array(:) = PAR_P1_array(:) + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P2_array(:) = PAR_P2_array(:) + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P3_array(:) = PAR_P3_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P4_array(:) = PAR_P4_array(:) + (WtoQ(l) * ac_ps(4,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P5_array(:) = PAR_P5_array(:) + (WtoQ(l) * ac_ps(5,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P6_array(:) = PAR_P6_array(:) + (WtoQ(l) * ac_ps(6,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P7_array(:) = PAR_P7_array(:) + (WtoQ(l) * ac_ps(7,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P8_array(:) = PAR_P8_array(:) + (WtoQ(l) * ac_ps(8,l) * E_scalar(:,l)) * SEC_PER_DAY
+         PAR_P9_array(:) = PAR_P9_array(:) + (WtoQ(l) * ac_ps(9,l) * E_scalar(:,l)) * SEC_PER_DAY         
      enddo
 
      do l=5,17
-         PAR_scalar_array(:)            = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
+         PAR_scalar_array(:)      = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
      enddo
 
 ! AOPs observed for diagnostics     
@@ -684,10 +704,15 @@ contains
 
           kk = kk + 1
 
-         _SET_DIAGNOSTIC_(self%id_par_dia, max(p_small,PAR_diatoms_array(kk)))                  
-         _SET_DIAGNOSTIC_(self%id_par_flag,max(p_small,PAR_flagellates_array(kk)))            
-         _SET_DIAGNOSTIC_(self%id_par_pico,max(p_small,PAR_picophytoplankton_array(kk)))
-         _SET_DIAGNOSTIC_(self%id_par_dino,max(p_small,PAR_dinoflagellates_array(kk)))          
+         _SET_DIAGNOSTIC_(self%id_par_P1, max(p_small,PAR_P1_array(kk)))                  
+         _SET_DIAGNOSTIC_(self%id_par_P2, max(p_small,PAR_P2_array(kk)))            
+         _SET_DIAGNOSTIC_(self%id_par_P3, max(p_small,PAR_P3_array(kk)))
+         _SET_DIAGNOSTIC_(self%id_par_P4, max(p_small,PAR_P4_array(kk)))
+         _SET_DIAGNOSTIC_(self%id_par_P5, max(p_small,PAR_P5_array(kk)))                  
+         _SET_DIAGNOSTIC_(self%id_par_P6, max(p_small,PAR_P6_array(kk)))            
+         _SET_DIAGNOSTIC_(self%id_par_P7, max(p_small,PAR_P7_array(kk)))
+         _SET_DIAGNOSTIC_(self%id_par_P8, max(p_small,PAR_P8_array(kk)))          
+         _SET_DIAGNOSTIC_(self%id_par_P9, max(p_small,PAR_P9_array(kk)))         
          _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
 
      _DOWNWARD_LOOP_END_
