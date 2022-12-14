@@ -144,7 +144,7 @@
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
-      integer :: optical_type
+      integer :: p_OT
    contains
 
       ! Model procedures
@@ -263,7 +263,7 @@ contains
       call self%get_parameter(self%p_fX1p,   'p_fX1p',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2p,   'p_fX2p',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
 !              --------- Optical type ------------
-      call self%get_parameter(self%p_OT,   'optical_type',  '1-9',  'label for absorption/scattering spectra')
+      call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -389,8 +389,9 @@ contains
          call self%register_diagnostic_variable(self%id_Nutil_O3h,'varO3h_for_Nutil','mmol/m3/d','variation of O3h due to N uptake/release',output=output_none)
          call self%register_diagnostic_variable(self%id_Putil_O3h,'varO3h_for_Putil','mmol/m3/d','variation of O3h due to P uptake/release',output=output_none)
 
-      ! Register aggregated chlorophyll and carbon per optical type
-      select case (self%optical_type) 
+         ! Register aggregated chlorophyll and carbon per optical type
+         ! This quantities can be used by other models (e.g., light_spectral) to determine how much light is attenuated by all primary producers of the same optical type.         
+      select case (self%p_OT) 
          case (1)
                  call self%add_to_aggregate_variable(carbon_P1,      self%id_c,  include_background=.true.)
                  call self%add_to_aggregate_variable(chlorophyll_P1, self%id_chl,include_background=.true.)

@@ -90,6 +90,33 @@ contains
          call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux, &
             self%id_c,scale_factor=EPS,include_background=.true.)
       end if
+
+!      if (index(composition,'c')/=0) then
+!         call self%add_constituent('c', 0.0_rk, c0, qn, qp)
+!         call self%add_to_aggregate_variable(carbon_P1,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P2,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P3,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P4,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P5,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P6,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P7,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P8,  self%id_c,  include_background=.true.)
+!         call self%add_to_aggregate_variable(carbon_P9,  self%id_c,  include_background=.true.)
+!      end if
+
+!      if (index(composition,'chl')/=0) then
+!         call self%add_constituent('chl', 0.0_rk, c0, qn, qp)
+!         call self%add_to_aggregate_variable(chlorophyll_P1, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P2, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P3, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P4, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P5, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P6, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P7, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P8, self%id_chl,include_background=.true.)
+!         call self%add_to_aggregate_variable(chlorophyll_P9, self%id_chl,include_background=.true.)                 
+!      end if
+      
       if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk)
       if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk)
       if (index(composition,'s')/=0) then 

@@ -12,7 +12,7 @@ module ogs_bfm_light_spectral
 
    type,extends(type_base_model),public :: type_ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
-      type (type_diagnostic_variable_id)   :: id_par_dia, id_par_flag, id_par_pico, id_par_dino
+      type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
       type (type_diagnostic_variable_id)   :: id_PAR_tot
       type (type_diagnostic_variable_id)   :: id_anap450, id_aph450
       type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425, id_acdom450
@@ -24,7 +24,7 @@ module ogs_bfm_light_spectral
       
       type (type_dependency_id)            :: id_dz
       type (type_dependency_id)            :: id_aP1c, id_aP2c, id_aP3c, id_aP4c, id_aP5c, id_aP6c, id_aP7c, id_aP8c, id_aP9c
-      type (type_dependency_id)            :: id_aP1chl, id_aP2chl, id_aP3chl, id_aP4chl, id_aP5chl, id_aP6chl, id_aP7chl, id_aP8chl, id_aP9chl
+      type (type_dependency_id)            :: id_aP1chl,id_aP2chl,id_aP3chl,id_aP4chl,id_aP5chl,id_aP6chl,id_aP7chl,id_aP8chl,id_aP9chl
       type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
 
@@ -54,9 +54,9 @@ module ogs_bfm_light_spectral
       real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
       logical :: compute_acdom
       logical :: compute_anap
-      real(rk) :: p_epsP1, p_epsP2, p_epsP3, p_epsP4
-      real(rk) :: p_bpsP1, p_bpsP2, p_bpsP3, p_bpsP4
-      real(rk) :: p_bbrP1, p_bbrP2, p_bbrP3, p_bbrP4
+      real(rk) :: p_epsP1,p_epsP2,p_epsP3,p_epsP4,p_epsP5,p_epsP6,p_epsP7,p_epsP8,p_epsP9
+      real(rk) :: p_bpsP1,p_bpsP2,p_bpsP3,p_bpsP4,p_bpsP5,p_bpsP6,p_bpsP7,p_bpsP8,p_bpsP9
+      real(rk) :: p_bbrP1,p_bbrP2,p_bbrP3,p_bbrP4,p_bbrP5,p_bbrP6,p_bbrP7,p_bbrP8,p_bbrP9
       logical :: compute_aph, compute_bph, compute_bbc
       
    contains
@@ -112,16 +112,31 @@ contains
       call self%get_parameter(self%p_epsP2,       'p_epsP2',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P2', default=0.03_rk)
       call self%get_parameter(self%p_epsP3,       'p_epsP3',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P3', default=0.03_rk)
       call self%get_parameter(self%p_epsP4,       'p_epsP4',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P4', default=0.03_rk)
+      call self%get_parameter(self%p_epsP5,       'p_epsP5',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P5', default=0.03_rk)
+      call self%get_parameter(self%p_epsP6,       'p_epsP6',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P6', default=0.03_rk)
+      call self%get_parameter(self%p_epsP7,       'p_epsP7',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P7', default=0.03_rk)
+      call self%get_parameter(self%p_epsP8,       'p_epsP8',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P8', default=0.03_rk)
+      call self%get_parameter(self%p_epsP9,       'p_epsP9',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P9', default=0.03_rk)
       call self%get_parameter(self%compute_aph,   'compute_aph',   '[T or F]',    'logical flag to scale aph')
       call self%get_parameter(self%p_bpsP1,       'p_bpsP1',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P1')
       call self%get_parameter(self%p_bpsP2,       'p_bpsP2',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P2')
       call self%get_parameter(self%p_bpsP3,       'p_bpsP3',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P3')
       call self%get_parameter(self%p_bpsP4,       'p_bpsP4',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P4')
+      call self%get_parameter(self%p_bpsP5,       'p_bpsP5',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P5')
+      call self%get_parameter(self%p_bpsP6,       'p_bpsP6',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P6')
+      call self%get_parameter(self%p_bpsP7,       'p_bpsP7',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P7')
+      call self%get_parameter(self%p_bpsP8,       'p_bpsP8',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P8')
+      call self%get_parameter(self%p_bpsP9,       'p_bpsP9',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P9')      
       call self%get_parameter(self%compute_bph,   'compute_bph',   '[T or F]',    'logical flag to scale bph')
       call self%get_parameter(self%p_bbrP1,       'p_bbrP1',       '-',           'backscattering to total scattering ratio for P1')
       call self%get_parameter(self%p_bbrP2,       'p_bbrP2',       '-',           'backscattering to total scattering ratio for P2')
       call self%get_parameter(self%p_bbrP3,       'p_bbrP3',       '-',           'backscattering to total scattering ratio for P3')
       call self%get_parameter(self%p_bbrP4,       'p_bbrP4',       '-',           'backscattering to total scattering ratio for P4')
+      call self%get_parameter(self%p_bbrP5,       'p_bbrP5',       '-',           'backscattering to total scattering ratio for P5')
+      call self%get_parameter(self%p_bbrP6,       'p_bbrP6',       '-',           'backscattering to total scattering ratio for P6')
+      call self%get_parameter(self%p_bbrP7,       'p_bbrP7',       '-',           'backscattering to total scattering ratio for P7')
+      call self%get_parameter(self%p_bbrP8,       'p_bbrP8',       '-',           'backscattering to total scattering ratio for P8')
+      call self%get_parameter(self%p_bbrP9,       'p_bbrP9',       '-',           'backscattering to total scattering ratio for P9')
       call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
       
       if (self%nlt>0) then
@@ -220,6 +235,11 @@ contains
             if (n == 2) dummy_p = self%p_epsP2
             if (n == 3) dummy_p = self%p_epsP3
             if (n == 4) dummy_p = self%p_epsP4
+            if (n == 5) dummy_p = self%p_epsP5
+            if (n == 6) dummy_p = self%p_epsP6
+            if (n == 7) dummy_p = self%p_epsP7
+            if (n == 8) dummy_p = self%p_epsP8
+            if (n == 9) dummy_p = self%p_epsP9            
             ! find mean
             cu_area = 0.0_rk
             do nl = 5,17   ! indexes for 400-700nm
@@ -242,6 +262,11 @@ contains
             if (n == 2) dummy_p = self%p_bpsP2
             if (n == 3) dummy_p = self%p_bpsP3
             if (n == 4) dummy_p = self%p_bpsP4
+            if (n == 5) dummy_p = self%p_bpsP5
+            if (n == 6) dummy_p = self%p_bpsP6
+            if (n == 7) dummy_p = self%p_bpsP7
+            if (n == 8) dummy_p = self%p_bpsP8
+            if (n == 9) dummy_p = self%p_bpsP9
             ! find mean
             cu_area = 0.0_rk
             do nl = 5,17   ! indexes for 400-700nm
@@ -263,24 +288,41 @@ contains
           bbc(2,nl) = self%p_bbrP2
           bbc(3,nl) = self%p_bbrP3
           bbc(4,nl) = self%p_bbrP4
+          bbc(5,nl) = self%p_bbrP5
+          bbc(6,nl) = self%p_bbrP6
+          bbc(7,nl) = self%p_bbrP7
+          bbc(8,nl) = self%p_bbrP8
+          bbc(9,nl) = self%p_bbrP9
        enddo
       endif
 
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(1,nl), ac_ps(1,nl), bc(1,nl), bbc(1,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(2,nl), ac_ps(2,nl), bc(2,nl), bbc(2,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(3,nl), ac_ps(3,nl), bc(3,nl), bbc(3,nl)
-      enddo
-
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), ac(4,nl), ac_ps(4,nl), bc(4,nl), bbc(4,nl)
-      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(1,nl), ac_ps(1,nl), bc(1,nl), bbc(1,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(2,nl), ac_ps(2,nl), bc(2,nl), bbc(2,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(3,nl), ac_ps(3,nl), bc(3,nl), bbc(3,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(4,nl), ac_ps(4,nl), bc(4,nl), bbc(4,nl)
+!!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(5,nl), ac_ps(5,nl), bc(5,nl), bbc(5,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(6,nl), ac_ps(6,nl), bc(6,nl), bbc(6,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(7,nl), ac_ps(7,nl), bc(7,nl), bbc(7,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(8,nl), ac_ps(8,nl), bc(8,nl), bbc(8,nl)
+!      enddo
+!      do nl = 1,self%nlt
+!        write(*,*) real(lam(nl),8), ac(9,nl), ac_ps(9,nl), bc(9,nl), bbc(9,nl)
+!      enddo
       
      ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_par_P1, 'PAR_P1', 'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
@@ -321,25 +363,25 @@ contains
       call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
       
       ! Register dependencies on aggregated variables
-      call self%register_state_dependency(self%id_P1c,'carbon_P1','mg C/m^3', 'Diatoms carbon')
-      call self%register_state_dependency(self%id_P2c,'carbon_P2','mg C/m^3', 'Prymnesiophyta carbon')
-      call self%register_state_dependency(self%id_P3c,'carbon_P3','mg C/m^3', 'SmallEukaryotes carbon')
-      call self%register_state_dependency(self%id_P4c,'carbon_P4','mg C/m^3', 'DinoFlagellates carbon')
-      call self%register_state_dependency(self%id_P5c,'carbon_P5','mg C/m^3', 'Coccolithophores carbon')
-      call self%register_state_dependency(self%id_P6c,'carbon_P6','mg C/m^3', 'Prochlorococcus carbon')
-      call self%register_state_dependency(self%id_P7c,'carbon_P7','mg C/m^3', 'Green algae 1 carbon')
-      call self%register_state_dependency(self%id_P8c,'carbon_P8','mg C/m^3', 'Green algae 2 carbon')
-      call self%register_state_dependency(self%id_P9c,'carbon_P9','mg C/m^3', 'Synechococcus carbon')
+      call self%register_dependency(self%id_aP1c,'carbon_P1','mg C/m^3', 'Diatoms carbon')
+      call self%register_dependency(self%id_aP2c,'carbon_P2','mg C/m^3', 'Prymnesiophyta carbon')
+      call self%register_dependency(self%id_aP3c,'carbon_P3','mg C/m^3', 'SmallEukaryotes carbon')
+      call self%register_dependency(self%id_aP4c,'carbon_P4','mg C/m^3', 'DinoFlagellates carbon')
+      call self%register_dependency(self%id_aP5c,'carbon_P5','mg C/m^3', 'Coccolithophores carbon')
+      call self%register_dependency(self%id_aP6c,'carbon_P6','mg C/m^3', 'Prochlorococcus carbon')
+      call self%register_dependency(self%id_aP7c,'carbon_P7','mg C/m^3', 'Green algae 1 carbon')
+      call self%register_dependency(self%id_aP8c,'carbon_P8','mg C/m^3', 'Green algae 2 carbon')
+      call self%register_dependency(self%id_aP9c,'carbon_P9','mg C/m^3', 'Synechococcus carbon')
 
-      call self%register_state_dependency(self%id_aP1chl,'chlorophyll_P1','mg chl/m^3', 'Diatoms chlorophyll')
-      call self%register_state_dependency(self%id_aP2chl,'chlorophyll_P2','mg chl/m^3', 'Prymnesiophyta chlorophyll')
-      call self%register_state_dependency(self%id_aP3chl,'chlorophyll_P3','mg chl/m^3', 'SmallEukaryotes chlorophyll')
-      call self%register_state_dependency(self%id_aP4chl,'chlorophyll_P4','mg chl/m^3', 'DinoFlagellates chlorophyll')
-      call self%register_state_dependency(self%id_aP5chl,'chlorophyll_P5','mg chl/m^3', 'Coccolithophores chlorophyll')
-      call self%register_state_dependency(self%id_aP6chl,'chlorophyll_P6','mg chl/m^3', 'Procholorococcus chlorophyll')
-      call self%register_state_dependency(self%id_aP7chl,'chlorophyll_P7','mg chl/m^3', 'Green algae 1 chlorophyll')
-      call self%register_state_dependency(self%id_aP8chl,'chlorophyll_P8','mg chl/m^3', 'Green algae 2 chlorophyll')
-      call self%register_state_dependency(self%id_aP9chl,'chlorophyll_P9','mg chl/m^3', 'Synechococcus chlorophyll')
+      call self%register_dependency(self%id_aP1chl,'chlorophyll_P1','mg chl/m^3', 'Diatoms chlorophyll')
+      call self%register_dependency(self%id_aP2chl,'chlorophyll_P2','mg chl/m^3', 'Prymnesiophyta chlorophyll')
+      call self%register_dependency(self%id_aP3chl,'chlorophyll_P3','mg chl/m^3', 'SmallEukaryotes chlorophyll')
+      call self%register_dependency(self%id_aP4chl,'chlorophyll_P4','mg chl/m^3', 'DinoFlagellates chlorophyll')
+      call self%register_dependency(self%id_aP5chl,'chlorophyll_P5','mg chl/m^3', 'Coccolithophores chlorophyll')
+      call self%register_dependency(self%id_aP6chl,'chlorophyll_P6','mg chl/m^3', 'Procholorococcus chlorophyll')
+      call self%register_dependency(self%id_aP7chl,'chlorophyll_P7','mg chl/m^3', 'Green algae 1 chlorophyll')
+      call self%register_dependency(self%id_aP8chl,'chlorophyll_P8','mg chl/m^3', 'Green algae 2 chlorophyll')
+      call self%register_dependency(self%id_aP9chl,'chlorophyll_P9','mg chl/m^3', 'Synechococcus chlorophyll')
 
       ! Register biogeochemical dependencies
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC')
@@ -433,7 +475,7 @@ contains
       real(rk) :: R6c,X1c,X2c,X3c
       real(rk) :: P1c,P2c,P3c,P4c,P5c,P6c,P7c,P8c,P9c
       real(rk) :: P1chl,P2chl,P3chl,P4chl
-      real(rk) :: P5chl,P6chl,P7chl,P8chl,P9chl      
+      real(rk) :: P5chl,P6chl,P7chl,P8chl,P9chl
       real(rk) :: aph450, anap450
       real(rk) :: acdom250,acdom325,acdom400,acdom425,acdom450
       real(rk) :: Scdom350_500, Scdom250_325
@@ -447,7 +489,7 @@ contains
       real(rk) :: vd(cache%n, self%nlt)
       real(rk) :: E(3, cache%n+1, self%nlt)
       real(rk) :: E_ave(3, cache%n, self%nlt)
-      real(rk) :: rd, rs, ru, vs, vu 
+      real(rk) :: rd, rs, ru, vs, vu
       real(rk) :: E_scalar(cache%n, self%nlt)
       real(rk) :: PAR_P1_array(cache%n)
       real(rk) :: PAR_P2_array(cache%n)
@@ -457,7 +499,7 @@ contains
       real(rk) :: PAR_P6_array(cache%n)
       real(rk) :: PAR_P7_array(cache%n)
       real(rk) :: PAR_P8_array(cache%n)
-      real(rk) :: PAR_P9_array(cache%n)      
+      real(rk) :: PAR_P9_array(cache%n)
       real(rk) :: PAR_scalar_array(cache%n)
       real(rk) :: PAR_P1,PAR_P4
       real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
@@ -572,6 +614,17 @@ contains
        _GET_(self%id_X2c,X2c)
        _GET_(self%id_X3c,X3c)
 
+! How to set diagnostic of aggregated variables?
+!         _SET_DIAGNOSTIC_(self%id_aP1c, max(p_small,P1c))            
+!         _SET_DIAGNOSTIC_(self%id_aP2c, max(p_small,P2c))            
+!         _SET_DIAGNOSTIC_(self%id_aP3c, max(p_small,P3c))            
+!         _SET_DIAGNOSTIC_(self%id_aP4c, max(p_small,P4c))            
+!         _SET_DIAGNOSTIC_(self%id_aP5c, max(p_small,P5c))
+!         _SET_DIAGNOSTIC_(self%id_aP6c, max(p_small,P6c))              
+!         _SET_DIAGNOSTIC_(self%id_aP7c, max(p_small,P7c))
+!         _SET_DIAGNOSTIC_(self%id_aP8c, max(p_small,P8c))
+!         _SET_DIAGNOSTIC_(self%id_aP9c, max(p_small,P9c))
+         
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
              phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
