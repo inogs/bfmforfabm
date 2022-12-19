@@ -41,36 +41,51 @@ instances:
        p_epsP2: 0.0293                            # mean absorption coefficient from 400-700nm for P2 [m2 mgChl-1]
        p_epsP3: 0.0443                            # mean absorption coefficient from 400-700nm for P3 [m2 mgChl-1]
        p_epsP4: 0.0178                            # mean absorption coefficient from 400-700nm for P4 [m2 mgChl-1]
+       p_epsP5: 0.0293                            # mean absorption coefficient from 400-700nm for P5 [m2 mgChl-1]
+       p_epsP6: 0.0443                            # mean absorption coefficient from 400-700nm for P6 [m2 mgChl-1]
+       p_epsP7: 0.0293                            # mean absorption coefficient from 400-700nm for P7 [m2 mgChl-1]
+       p_epsP8: 0.0293                            # mean absorption coefficient from 400-700nm for P8 [m2 mgChl-1]
+       p_epsP9: 0.0443                            # mean absorption coefficient from 400-700nm for P9 [m2 mgChl-1]
        compute_aph: .TRUE.           # logical flag to scale aph [T=use file scaled to p_epsPn or F=use file unscaled]
-       p_bpsP1: 0.0140                            # mean scattering coefficient from 400-700nm for P1 [m2 mgChl-1]
-       p_bpsP2: 0.0077                            # mean scattering coefficient from 400-700nm for P2 [m2 mgChl-1]
-       p_bpsP3: 0.0101                            # mean scattering coefficient from 400-700nm for P3 [m2 mgChl-1]
-       p_bpsP4: 0.0112                            # mean scattering coefficient from 400-700nm for P4 [m2 mgChl-1]
+       p_bpsP1: 0.0140                            # mean scattering coefficient from 400-700nm for P1 [m2 mgC-1]
+       p_bpsP2: 0.0077                            # mean scattering coefficient from 400-700nm for P2 [m2 mgC-1]
+       p_bpsP3: 0.0101                            # mean scattering coefficient from 400-700nm for P3 [m2 mgC-1]
+       p_bpsP4: 0.0112                            # mean scattering coefficient from 400-700nm for P4 [m2 mgC-1]
+       p_bpsP5: 0.0077                            # mean scattering coefficient from 400-700nm for P5 [m2 mgC-1]
+       p_bpsP6: 0.0101                            # mean scattering coefficient from 400-700nm for P6 [m2 mgC-1]
+       p_bpsP7: 0.0077                            # mean scattering coefficient from 400-700nm for P7 [m2 mgC-1]
+       p_bpsP8: 0.0077                            # mean scattering coefficient from 400-700nm for P8 [m2 mgC-1]
+       p_bpsP9: 0.0101                            # mean scattering coefficient from 400-700nm for P9 [m2 mgC-1]
        compute_bph: .TRUE.           # logical flag to scale bph [T=use file scaled to p_bpsPn or F=use file unscaled]
-       p_bbrP1: 0.0020                            # non-spectral backscattering to total scattering ratio for P1 [-]
-       p_bbrP2: 0.0071                            # non-spectral backscattering to total scattering ratio for P2 [-]
-       p_bbrP3: 0.0039                            # non-spectral backscattering to total scattering ratio for P3 [-]
-       p_bbrP4: 0.0030                            # non-spectral backscattering to total scattering ratio for P4 [-]
+       p_bbrP1: 0.0046                            # non-spectral backscattering to total scattering ratio for P1 [-]
+       p_bbrP2: 0.0020                            # non-spectral backscattering to total scattering ratio for P2 [-]
+       p_bbrP3: 0.0032                            # non-spectral backscattering to total scattering ratio for P3 [-]
+       p_bbrP4: 0.0022                            # non-spectral backscattering to total scattering ratio for P4 [-]
+       p_bbrP5: 0.0071                            # non-spectral backscattering to total scattering ratio for P5 [-]
+       p_bbrP6: 0.0062                            # non-spectral backscattering to total scattering ratio for P6 [-]
+       p_bbrP7: 0.0054                            # non-spectral backscattering to total scattering ratio for P7 [-]
+       p_bbrP8: 0.0062                            # non-spectral backscattering to total scattering ratio for P8 [-]
+       p_bbrP9: 0.0062                            # non-spectral backscattering to total scattering ratio for P9 [-]
        compute_bbc: .TRUE.           # logical flag to compute bbc or read it from file [T=compute bc*bbr or F=use file]
     coupling:
-       P1c: P1/c
-       P2c: P2/c
-       P3c: P3/c
-       P4c: P4/c
-       P5c: P5/c
-       P6c: P6/c
-       P7c: P7/c
-       P8c: P8/c
-       P9c: P9/c              
-       P1chl: P1/Chl
-       P2chl: P2/Chl
-       P3chl: P3/Chl
-       P4chl: P4/Chl
-       P5chl: P5/Chl
-       P6chl: P6/Chl
-       P7chl: P7/Chl
-       P8chl: P8/Chl
-       P9chl: P9/Chl
+#       P1c: P1/c
+#       P2c: P2/c
+#       P3c: P3/c
+#       P4c: P4/c
+#       P5c: P5/c
+#       P6c: P6/c
+#       P7c: P7/c
+#       P8c: P8/c
+#       P9c: P9/c              
+#       P1chl: P1/Chl
+#       P2chl: P2/Chl
+#       P3chl: P3/Chl
+#       P4chl: P4/Chl
+#       P5chl: P5/Chl
+#       P6chl: P6/Chl
+#       P7chl: P7/Chl
+#       P8chl: P8/Chl
+#       P9chl: P9/Chl
        X1c  : X1/c
        X2c  : X2/c
        X3c  : X3/c
