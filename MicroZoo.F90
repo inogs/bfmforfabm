@@ -320,7 +320,7 @@
         call self%register_diagnostic_variable(self%id_rric, 'rric', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_reac, 'reac', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rdc,  'rdc',  'tbd',      'tbd',output=output_none)
-        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'mgC/m3/d', 'exudation flux to DOC')
+        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'mgC/m3/d', 'exudation flux to DOC',output=output_none)
         call self%register_diagnostic_variable(self%id_rr6c, 'rr6c', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rrin, 'rrin', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rr1n, 'rr1n', 'tbd',      'tbd',output=output_none)

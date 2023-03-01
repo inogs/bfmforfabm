@@ -252,8 +252,8 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qup: 0.0033                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.00057                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
       p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- Si limitation control ----
@@ -278,10 +278,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.38e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 1.50e-3             # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.540e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 1                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.032                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -346,7 +346,7 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qup: 0.0038                         # [m3/mgC/d]     Membrane affinity for P
       p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
       p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
@@ -362,10 +362,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.68e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.582e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 4                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.015                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]          Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -428,9 +428,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qup: 0.0033                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.000352                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000556                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                          # [-]            Nutrient stress threshold for sinking
@@ -445,10 +445,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.291e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 2                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -510,9 +510,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qup: 0.0034                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.000352                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000556                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                          # [-]            Nutrient stress threshold for sinking
@@ -527,10 +527,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.397e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 5                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.045                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -592,9 +592,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qup: 0.0027                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.000352                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000556                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                          # [-]            Nutrient stress threshold for sinking
@@ -609,10 +609,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.259e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 7                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.010                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -674,9 +674,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qup: 0.0038                         # [m3/mgC/d]     Membrane affinity for P
+      p_qplc: 0.000352                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qpcPPY: 0.000556                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                          # [-]            Nutrient stress threshold for sinking
@@ -691,10 +691,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 0.46e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.357e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 8                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.040                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -768,9 +768,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qup: 0.0036                         # [m3/mgC/d]     Membrane affinity for P
       p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qpcPPY: 0.00072                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- Si limitation control ----
 #     Silicon absent in this PFT                            
@@ -786,10 +786,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 1.453e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 3                               # [1-9]          type of absorption/scattering spectra                                            
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.010                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -851,9 +851,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qup: 0.0027                         # [m3/mgC/d]     Membrane affinity for P
       p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qpcPPY: 0.00072                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                           # [-]            Nutrient stress threshold for sinking
@@ -867,10 +867,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 0.484e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 6                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.010                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -932,9 +932,9 @@ instances:
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
-      p_qup: 0.0025                         # [m3/mgC/d]     Membrane affinity for P
+      p_qup: 0.0034                         # [m3/mgC/d]     Membrane affinity for P
       p_qplc: 0.0004288                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
-      p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
+      p_qpcPPY: 0.00072                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.75                           # [-]            Nutrient stress threshold for sinking
@@ -948,10 +948,10 @@ instances:
       p_switchChl: 2                        # [1-4]          Switch for Chla-a synthesis 
       p_sdchl: 0.2                          # [1/d]          Specific turnover rate for Chla 
       p_alpha_chl: 1.52e-5                  # [mgC s m2/mgChl/uE]     Initial slope of the P-E curve
-      p_quantum_yield: 4.8e-4               # [mgC / uE]     Photochemical efficiency
+      p_quantum_yield: 1.453e-3             # [mgC / uE]     Photochemical efficiency
       p_Esource: 1                          # [1-6]          source of light for PP, 1=multi, 5=scalar, 6=mono
       p_OT: 9                               # [1-9]          type of absorption/scattering spectra
-      p_qlcPPY: 0.020                       # [mgChla/mgC]   Reference quotum Chla:C 
+      p_qlcPPY: 0.014                       # [mgChla/mgC]   Reference quotum Chla:C 
       p_epsChla: 0.03                       # [m2/mgChla]    Chla-specific extinction coefficient
       p_tochl_relt: 0.0                     # [1/d]        Relaxation rate towards maximum Chla:C
       p_EpEk_or: 0.0                        # [-]            Optimal value of E_PAR/E_K
@@ -1070,17 +1070,17 @@ instances:
       p_pu:      0.5     # [-]           Assimilation efficiency
       p_pu_ea:   0.5     # [-]           Fraction of activity excretion
       p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
-      p_chuc:    30.0    # [mgC/m3]      Half-saturation Food concentration for Type II
-      p_minfood: 12.5    # [mgC/m3]      Half-saturation food concentration for preference factor
+      p_chuc:    20.0    # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 22.6    # [mgC/m3]      Half-saturation food concentration for preference factor
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qpcMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
       nprey:     12      # [-]           Number of preys
       suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b to Zooplankton group z
-      suprey2:   0.7     # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
+      suprey2:   0.8     # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
       suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2 to Zooplankton group z
       suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3 to Zooplankton group z
-      suprey5:   0.1     # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey5:   0.43    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
       suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5 to Zooplankton group z
       suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6 to Zooplankton group z
       suprey8:   1.0     # [-]           Availability of PhytoPlankton group P5 to Zooplankton group z
@@ -1152,8 +1152,8 @@ instances:
       p_pu:      0.3     # [-]           Assimilation efficiency
       p_pu_ea:   0.5     # [-]           Fraction of activity excretion
       p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
-      p_chuc:    100.0   # [mgC/m3]      Half-saturation Food concentration for Type II
-      p_minfood: 12.5    # [mgC/m3]      Half-saturation food concentration for preference factor
+      p_chuc:    90.0    # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 10.0    # [mgC/m3]      Half-saturation food concentration for preference factor
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qpcMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
@@ -1241,7 +1241,7 @@ instances:
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
-      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey1:   0.75    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
       suprey2:   1.0     # [-]           Availability of MicroZooplankton group Z3 to Zooplankton group z
       suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z4 to Zooplankton group z
 #------------------------------------------------------------------------------
@@ -1290,9 +1290,9 @@ instances:
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-------------------------------------------------------------------------------
       nprey:     8                      # [-]             Number of preys
-      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
+      suprey1:   0.03    # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
       suprey2:   0.75    # [-]           Availability of PhytoPlankton group P2 to Zooplankton group z
-      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey3:   0.01    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
       suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5 to Zooplankton group z
       suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z4 to Zooplankton group z
       suprey6:   0.75    # [-]           Availability of PhytoPlankton group P5 to Zooplankton group z

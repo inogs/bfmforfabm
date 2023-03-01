@@ -18,8 +18,8 @@ module ogs_bfm_light_spectral
       type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425, id_acdom450
       type (type_diagnostic_variable_id)   :: id_Scdom350_500, id_Scdom250_325       
       type (type_diagnostic_variable_id)   :: id_bbp450, id_bbp550, id_bbp700
-      type (type_diagnostic_variable_id)   :: id_chl_P1,id_chl_P2,id_chl_P3,id_chl_P4,id_chl_P5,id_chl_P6,id_chl_P7,id_chl_P8,id_chl_P9
-      type (type_diagnostic_variable_id)   :: id_c_P1,id_c_P2,id_c_P3,id_c_P4,id_c_P5,id_c_P6,id_c_P7,id_c_P8,id_c_P9
+!      type (type_diagnostic_variable_id)   :: id_chl_P1,id_chl_P2,id_chl_P3,id_chl_P4,id_chl_P5,id_chl_P6,id_chl_P7,id_chl_P8,id_chl_P9
+!      type (type_diagnostic_variable_id)   :: id_c_P1,id_c_P2,id_c_P3,id_c_P4,id_c_P5,id_c_P6,id_c_P7,id_c_P8,id_c_P9
 
       type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
       type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575, id_Rrs675
@@ -364,24 +364,24 @@ contains
       call self%register_diagnostic_variable(self%id_kd425,    'kd425',  'm-1',  'extinction coefficient in 425nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P1, 'P1chl', 'mgChl m-3', 'Chl_diatoms', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P2, 'P2chl', 'mgChl m-3', 'Chl_flagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P3, 'P3chl', 'mgChl m-3', 'Chl_picoeukaryotes', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P4, 'P4chl', 'mgChl m-3', 'Chl_dinoflagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P5, 'P5chl', 'mgChl m-3', 'Chl_coccoloithophores', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P6, 'P6chl', 'mgChl m-3', 'Chl_prochlorococcus', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P7, 'P7chl', 'mgChl m-3', 'Chl_green1', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P8, 'P8chl', 'mgChl m-3', 'Chl_green2', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_chl_P9, 'P9chl', 'mgChl m-3', 'Chl_synechococcus', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P1, 'P1c', 'mgC m-3', 'C_diatoms', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P2, 'P2c', 'mgC m-3', 'C_flagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P3, 'P3c', 'mgC m-3', 'C_picoeukaryotes', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P4, 'P4c', 'mgC m-3', 'C_dinoflagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P5, 'P5c', 'mgC m-3', 'C_coccoloithophores', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P6, 'P6c', 'mgC m-3', 'C_prochlorococcus', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P7, 'P7c', 'mgC m-3', 'C_green1', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P8, 'P8c', 'mgC m-3', 'C_green2', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_c_P9, 'P9c', 'mgC m-3', 'C_synechococcus', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P1, 'P1chl', 'mgChl m-3', 'Chl_diatoms', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P2, 'P2chl', 'mgChl m-3', 'Chl_flagellates', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P3, 'P3chl', 'mgChl m-3', 'Chl_picoeukaryotes', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P4, 'P4chl', 'mgChl m-3', 'Chl_dinoflagellates', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P5, 'P5chl', 'mgChl m-3', 'Chl_coccoloithophores', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P6, 'P6chl', 'mgChl m-3', 'Chl_prochlorococcus', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P7, 'P7chl', 'mgChl m-3', 'Chl_green1', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P8, 'P8chl', 'mgChl m-3', 'Chl_green2', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_chl_P9, 'P9chl', 'mgChl m-3', 'Chl_synechococcus', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P1, 'P1c', 'mgC m-3', 'C_diatoms', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P2, 'P2c', 'mgC m-3', 'C_flagellates', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P3, 'P3c', 'mgC m-3', 'C_picoeukaryotes', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P4, 'P4c', 'mgC m-3', 'C_dinoflagellates', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P5, 'P5c', 'mgC m-3', 'C_coccoloithophores', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P6, 'P6c', 'mgC m-3', 'C_prochlorococcus', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P7, 'P7c', 'mgC m-3', 'C_green1', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P8, 'P8c', 'mgC m-3', 'C_green2', source=source_do_column)
+!      call self%register_diagnostic_variable(self%id_c_P9, 'P9c', 'mgC m-3', 'C_synechococcus', source=source_do_column)
       
       ! Register dependencies on aggregated variables
       call self%register_dependency(self%id_aP1c, carbon_P1)
@@ -635,25 +635,25 @@ contains
        _GET_(self%id_X2c,X2c)
        _GET_(self%id_X3c,X3c)
 
-       ! Is it necessary to  set diagnostic of aggregated variables?
-       _SET_DIAGNOSTIC_(self%id_c_P1, max(p_small,P1c))
-       _SET_DIAGNOSTIC_(self%id_c_P2, max(p_small,P2c))
-       _SET_DIAGNOSTIC_(self%id_c_P3, max(p_small,P3c))
-       _SET_DIAGNOSTIC_(self%id_c_P4, max(p_small,P4c))
-       _SET_DIAGNOSTIC_(self%id_c_P5, max(p_small,P5c))
-       _SET_DIAGNOSTIC_(self%id_c_P6, max(p_small,P6c))
-       _SET_DIAGNOSTIC_(self%id_c_P7, max(p_small,P7c))
-       _SET_DIAGNOSTIC_(self%id_c_P8, max(p_small,P8c))
-       _SET_DIAGNOSTIC_(self%id_c_P9, max(p_small,P9c))
-       _SET_DIAGNOSTIC_(self%id_chl_P1, max(p_small,P1chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P2, max(p_small,P2chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P3, max(p_small,P3chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P4, max(p_small,P4chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P5, max(p_small,P5chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P6, max(p_small,P6chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P7, max(p_small,P7chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P8, max(p_small,P8chl))
-       _SET_DIAGNOSTIC_(self%id_chl_P9, max(p_small,P9chl))
+       ! Is it necessary to  set diagnostic of aggregated variables? no
+!       _SET_DIAGNOSTIC_(self%id_c_P1, max(p_small,P1c))
+!       _SET_DIAGNOSTIC_(self%id_c_P2, max(p_small,P2c))
+!       _SET_DIAGNOSTIC_(self%id_c_P3, max(p_small,P3c))
+!       _SET_DIAGNOSTIC_(self%id_c_P4, max(p_small,P4c))
+!       _SET_DIAGNOSTIC_(self%id_c_P5, max(p_small,P5c))
+!       _SET_DIAGNOSTIC_(self%id_c_P6, max(p_small,P6c))
+!       _SET_DIAGNOSTIC_(self%id_c_P7, max(p_small,P7c))
+!       _SET_DIAGNOSTIC_(self%id_c_P8, max(p_small,P8c))
+!       _SET_DIAGNOSTIC_(self%id_c_P9, max(p_small,P9c))
+!       _SET_DIAGNOSTIC_(self%id_chl_P1, max(p_small,P1chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P2, max(p_small,P2chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P3, max(p_small,P3chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P4, max(p_small,P4chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P5, max(p_small,P5chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P6, max(p_small,P6chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P7, max(p_small,P7chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P8, max(p_small,P8chl))
+!       _SET_DIAGNOSTIC_(self%id_chl_P9, max(p_small,P9chl))
          
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
