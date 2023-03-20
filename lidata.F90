@@ -13,7 +13,7 @@
       character*80 title
       character*80 cfle
       character cacbc*11,cabw*20,cacbpoc*10,cacdom*11
-      double precision lambda1,lambda2,saw,sbw,sbbw,sac,sac_ps,sbc,sbb,sapoc,sbpoc,sbbpoc,sacdom
+      double precision lambda1,lambda2,saw,sbw,sbbw,sac,sac_ps,sbc,sbb,sapoc,sbpoc,sbbpoc,sacdom1,sacdom2,sacdom3
       character*4 cdir
       data cdir /'bcs/'/
       data cacbc,cabw,cacbpoc,cacdom /'acbc25b.dat','abw25_boundaries.dat','poc25b.dat','cdom25b.dat'/
@@ -85,6 +85,7 @@
       enddo
       close(4)
 40    format(i5,3f10.2)
+!40    format(i5,E8.2,E9.3,E7.1)
 
 !  CDOM absorption, m2 mgC-1
       cfle = cdir//cacdom
@@ -93,14 +94,15 @@
        read(4,'(a80)')title
       enddo
       do nl = 1,nlt
-       read(4,50)lambda,sacdom
-       write(*,*) lambda,sacdom
-       acdom(1,nl) = sacdom
-       acdom(2,nl) = sacdom
-       acdom(3,nl) = sacdom       
+       read(4,50)lambda,sacdom1,sacdom2,sacdom3
+       write(*,*) lambda,sacdom1,sacdom2,sacdom3
+       acdom(1,nl) = sacdom1
+       acdom(2,nl) = sacdom2
+       acdom(3,nl) = sacdom3       
       enddo
       close(4)
-50    format(i5,1E14.6)
+!50    format(i5,1E14.6)
+50    format(i5,3E14.6)
 
       
       return
