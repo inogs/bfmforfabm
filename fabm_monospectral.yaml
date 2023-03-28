@@ -1,3 +1,4 @@
+#start_base
 check_conservation: false
 require_initialization: true
 log: true
@@ -143,7 +144,138 @@ instances:
       composition: c                                     # elemental composition
     initialization:
       c:  1.250000000000000E-000
-#   ---------------------- P1 Microphytoplankton ----------------------
+#
+#   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
+#
+  B1:
+    long_name: Bacteria
+    model: ogs/PelBac
+    parameters:
+#             --------- Physiological parameters -----------------
+      p_version : 2 # Switch for bacteria parameterization
+#                              1 : Baretta-Bekker et al. 1995; 
+#                                  Vichi et al., 2007
+#                              2 : Vichi et al., 2004
+#                              3 : Polimene et al., 2006
+      p_q10 : 2.95 # [-]              Q10-value (temperature dependency)
+      p_chdo : 30.0 # [mmol/m3]        Half-saturation constant for O2 limitation
+      p_sd : 0.0  # [1/d]            Specific mortality rate
+      p_sd2 : 0.0  # [1/d]            Density dependent specific mortality rate
+      p_suhR1 : 0.5  # [1/d]            Specific potential uptake for nutrient-rich DOM
+      p_sulR1 : 0.0  #  [1/d]            Specific potential uptake for nutrient-poor DOM
+      p_suR2 : 0.05  #  [1/d]            Specific potential uptake for semi-labile DOC
+      p_suR3 : 0.0  #   [1/d]            Specific potential uptake for semi-refractory DOC
+      p_suR6 : 0.1  #   [1/d]            Specific potential uptake for POM (1/d)
+      p_sum : 8.38 #    [1/d]            Potential specific growth rate
+      p_pu_ra : 0.76  #  [-]              Activity respiration fraction
+      p_pu_ra_o : 0.2  #  [-]              Additional respiration fraction at low O2 conc
+      p_srs : 0.01 #  [1/d]            Specific rest respiration 
+      p_qncPBA : 0.017 #  [mmolN/mgC]      Optimal N/C ratio 
+      p_qpcPBA : 0.0019 #  [mmolP/mgC]      Optimal P/C ratio
+      p_qlnc : 0.0085 #  [mmolN/mgC]      Minimal N/C ratio
+      p_qlpc : 0.00095 #  [mmolP/mgC]      Minimal P/C ratio 
+      p_qun : 0.05    # [mmolN/mgC/day]  Membrane affinity for N 
+      p_qup : 0.005   # [mmolP/mgC/day]  Membrane affinity for P
+      p_chn : 0.05    # [mmolN/m3]       Half saturation ammonium conc. for uptake
+      p_chp : 1.00    # [mmolP/m3]       Half saturation phosphate conc. for uptake
+      p_rec : 1.0     # [1/d]            Relaxation timescale for semi-labile excretion
+      p_ruen : 1.0     # [1/d]            Relaxation timescale for N uptake/remin.
+      p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
+      p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
+      p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
+      p_pe_R1c: 0.60  # [-]           Fractional content of C in cytoplasm
+      p_pe_R1n: 0.72  # [-]           Fractional content of N in cytoplasm
+      p_pe_R1p: 0.832 # [-]           Fractional content of P in cytoplasm
+#                   ---- CDOM production ----
+      p_fX1b: 0.00     # [-]          fraction of colored labile DOC
+      p_fX2b: 0.02     # [-]          fraction of colored semi-labile DOC
+      p_fX3b: 0.018    # [-]          fraction of colored semi-refractory DOC
+    initialization:
+      c: 1.0                                               # carbon (mg C/m^3)
+      n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
+      p: 1.900000000000000E-003                            # phosphate (mmol N/m^3)
+    coupling:
+      N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N6r: N6/r                                            
+      O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
+      O3h: O3h/h
+      O2o: O2/o                                            # Oxygen (mmol O/m^3)
+      R1c: R1/c 
+      R1n: R1/n 
+      R1p: R1/p 
+      R2c: R2/c 
+      R3c: R3/c 
+      R6c: R6/c 
+      R6n: R6/n 
+      R6p: R6/p 
+      X1c: X1/c 
+      X2c: X2/c 
+      X3c: X3/c
+#
+#   ---------------------- Pelagic chemistry ----------------------
+#
+  PelChem:
+    long_name: pelagic chemistry
+    model: ogs/PelChem
+    parameters:
+      p_clO2o:  10.0       # [mmolO2/m3]      Half-saturation O2 concentration for nitrification and reoxidation
+      p_clN6r:   1.0       # [mmolHS/m3]      Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]
+      p_sN4N3:  0.01       # [1/d]            Specific nitrification rate at 10 degC
+      p_q10N4N3: 2.367     # [-]              Q10 factor for nitrification/denit
+      p_qon_nitri: 2.0     # [mmolO2/mmolN]   stoichiometric coefficient for nitrification
+      p_qro: 0.5           # [mmolHS-/mmolO2] Stoichiometric coefficient for anaerobic reactions
+      p_sN3O4n: 0.35       # [1/d]            Specific denitrification rate
+      p_rPAo: 1.0          # [mmolO2/m3/d]    Reference anoxic mineralization rate
+      p_qon_dentri: 1.25   # [mmolO2/mmolN]   Stoichiometric coefficient for denitrification
+      p_rOS: 0.05          # [1/d]            Specific reoxidation rate of reduction equivalents
+      p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica
+      p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
+      p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
+      p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
+      p_bX3c: 0.00119      # [1/d]            photodegradation (bleaching) rate X3c
+      p_IX1: 60.0          # [uE m-2 s-1]     light threshold for X1c bleaching
+      p_IX2: 60.0          # [uE m-2 s-1]     light threshold for X2c bleaching
+      p_IX3: 50.0          # [uE m-2 s-1]     light threshold for X3c bleaching
+      p_rX3c: 0.00003      # [1/d]            remineralization rate X3c and R3c
+      p_q10X: 2.95         # [-]              q10 for CDOM degradation
+      p_Esource: 6         # [5 or 6]         source of light for CDOM bleaching, 5=spectral, 6=mono
+    initialization:
+    coupling:
+      N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N4n: N4/n                                            # ammonium (mmol N/m^3)
+      O2o: O2/o                                            # oxygen (mmol O_2/m^3)
+      O3h: O3h/h                                           # alkalinity (mmol /m^3)
+      O4n: O4/n                                            # N2 (mmol N/m^3)
+      N6r: N6/r                                            # reduction equivalent (mmol HS/m^3)
+      N5s: N5/s                                            # silicate (mmol Si/m^3)
+      X1c: X1/c                                            # cdom X1c (mgC/m^3)
+      X2c: X2/c                                            # cdom X2c (mgC/m^3)
+      X3c: X3/c                                            # cdom X3c (mgC/m^3)
+      R3c: R3/c                                            # cdom R3c (mgC/m^3)
+      R6s: R6/s                                            # POSi (mgSi/m3)
+      PAR_tot: light/parEIR
+##  --------------------- CalciteDissolution
+  O5:
+#    use: false
+    long_name: calcite
+    model: ogs/CalciteDissolution
+    parameters:
+      p_kdca:   10.9     # [d-1]           Calcite dissolution rate constant
+      p_nomega: 1.0       # [-]             Order of the dissolution rate dependence on Omega
+      p_wsinkPIC: 30      # [m d-1]         sinking velocity of PIC (Calcite)
+      c0:       1.0e-05         #                 background concentration (mg C/m^3), default = 0.0
+    initialization:
+      c: 1.0                                         # carbon (mg C/m^3)
+    coupling:
+      OCalc: O3/OCalc                               # calcite saturation (-)
+      O3c: O3/c                                     # total dissolved inorganic carbon (mgC/m^3)
+      O3h: O3h/h                                     # alkalinity (mmol/m^3)
+#
+#end_base
+#start_P1
+#------------------------------------------------
   P1:
     long_name: diatoms
     model: ogs/Phyto
@@ -248,7 +380,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   ------------------------------------------------------------------
+#
+#end_P1
+#start_P4
+#------------------------------------------------
   P4:
     long_name: dinoflagellates
     model: ogs/Phyto
@@ -329,8 +464,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   ------------------------------------------------------------------
-#   ---------------------- P2 Nanophytoplankton ----------------------
+#
+#end_P4
+#start_P2
+#------------------------------------------------
   P2:
     long_name: prymnesiophyta
     model: ogs/Phyto
@@ -412,7 +549,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   ------------------------------------------------------------------
+#
+#end_P2
+#start_P5
+#------------------------------------------------
   P5:
     long_name: coccolithophores
     model: ogs/Phyto
@@ -494,7 +634,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   -----------------------------------------------------------------
+#
+#end_P5
+#start_P7
+#------------------------------------------------
   P7:
     long_name: chlorophyceae
     model: ogs/Phyto
@@ -576,7 +719,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#  ------------------------------------------------------------------
+#
+#end_P7
+#start_P8
+#------------------------------------------------
   P8:
     long_name: prasinophyceae
     model: ogs/Phyto
@@ -658,8 +804,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   ------------------------------------------------------------------
-#   ---------------------- P3 Picophytoplankton ----------------------
+#
+#end_P8
+#start_P3
+#------------------------------------------------
   P3:
     long_name: smalleukaryotes
     model: ogs/Phyto
@@ -753,7 +901,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-# ---------------------------------------------------------------
+#
+#end_P3
+#start_P6
+#------------------------------------------------
   P6:
     long_name: prochlorococcus
     model: ogs/Phyto
@@ -834,7 +985,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-# ----------------------------------------------------------------      
+#
+#end_P6
+#start_P9
+#------------------------------------------------
   P9:
     long_name: synechococcus
     model: ogs/Phyto
@@ -915,76 +1069,10 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: light/parEIR
-#   -------------------------------------------------------------------------------
-#   ---------------------- B1 Pelagic heteretrophic bacteria ----------------------
 #
-  B1:
-    long_name: Bacteria
-    model: ogs/PelBac
-    parameters:
-#             --------- Physiological parameters -----------------
-      p_version : 2 # Switch for bacteria parameterization
-#                              1 : Baretta-Bekker et al. 1995; 
-#                                  Vichi et al., 2007
-#                              2 : Vichi et al., 2004
-#                              3 : Polimene et al., 2006
-      p_q10 : 2.95 # [-]              Q10-value (temperature dependency)
-      p_chdo : 30.0 # [mmol/m3]        Half-saturation constant for O2 limitation
-      p_sd : 0.0  # [1/d]            Specific mortality rate
-      p_sd2 : 0.0  # [1/d]            Density dependent specific mortality rate
-      p_suhR1 : 0.5  # [1/d]            Specific potential uptake for nutrient-rich DOM
-      p_sulR1 : 0.0  #  [1/d]            Specific potential uptake for nutrient-poor DOM
-      p_suR2 : 0.05  #  [1/d]            Specific potential uptake for semi-labile DOC
-      p_suR3 : 0.0  #   [1/d]            Specific potential uptake for semi-refractory DOC
-      p_suR6 : 0.1  #   [1/d]            Specific potential uptake for POM (1/d)
-      p_sum : 8.38 #    [1/d]            Potential specific growth rate
-      p_pu_ra : 0.76  #  [-]              Activity respiration fraction
-      p_pu_ra_o : 0.2  #  [-]              Additional respiration fraction at low O2 conc
-      p_srs : 0.01 #  [1/d]            Specific rest respiration 
-      p_qncPBA : 0.017 #  [mmolN/mgC]      Optimal N/C ratio 
-      p_qpcPBA : 0.0019 #  [mmolP/mgC]      Optimal P/C ratio
-      p_qlnc : 0.0085 #  [mmolN/mgC]      Minimal N/C ratio
-      p_qlpc : 0.00095 #  [mmolP/mgC]      Minimal P/C ratio 
-      p_qun : 0.05    # [mmolN/mgC/day]  Membrane affinity for N 
-      p_qup : 0.005   # [mmolP/mgC/day]  Membrane affinity for P
-      p_chn : 0.05    # [mmolN/m3]       Half saturation ammonium conc. for uptake
-      p_chp : 1.00    # [mmolP/m3]       Half saturation phosphate conc. for uptake
-      p_rec : 1.0     # [1/d]            Relaxation timescale for semi-labile excretion
-      p_ruen : 1.0     # [1/d]            Relaxation timescale for N uptake/remin.
-      p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
-      p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
-      p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
-      p_pe_R1c: 0.60  # [-]           Fractional content of C in cytoplasm
-      p_pe_R1n: 0.72  # [-]           Fractional content of N in cytoplasm
-      p_pe_R1p: 0.832 # [-]           Fractional content of P in cytoplasm
-#                   ---- CDOM production ----
-      p_fX1b: 0.00     # [-]          fraction of colored labile DOC
-      p_fX2b: 0.02     # [-]          fraction of colored semi-labile DOC
-      p_fX3b: 0.018    # [-]          fraction of colored semi-refractory DOC
-    initialization:
-      c: 1.0                                               # carbon (mg C/m^3)
-      n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
-      p: 1.900000000000000E-003                            # phosphate (mmol N/m^3)
-    coupling:
-      N1p: N1/p                                            # phosphate (mmol P/m^3)
-      N3n: N3/n                                            # nitrate (mmol N/m^3)
-      N4n: N4/n                                            # ammonium (mmol N/m^3)
-      N6r: N6/r                                            
-      O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
-      O3h: O3h/h
-      O2o: O2/o                                            # Oxygen (mmol O/m^3)
-      R1c: R1/c 
-      R1n: R1/n 
-      R1p: R1/p 
-      R2c: R2/c 
-      R3c: R3/c 
-      R6c: R6/c 
-      R6n: R6/n 
-      R6p: R6/p 
-      X1c: X1/c 
-      X2c: X2/c 
-      X3c: X3/c
-#   ---------------------- Z5 Microzooplankton ----------------------
+#end_P9
+#start_Z5
+#-------------------------------------------
   Z5:
 #    use: false
     long_name: Microzooplankton
@@ -999,35 +1087,37 @@ instances:
       p_pu:      0.5     # [-]           Assimilation efficiency
       p_pu_ea:   0.5     # [-]           Fraction of activity excretion
       p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
-      p_chuc:    30.0    # [mgC/m3]      Half-saturation Food concentration for Type II
-      p_minfood: 50.0    # [mgC/m3]      Half-saturation food concentration for
-                                         # preference factor
+      p_chuc:    20.0    # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 22.6    # [mgC/m3]      Half-saturation food concentration for preference factor
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qpcMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     7       # [-]           Number of preys
-      suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b
-                                         # to Zooplankton group z
-      suprey2:   0.7     # [-]           Availability of PhytoPlankton group P1
-                                         # to Zooplankton group z
-      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2
-                                         # to Zooplankton group z
-      suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3
-                                         # to Zooplankton group z
-      suprey5:   0.1     # [-]           Availability of PhytoPlankton group P4
-                                         # to Zooplankton group z
-      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5
-                                         # to Zooplankton group z
-      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6
-                                         # to Zooplankton group z
+      nprey:     12      # [-]           Number of preys
+      suprey1:   0.1     # [-]           Availability of pelagic Bacteria group b to Zooplankton group z
+      suprey2:   0.8     # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
+      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P2 to Zooplankton group z
+      suprey4:   0.1     # [-]           Availability of PhytoPlankton group P3 to Zooplankton group z
+      suprey5:   0.43    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey6:   1.0     # [-]           Availability of MicroZooplankton group Z5 to Zooplankton group z
+      suprey7:   1.0     # [-]           Availability of MicroZooplankton group Z6 to Zooplankton group z
+      suprey8:   1.0     # [-]           Availability of PhytoPlankton group P5 to Zooplankton group z
+      suprey9:   0.1     # [-]           Availability of PhytoPlankton group P6 to Zooplankton group z
+      suprey10:  1.0     # [-]           Availability of PhytoPlankton group P7 to Zooplankton group z
+      suprey11:  1.0     # [-]           Availability of PhytoPlankton group P8 to Zooplankton group z
+      suprey12:  0.1     # [-]           Availability of PhytoPlankton group P9 to Zooplankton group z     
 #--------------------------------------------------------------------
       isP21: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP22: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP23: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP23: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP24: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP25: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP26: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP27: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP28: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP29: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP210: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP211: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP212: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
@@ -1057,9 +1147,17 @@ instances:
       prey5: P4
       prey6: Z5
       prey7: Z6
+      prey8: P5
+      prey9: P6
+      prey10: P7
+      prey11: P8
+      prey12: P9      
       O3h:   O3h/h
       O5c:   O5/c
-#   ---------------------- Z6 Microzooplankton ----------------------
+#
+#end_Z5
+#start_Z6
+#--------------------------------------------------
   Z6:
 #    use: false
     long_name: Heterotrophic Nanoflagellates (HNAN)
@@ -1074,35 +1172,37 @@ instances:
       p_pu:      0.3     # [-]           Assimilation efficiency
       p_pu_ea:   0.5     # [-]           Fraction of activity excretion
       p_chro:    8       # [mmolO2/m3]   Half-saturation oxygen concentration
-      p_chuc:    100.0   # [mgC/m3]      Half-saturation Food concentration for Type II
-      p_minfood: 50.0    # [mgC/m3]      Half-saturation food concentration for
-                                         # preference factor
+      p_chuc:    90.0    # [mgC/m3]      Half-saturation Food concentration for Type II
+      p_minfood: 10.0    # [mgC/m3]      Half-saturation food concentration for preference factor
       p_pecaco3: 0.5     # [-]           Portion of egested calcified shells during grazing
       p_qpcMIZ:  1.85e-3 # [mmolN/mgC]   Maximum quotum P:C
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
-      nprey:     7       # [-]           Number of preys
-      suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b
-                                         # to Zooplankton group z
-      suprey2:   0.0     # [-]           Availability of PhytoPlankton group P1
-                                         # to Zooplankton group z
-      suprey3:   0.2     # [-]           Availability of PhytoPlankton group P2
-                                         # to Zooplankton group z
-      suprey4:   1.0     # [-]           Availability of PhytoPlankton group P3
-                                         # to Zooplankton group z
-      suprey5:   0.0     # [-]           Availability of PhytoPlankton group P4
-                                         # to Zooplankton group z
-      suprey6:   0.0     # [-]           Availability of MicroZooplankton group Z5
-                                         # to Zooplankton group z
-      suprey7:   0.2     # [-]           Availability of MicroZooplankton group Z6
-                                         # to Zooplankton group z
+      nprey:     12      # [-]           Number of preys
+      suprey1:   1.0     # [-]           Availability of pelagic Bacteria group b to Zooplankton group z
+      suprey2:   0.0     # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
+      suprey3:   0.2     # [-]           Availability of PhytoPlankton group P2 to Zooplankton group z
+      suprey4:   1.0     # [-]           Availability of PhytoPlankton group P3 to Zooplankton group z
+      suprey5:   0.0     # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey6:   0.0     # [-]           Availability of MicroZooplankton group Z5 to Zooplankton group z
+      suprey7:   0.2     # [-]           Availability of MicroZooplankton group Z6 to Zooplankton group z
+      suprey8:   0.2     # [-]           Availability of PhytoPlankton group P5 to Zooplankton group z
+      suprey9:   1.0     # [-]           Availability of PhytoPlankton group P6 to Zooplankton group z
+      suprey10:  0.2     # [-]           Availability of PhytoPlankton group P7 to Zooplankton group z
+      suprey11:  0.2     # [-]           Availability of PhytoPlankton group P8 to Zooplankton group z
+      suprey12:  1.0     # [-]           Availability of PhytoPlankton group P9 to Zooplankton group z
 #--------------------------------------------------------------------
       isP21: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP22: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP23: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP23: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP24: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP25: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP26: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP27: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP28: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP29: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP210: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP211: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP212: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]      
 #-------------------------------------------------------------------- 
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
@@ -1132,9 +1232,17 @@ instances:
       prey5: P4
       prey6: Z5
       prey7: Z6
+      prey8: P5
+      prey9: P6
+      prey10: P7
+      prey11: P8
+      prey12: P9      
       O3h:   O3h/h
       O5c:   O5/c
-#   ---------------------- Z3 Carnivorous Mesozooplankton ----------------------
+#
+#end_Z6
+#start_Z3
+#---------------------------------------------
   Z3:
 #    use: false
     long_name: Carnivorous Mesozooplankton
@@ -1156,12 +1264,9 @@ instances:
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
-      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P4
-                                         # to Zooplankton group z
-      suprey2:   1.0     # [-]           Availability of MicroZooplankton group Z3
-                                         # to Zooplankton group z
-      suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z4
-                                         # to Zooplankton group z
+      suprey1:   0.75    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey2:   1.0     # [-]           Availability of MicroZooplankton group Z3 to Zooplankton group z
+      suprey3:   1.0     # [-]           Availability of MicroZooplankton group Z4 to Zooplankton group z
 #------------------------------------------------------------------------------
       isP21: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP22: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
@@ -1185,8 +1290,10 @@ instances:
       prey3: Z4
       O3h: O3h/h
       O5c: O5/c
-#   ---------------------------------------------------------------------------
-#   ---------------------- Z4 Omnivorous Mesozooplankton ----------------------
+#
+#end_Z3
+#start_Z4
+#----------------------------------------
   Z4:
 #    use: false
     long_name: Omnivorous Mesozooplankton
@@ -1207,23 +1314,24 @@ instances:
       p_qncMEZ: 0.015                   # [mmolN/mgC]     Maximum quotum N:C
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
 #-------------------------------------------------------------------------------
-      nprey:     5                      # [-]             Number of preys
-      suprey1:   1.0     # [-]           Availability of PhytoPlankton group P1
-                                         # to Zooplankton group z
-      suprey2:   0.75    # [-]           Availability of PhytoPlankton group P2
-                                         # to Zooplankton group z
-      suprey3:   1.0     # [-]           Availability of PhytoPlankton group P4
-                                         # to Zooplankton group z
-      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5
-                                         # to Zooplankton group z
-      suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z4
-                                         # to Zooplankton group z
+      nprey:     8                      # [-]             Number of preys
+      suprey1:   0.03    # [-]           Availability of PhytoPlankton group P1 to Zooplankton group z
+      suprey2:   0.75    # [-]           Availability of PhytoPlankton group P2 to Zooplankton group z
+      suprey3:   0.01    # [-]           Availability of PhytoPlankton group P4 to Zooplankton group z
+      suprey4:   1.0     # [-]           Availability of MicroZooplankton group Z5 to Zooplankton group z
+      suprey5:   1.0     # [-]           Availability of MicroZooplankton group Z4 to Zooplankton group z
+      suprey6:   0.75    # [-]           Availability of PhytoPlankton group P5 to Zooplankton group z
+      suprey7:   0.75    # [-]           Availability of PhytoPlankton group P7 to Zooplankton group z
+      suprey8:   0.75    # [-]           Availability of PhytoPlankton group P8 to Zooplankton group z
 #-------------------------------------------------------------------------------
       isP21: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP22: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP22: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP23: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP24: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP25: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP26: 1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP27: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP28: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #-------------------------------------------------------------------------------
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
@@ -1243,63 +1351,10 @@ instances:
       prey3: P4
       prey4: Z5
       prey5: Z4
+      prey6: P5
+      prey7: P7
+      prey8: P8
       O3h:   O3h/h
       O5c:   O5/c
-#   ---------------------- Pelagic chemistry ----------------------
 #
-  PelChem:
-    long_name: pelagic chemistry
-    model: ogs/PelChem
-    parameters:
-      p_clO2o:  10.0       # [mmolO2/m3]      Half-saturation O2 concentration for nitrification and reoxidation
-      p_clN6r:   1.0       # [mmolHS/m3]      Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]
-      p_sN4N3:  0.01       # [1/d]            Specific nitrification rate at 10 degC
-      p_q10N4N3: 2.367     # [-]              Q10 factor for nitrification/denit
-      p_qon_nitri: 2.0     # [mmolO2/mmolN]   stoichiometric coefficient for nitrification
-      p_qro: 0.5           # [mmolHS-/mmolO2] Stoichiometric coefficient for anaerobic reactions
-      p_sN3O4n: 0.35       # [1/d]            Specific denitrification rate
-      p_rPAo: 1.0          # [mmolO2/m3/d]    Reference anoxic mineralization rate
-      p_qon_dentri: 1.25   # [mmolO2/mmolN]   Stoichiometric coefficient for denitrification
-      p_rOS: 0.05          # [1/d]            Specific reoxidation rate of reduction equivalents
-      p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica
-      p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
-      p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
-      p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
-      p_bX3c: 0.00119      # [1/d]            photodegradation (bleaching) rate X3c
-      p_IX1: 60.0          # [uE m-2 s-1]     light threshold for X1c bleaching
-      p_IX2: 60.0          # [uE m-2 s-1]     light threshold for X2c bleaching
-      p_IX3: 50.0          # [uE m-2 s-1]     light threshold for X3c bleaching
-      p_rX3c: 0.00003      # [1/d]            remineralization rate X3c and R3c
-      p_q10X: 2.95         # [-]              q10 for CDOM degradation
-      p_Esource: 6         # [5 or 6]         source of light for CDOM bleaching, 5=spectral, 6=mono
-    initialization:
-    coupling:
-      N3n: N3/n                                            # nitrate (mmol N/m^3)
-      N4n: N4/n                                            # ammonium (mmol N/m^3)
-      O2o: O2/o                                            # oxygen (mmol O_2/m^3)
-      O3h: O3h/h                                           # alkalinity (mmol /m^3)
-      O4n: O4/n                                            # N2 (mmol N/m^3)
-      N6r: N6/r                                            # reduction equivalent (mmol HS/m^3)
-      N5s: N5/s                                            # silicate (mmol Si/m^3)
-      X1c: X1/c                                            # cdom X1c (mgC/m^3)
-      X2c: X2/c                                            # cdom X2c (mgC/m^3)
-      X3c: X3/c                                            # cdom X3c (mgC/m^3)
-      R3c: R3/c                                            # cdom R3c (mgC/m^3)
-      R6s: R6/s                                            # POSi (mgSi/m3)
-      PAR_tot: light/parEIR
-##  --------------------- CalciteDissolution
-  O5:
-#    use: false
-    long_name: calcite
-    model: ogs/CalciteDissolution
-    parameters:
-      p_kdca:   10.9     # [d-1]           Calcite dissolution rate constant
-      p_nomega: 1.0       # [-]             Order of the dissolution rate dependence on Omega
-      p_wsinkPIC: 30      # [m d-1]         sinking velocity of PIC (Calcite)
-      c0:       1.0e-05         #                 background concentration (mg C/m^3), default = 0.0
-    initialization:
-      c: 1.0                                         # carbon (mg C/m^3)
-    coupling:
-      OCalc: O3/OCalc                               # calcite saturation (-)
-      O3c: O3/c                                     # total dissolved inorganic carbon (mgC/m^3)
-      O3h: O3h/h                                     # alkalinity (mmol/m^3)
+#end_Z4

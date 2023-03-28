@@ -14,6 +14,8 @@ module ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
       type (type_diagnostic_variable_id)   :: id_PAR_tot
+      type (type_diagnostic_variable_id)   :: id_P1chl,id_P2chl,id_P3chl,id_P4chl,id_P5chl,id_P6chl,id_P7chl,id_P8chl,id_P9chl
+      type (type_diagnostic_variable_id)   :: id_P1c  ,id_P2c  ,id_P3c  ,id_P4c  ,id_P5c  ,id_P6c  ,id_P7c  ,id_P8c,  id_P9c      
 !      type (type_diagnostic_variable_id)   :: id_anap450, id_aph450
 !      type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425, id_acdom450
 !      type (type_diagnostic_variable_id)   :: id_Scdom350_500, id_Scdom250_325       
@@ -362,6 +364,24 @@ contains
 !      call self%register_diagnostic_variable(self%id_kd425,    'kd425',  'm-1',  'extinction coefficient in 425nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_P1chl, 'P1chl', 'mg m-3', 'chlorophyll_P1', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P2chl, 'P2chl', 'mg m-3', 'chlorophyll_P2', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P3chl, 'P3chl', 'mg m-3', 'chlorophyll_P3', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P4chl, 'P4chl', 'mg m-3', 'chlorophyll_P4', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P5chl, 'P5chl', 'mg m-3', 'chlorophyll_P5', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P6chl, 'P6chl', 'mg m-3', 'chlorophyll_P6', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P7chl, 'P7chl', 'mg m-3', 'chlorophyll_P7', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P8chl, 'P8chl', 'mg m-3', 'chlorophyll_P8', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P9chl, 'P9chl', 'mg m-3', 'chlorophyll_P9', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P1c, 'P1c', 'mg m-3', 'carbon_P1', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P2c, 'P2c', 'mg m-3', 'carbon_P2', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P3c, 'P3c', 'mg m-3', 'carbon_P3', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P4c, 'P4c', 'mg m-3', 'carbon_P4', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P5c, 'P5c', 'mg m-3', 'carbon_P5', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P6c, 'P6c', 'mg m-3', 'carbon_P6', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P7c, 'P7c', 'mg m-3', 'carbon_P7', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P8c, 'P8c', 'mg m-3', 'carbon_P8', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_P9c, 'P9c', 'mg m-3', 'carbon_P9', source=source_do_column)      
       
       ! Register dependencies on aggregated variables
       call self%register_dependency(self%id_aP1c, carbon_P1)
@@ -614,7 +634,26 @@ contains
        _GET_(self%id_X1c,X1c)
        _GET_(self%id_X2c,X2c)
        _GET_(self%id_X3c,X3c)
-         
+
+          _SET_DIAGNOSTIC_(self%id_P1chl, max(p_small,P1chl))
+          _SET_DIAGNOSTIC_(self%id_P2chl, max(p_small,P2chl))       
+          _SET_DIAGNOSTIC_(self%id_P3chl, max(p_small,P3chl))       
+          _SET_DIAGNOSTIC_(self%id_P4chl, max(p_small,P4chl))       
+          _SET_DIAGNOSTIC_(self%id_P5chl, max(p_small,P5chl))       
+          _SET_DIAGNOSTIC_(self%id_P6chl, max(p_small,P6chl))       
+          _SET_DIAGNOSTIC_(self%id_P7chl, max(p_small,P7chl))       
+          _SET_DIAGNOSTIC_(self%id_P8chl, max(p_small,P8chl))       
+          _SET_DIAGNOSTIC_(self%id_P9chl, max(p_small,P9chl))       
+          _SET_DIAGNOSTIC_(self%id_P1c, max(p_small,P1c))
+          _SET_DIAGNOSTIC_(self%id_P2c, max(p_small,P2c))       
+          _SET_DIAGNOSTIC_(self%id_P3c, max(p_small,P3c))       
+          _SET_DIAGNOSTIC_(self%id_P4c, max(p_small,P4c))       
+          _SET_DIAGNOSTIC_(self%id_P5c, max(p_small,P5c))       
+          _SET_DIAGNOSTIC_(self%id_P6c, max(p_small,P6c))       
+          _SET_DIAGNOSTIC_(self%id_P7c, max(p_small,P7c))       
+          _SET_DIAGNOSTIC_(self%id_P8c, max(p_small,P8c))       
+          _SET_DIAGNOSTIC_(self%id_P9c, max(p_small,P9c))       
+       
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
              phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
