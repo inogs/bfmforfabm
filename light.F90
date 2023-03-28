@@ -12,9 +12,11 @@ module ogs_bfm_light
    type,extends(type_base_model),public :: type_ogs_bfm_light
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_EIR, id_parEIR, id_xEPS
+      ! Identifiers for dependencies
       type (type_dependency_id)            :: id_dz, id_xEPSp, id_ESS
       type (type_horizontal_dependency_id) :: id_I_0
-      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
+!      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
+      type (type_dependency_id)            :: id_chla      
       type (type_state_variable_id)        :: id_X1c, id_X2c, id_X3c
 
       ! Parameters
@@ -62,11 +64,12 @@ contains
       call self%register_dependency(self%id_I_0,standard_variables%surface_downwelling_shortwave_flux)
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
       call self%register_dependency(self%id_xEPSp,standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux)
-      call self%register_state_dependency(self%id_P1chl,'P1chl','mg chl/m^3', 'Diatoms chlorophyll')
-      call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Flagellates chlorophyll')
-      call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'PicoPhytoplankton chlorophyll')
-      call self%register_state_dependency(self%id_P4chl,'P4chl','mg chl/m^3', 'DinoFlagellates chlorophyll')
+!      call self%register_state_dependency(self%id_P1chl,'P1chl','mg chl/m^3', 'Diatoms chlorophyll')
+!      call self%register_state_dependency(self%id_P2chl,'P2chl','mg chl/m^3', 'Flagellates chlorophyll')
+!      call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'PicoPhytoplankton chlorophyll')
+!      call self%register_state_dependency(self%id_P4chl,'P4chl','mg chl/m^3', 'DinoFlagellates chlorophyll')
 !     call self%register_dependency(self%id_ESS, type_bulk_standard_variable(name='mass_concentration_of_silt'))
+      call self%register_dependency(self%id_chla, total_chlorophyll)      
       call self%register_state_dependency(self%id_X1c,'X1c','mg c/m^3', 'labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg c/m^3', 'semi-labile CDOM')
       call self%register_state_dependency(self%id_X3c,'X3c','mg c/m^3', 'semi-refractory CDOM')      
@@ -77,7 +80,8 @@ contains
       _DECLARE_ARGUMENTS_VERTICAL_
 
       real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
-      real(rk) :: P1chl, P2chl, P3chl, P4chl
+!      real(rk) :: P1chl, P2chl, P3chl, P4chl
+      real(rk) :: Pchla      
       real(rk) :: X1c, X2c, X3c
 
 
@@ -86,10 +90,11 @@ contains
       if (buffer.lt.0._rk) buffer=0._rk
 
       _VERTICAL_LOOP_BEGIN_
-         _GET_(self%id_P1chl,P1chl)
-         _GET_(self%id_P2chl,P2chl)
-         _GET_(self%id_P3chl,P3chl)
-         _GET_(self%id_P4chl,P4chl)
+!         _GET_(self%id_P1chl,P1chl)
+!         _GET_(self%id_P2chl,P2chl)
+!         _GET_(self%id_P3chl,P3chl)
+!         _GET_(self%id_P4chl,P4chl)
+         _GET_(self%id_chla,Pchla)         
          _GET_(self%id_X1c,X1c)
          _GET_(self%id_X2c,X2c)
          _GET_(self%id_X3c,X3c)
@@ -97,7 +102,7 @@ contains
          _GET_(self%id_dz,dz)     ! Layer height (m)
          _GET_(self%id_xEPSp,xEPS) ! Extinction coefficient of shortwave radiation, due to particulate organic material (m-1)
 !        _GET_(self%id_ESS,ESS)   ! Suspended silt
-         xEPS = self%EPS0X + self%pEPSCHL * (P1chl + P2chl + P3chl + P4chl) + self%pEPSCDOM * (X1c + X2c + X3c)
+         xEPS = self%EPS0X + self%pEPSCHL * (Pchla) + self%pEPSCDOM * (X1c + X2c + X3c)
 !        xEPS = xEPS + self%EPS0X + self%EPSESSX*ESS
          xtnc = xEPS*dz
          EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.

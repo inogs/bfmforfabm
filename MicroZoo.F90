@@ -337,9 +337,10 @@
        call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz',output=output_none)
        call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz',output=output_none)
       do iprey=1,self%nprey
+       write (index,'(i0)') iprey
        if (self%p_isP2(iprey).eq.1) then
-         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip',output=output_none)
-         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_P2_consumeO3h_for_CaCO3precip','mmol/m^3/d','_P2_consumeO3h_for_CaCO3precip',output=output_none)
+         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_'//trim(index)//'_CaCO3precip','mgC/m^3/d','prey '//trim(index)//' CaCO3precip',output=output_none)
+         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_'//trim(index)//'_consumeO3h_for_CaCO3precip','mmol/m^3/d','prey '//trim(index)//' consumeO3h_for_CaCO3precip',output=output_none)
        endif
       end do
 
