@@ -11,7 +11,6 @@ module ogs_model_library
    use bfm_MicroZoo
    use bfm_MesoZoo
    use ogs_bfm_light
-   use ogs_bfm_light_spectral
    use bfm_zenith_angle
    use bfm_CalciteDissolution
    use bfm_PelagicCSYS
@@ -54,7 +53,6 @@ contains
          case ('MicroZoo'); allocate(type_ogs_bfm_microzoo::model)
          case ('MesoZoo'); allocate(type_ogs_bfm_mesozoo::model)
          case ('light'); allocate(type_ogs_bfm_light::model)
-         case ('light_spectral'); allocate(type_ogs_bfm_light_spectral::model)
          case ('zenith_angle'); allocate(type_ogs_bfm_zenith_angle::model)
          case ('CalciteDissolution'); allocate(type_ogs_bfm_CalciteDissolution::model)
          case ('PelagicCSYS'); allocate(type_ogs_bfm_PelagicCSYS::model)
