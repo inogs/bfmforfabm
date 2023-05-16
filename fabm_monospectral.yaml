@@ -12,10 +12,10 @@ instances:
        EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
        pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
     coupling:
-#       P1chl: P1/Chl
-#       P2chl: P2/Chl
-#       P3chl: P3/Chl
-#       P4chl: P4/Chl
+       P1chl: P1/Chl
+       P2chl: P2/Chl
+       P3chl: P3/Chl
+       P4chl: P4/Chl
        X1c: X1/c
        X2c: X2/c
        X3c: X3/c       
