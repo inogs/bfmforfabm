@@ -13,10 +13,6 @@ instances:
        EPS0r: 0.04                                          # background shortwave attenuation (1/m), default = 0.04
        pEIR_eow: 0.4                                        # photosynthetically active fraction of shortwave radiation (-), default = 0.5
     coupling:
-#       P1chl: P1/Chl
-#       P2chl: P2/Chl
-#       P3chl: P3/Chl
-#       P4chl: P4/Chl
        X1c: X1/c
        X2c: X2/c
        X3c: X3/c    
@@ -33,7 +29,7 @@ instances:
        X3coeff: 0.015                                      # acdom coeff of X3c at lambda_aCDOM [m2/mgC]
        Xmincoeff: 0.00                                     # minimum aCDOM [m-1] at 450nm       
        lambda_aCDOM: 450                                   # lambda at which reference acdom is given [nm]
-       compute_acdom: .TRUE.                               # logical [T=compute coeffs, F=use file]
+       compute_acdom: .FALSE.                               # logical [T=compute coeffs, F=use file]
        Sapar: 0.013                                        # spectral slope anap [nm-1]
        lambda_aPart: 440                                   # lambda at which reference anap is given [nm]
        aparcoeff: 0.00058                                  # anap coeff at lambda_aPart [m2/mgC]
@@ -41,7 +37,7 @@ instances:
        lambda_bPart: 550                                   # lambda at which reference bnap is given [nm]
        bparcoeff: 0.0120                                   # bnap coeff at lambda_bPart [m2/mgC]
        bb_to_b: 0.005                                      # back to total scatter POC [-]
-       compute_anap: .TRUE.                                # logical [T=comptute coeffs, F=use file]
+       compute_anap: .FALSE.                                # logical [T=comptute coeffs, F=use file]
        p_epsP1: 0.0116                            # mean absorption coefficient from 400-700nm for P1 [m2 mgChl-1]
        p_epsP2: 0.0136                            # mean absorption coefficient from 400-700nm for P2 [m2 mgChl-1]
        p_epsP3: 0.0122                            # mean absorption coefficient from 400-700nm for P3 [m2 mgChl-1]
@@ -51,7 +47,7 @@ instances:
        p_epsP7: 0.0138                            # mean absorption coefficient from 400-700nm for P7 [m2 mgChl-1]
        p_epsP8: 0.0178                            # mean absorption coefficient from 400-700nm for P8 [m2 mgChl-1]
        p_epsP9: 0.0274                            # mean absorption coefficient from 400-700nm for P9 [m2 mgChl-1]
-       compute_aph: .TRUE.           # logical flag to scale aph [T=use file scaled to p_epsPn or F=use file unscaled]
+       compute_aph: .FALSE.           # logical flag to scale aph [T=use file scaled to p_epsPn or F=use file unscaled]
        p_bpsP1: 0.0140                            # mean scattering coefficient from 400-700nm for P1 [m2 mgC-1]
        p_bpsP2: 0.0077                            # mean scattering coefficient from 400-700nm for P2 [m2 mgC-1]
        p_bpsP3: 0.0101                            # mean scattering coefficient from 400-700nm for P3 [m2 mgC-1]
@@ -61,7 +57,7 @@ instances:
        p_bpsP7: 0.0077                            # mean scattering coefficient from 400-700nm for P7 [m2 mgC-1]
        p_bpsP8: 0.0077                            # mean scattering coefficient from 400-700nm for P8 [m2 mgC-1]
        p_bpsP9: 0.0101                            # mean scattering coefficient from 400-700nm for P9 [m2 mgC-1]
-       compute_bph: .TRUE.           # logical flag to scale bph [T=use file scaled to p_bpsPn or F=use file unscaled]
+       compute_bph: .FALSE.           # logical flag to scale bph [T=use file scaled to p_bpsPn or F=use file unscaled]
        p_bbrP1: 0.0046                            # non-spectral backscattering to total scattering ratio for P1 [-]
        p_bbrP2: 0.0020                            # non-spectral backscattering to total scattering ratio for P2 [-]
        p_bbrP3: 0.0032                            # non-spectral backscattering to total scattering ratio for P3 [-]
@@ -71,26 +67,8 @@ instances:
        p_bbrP7: 0.0054                            # non-spectral backscattering to total scattering ratio for P7 [-]
        p_bbrP8: 0.0062                            # non-spectral backscattering to total scattering ratio for P8 [-]
        p_bbrP9: 0.0062                            # non-spectral backscattering to total scattering ratio for P9 [-]
-       compute_bbc: .TRUE.           # logical flag to compute bbc or read it from file [T=compute bc*bbr or F=use file]
+       compute_bbc: .FALSE.           # logical flag to compute bbc or read it from file [T=compute bc*bbr or F=use file]
     coupling:
-#       P1c: P1/c
-#       P2c: P2/c
-#       P3c: P3/c
-#       P4c: P4/c
-#       P5c: P5/c
-#       P6c: P6/c
-#       P7c: P7/c
-#       P8c: P8/c
-#       P9c: P9/c              
-#       P1chl: P1/Chl
-#       P2chl: P2/Chl
-#       P3chl: P3/Chl
-#       P4chl: P4/Chl
-#       P5chl: P5/Chl
-#       P6chl: P6/Chl
-#       P7chl: P7/Chl
-#       P8chl: P8/Chl
-#       P9chl: P9/Chl
        X1c  : X1/c
        X2c  : X2/c
        X3c  : X3/c
@@ -387,7 +365,7 @@ instances:
       p_xqn: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- P limitation control ----
       p_qup: 0.0046                         # [m3/mgC/d]     Membrane affinity for P
-      p_qplc: 0.00057                     # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
+      p_qplc: 0.00057                       # [mmolN/mgC]    minimum phosphorus to carbon ratio (mmol P/mg C)
       p_qpcPPY: 0.000786                    # [mmolP/mgC]    Reference quotum P:C
       p_xqp: 2.0                            # [-]            Multiplication factor for luxury storage
 #                   ---- Si limitation control ----
