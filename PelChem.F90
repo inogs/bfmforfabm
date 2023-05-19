@@ -160,6 +160,7 @@ contains
       call self%get_parameter(self%p_Esource,     'p_Esource',   '5-6',             'source of light for CDOM bleaching')
 
       ! Register links to external nutrient pools.
+      call self%register_state_dependency(self%id_O3c,'O3c','mgC /m^3','dissolved organic carbon')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
