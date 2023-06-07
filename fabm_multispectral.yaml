@@ -320,6 +320,7 @@ instances:
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O2o: O2/o                                            # oxygen (mmol O_2/m^3)
       O3h: O3h/h                                           # alkalinity (mmol /m^3)
+      O3c: O3/c                                            # DIC      
       O4n: O4/n                                            # N2 (mmol N/m^3)
       N6r: N6/r                                            # reduction equivalent (mmol HS/m^3)
       N5s: N5/s                                            # silicate (mmol Si/m^3)
