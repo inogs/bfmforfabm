@@ -97,6 +97,7 @@
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
       real(rk) :: p_bX1c, p_bX2c, p_bX3c, p_IX1, p_IX2, p_IX3, p_rX3c, p_q10X    
+      real(rk) :: BASETEMP
       integer :: p_Esource
   
     contains     
@@ -137,6 +138,7 @@ contains
       ! to present parameters to the user for configuration (e.g., through a
       ! GUI)
       
+      call self%get_parameter(self%BASETEMP,    'BASETEMP',     '°C',          'Optimal temperature for physiological rates')
       call self%get_parameter(self%p_clO2o,       'p_clO2o',     '[mmolO2/m3]' ,    'Half-saturation O2 concentration for nitrification and reoxidation')
       call self%get_parameter(self%p_clN6r,       'p_clN6r',     '[mmolHS/m3]' ,    'Half-saturation concentration of reduction equivalents for denitrification[mmolO2/m3]')
       call self%get_parameter(self%p_sN4N3,       'p_sN4N3',     '[1/d]'       ,    'Specific nitrification rate at 10 degC')
@@ -260,7 +262,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Nitrification in the water
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  flN4N3n =  max(ZERO,self%p_sN4N3* N4n* eTq(  ETW,  self%p_q10N4N3) * eo)
+  flN4N3n =  max(ZERO,self%p_sN4N3* N4n* eTq(  ETW,  self%p_q10N4N3, self%BASETEMP) * eo)
 
   _SET_DIAGNOSTIC_(self%id_flN4N3n,flN4N3n)
 
@@ -283,7 +285,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 !  _GET_(self%id_flPTN6r,flPTN6r)
   rPAo  =   flPTN6r/ self%p_qro    !!!! ATTENTION flPTN6r will be defined in computed in PelBac
-  flN3O4n = max(ZERO,self%p_sN3O4n* eTq( ETW, self%p_q10N4N3)* er* rPAo/ self%p_rPAo* &
+  flN3O4n = max(ZERO,self%p_sN3O4n* eTq( ETW, self%p_q10N4N3, self%BASETEMP)* er* rPAo/ self%p_rPAo* &
                N3n)
   
    _SET_DIAGNOSTIC_(self%id_flN3O4n,flN3O4n) ! denitrification
@@ -316,7 +318,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Dissolution of biogenic silicate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  fR6N5s  =   self%p_sR6N5* eTq(  ETW,  self%p_q10R6N5)* R6s
+  fR6N5s  =   self%p_sR6N5* eTq(  ETW,  self%p_q10R6N5, self%BASETEMP)* R6s
    _SET_DIAGNOSTIC_(self%id_fR6N5s,fR6N5s) ! dissolution of biogenic silicate
 
 ! call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
@@ -388,8 +390,8 @@ contains
   !  Remineralization of semi-recalcitrant DOC
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  remX3c = X3c * ( eTq( ETW, self%p_q10X ) * self%p_rX3c )
-  remR3c = R3c * ( eTq( ETW, self%p_q10X ) * self%p_rX3c )
+  remX3c = X3c * ( eTq( ETW, self%p_q10X, self%BASETEMP ) * self%p_rX3c )
+  remR3c = R3c * ( eTq( ETW, self%p_q10X, self%BASETEMP ) * self%p_rX3c )
     
   _SET_DIAGNOSTIC_(self%id_remX3c,remX3c) ! remineralization of semi-refractory CDOM
   _SET_DIAGNOSTIC_(self%id_remR3c,remR3c) ! remineralization of semi-refractory DOC

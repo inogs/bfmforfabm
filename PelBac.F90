@@ -122,6 +122,7 @@
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1b, p_fX2b, p_fX3b      
+      real(rk) :: BASETEMP
       integer :: p_version
 
    contains
@@ -156,6 +157,7 @@ contains
       ! by FABM (or its host)
       ! to present parameters to the user for configuration (e.g., through a
       ! GUI)
+      call self%get_parameter(self%BASETEMP,    'BASETEMP',     '°C',          'Optimal temperature for physiological rates')
       call self%get_parameter(self%p_version, 'p_version', '-',       'Switch for bacteria parameterization')
       call self%get_parameter(self%p_q10,     'p_q10',     '-',       'Characteristic Q10 coefficient')
       call self%get_parameter(self%p_chdo,    'p_chdo',    'mmol/m3', 'Half-saturation constant for O2 limitation')
@@ -367,7 +369,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  et = eTq(ETW, self%p_q10)
+  et = eTq(ETW, self%p_q10, self%BASETEMP)
 
  _SET_DIAGNOSTIC_(self%id_et,et)
 

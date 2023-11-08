@@ -144,6 +144,7 @@
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
+      real(rk)     :: BASETEMP
    contains
 
       ! Model procedures
@@ -179,6 +180,7 @@ contains
       ! by FABM (or its host)
       ! to present parameters to the user for configuration (e.g., through a
       ! GUI)
+      call self%get_parameter(self%BASETEMP,    'BASETEMP',     '°C',          'Optimal temperature for physiological rates')
       call self%get_parameter(self%p_q10,   'p_q10',     '-', 'Characteristic Q10 coefficient')
       call self%get_parameter(self%p_temp,  'p_temp',    '-', ' Cut-off threshold for temperature factor')
       call self%get_parameter(self%p_sum,   'p_sum',     '1/d',        'Maximal productivity at 10 degrees C')
@@ -569,7 +571,7 @@ select case ( self%p_limnut)
 
   ! Retrieve environmental dependencies (water temperature, photosynthetically active radation)
 
-  et  =   eTq(  ETW, self%p_q10)
+  et  =   eTq(  ETW, self%p_q10, self%BASETEMP)
   et  =   max(ZERO,et - self%p_temp)
 
     _SET_DIAGNOSTIC_(self%id_ETWd,ETW)
