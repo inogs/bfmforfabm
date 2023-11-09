@@ -177,6 +177,7 @@
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
+      real(rk) :: BASETEMP
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
 !      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
@@ -219,6 +220,7 @@ contains
       ! Specify the long name and units of the parameters, which could be used
       ! by FABM (or its host) to present parameters
       ! to the user for configuration (e.g., through a GUI)
+      call self%get_parameter(self%BASETEMP,    'BASETEMP',     '°C',          'Optimal temperature for physiological rates')
       call self%get_parameter(self%p_q10,    'p_q10',     '-',          'Q10 value for physiological rates')
       call self%get_parameter(self%p_srs,    'p_srs',     '1/d',        'respiration rate at reference temperature')
       call self%get_parameter(self%p_sum,    'p_sum',     '1/d',        'maximal productivity at reference temperature')
@@ -495,7 +497,7 @@ contains
   ! Physiological temperature and oxygen response
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    eo = MM_power(max(p_small,O2o), self%p_clO2o, 3)
-   et = eTq(ETW, self%p_q10)
+   et = eTq(ETW, self%p_q10, self%BASETEMP)
       _SET_DIAGNOSTIC_(self%id_ETWd,ETW)
       _SET_DIAGNOSTIC_(self%id_et,et)
       _SET_DIAGNOSTIC_(self%id_eo,eo)
