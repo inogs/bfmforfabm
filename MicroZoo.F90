@@ -171,7 +171,7 @@
       real(rk) :: p_pu, p_pu_ea, p_chro, p_chuc, p_minfood
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
-      real(rk) :: p_fX1z,BASETEMP
+      real(rk) :: p_fX1z
       
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -223,7 +223,6 @@
         ! by FABM (or its host)
         ! to present parameters to the user for configuration (e.g., through a
         ! GUI)
-        call self%get_parameter(self%BASETEMP,    'BASETEMP',     '°C',          'Optimal temperature for physiological rates')
         call self%get_parameter(self%p_q10,     'p_q10',     '-',         'Characteristic Q10 coefficient')
         call self%get_parameter(self%p_srs,     'p_srs',     '1/d',       'Respiration rate at 10 degrees Celsius')
         call self%get_parameter(self%p_sum,     'p_sum',     '1/d',       'Potential growth rate')
@@ -443,7 +442,7 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Temperature effect
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      et = eTq(ETW, self%p_q10, self%BASETEMP)
+      et = eTq(ETW, self%p_q10)
       
       _SET_DIAGNOSTIC_(self%id_ETWd,ETW)
       _SET_DIAGNOSTIC_(self%id_et,et)

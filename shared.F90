@@ -12,6 +12,7 @@ module ogs_bfm_shared
    real(rk),parameter :: CMass         = 12.011_rk
    real(rk),parameter :: ONE           = 1._rk
    real(rk),parameter :: ZERO          = 0._rk
+   real(rk),parameter :: BASETEMP      = 10._rk
    real(rk),parameter :: p_small       = 1.0E-20_rk
    real(rk),parameter :: qnRPIcX       = 1.26E-02_rk
    real(rk),parameter :: qpRPIcX       = 7.86E-04_rk
@@ -96,10 +97,10 @@ module ogs_bfm_shared
    contains
 
     ! temperature dependency for Q10 function
-    elemental function eTq(t, q10, BASETEMP)
+    elemental function eTq(t, q10)
 
         IMPLICIT NONE
-        real(rk),intent(IN) :: t, q10, BASETEMP
+        real(rk),intent(IN) :: t, q10
         real(rk)            :: eTq
 
         eTq = exp( log(q10) * (t-BASETEMP) / BASETEMP)
