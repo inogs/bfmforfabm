@@ -17,10 +17,11 @@ module ogs_bfm_light
       type (type_horizontal_dependency_id) :: id_zenithA
       type (type_horizontal_dependency_id) :: id_Lfluc
       type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
+      type (type_state_variable_id)        :: id_X1c, id_X2c, id_X3c
 
       ! Parameters
       real(rk) :: EPSESSX,EPS0X,pEIR_eowX
-      real(rk) :: pEPSCHL
+      real(rk) :: pEPSCHL,pEPSCDOM
    contains
 !     Model procedures
       procedure :: initialize
@@ -49,6 +50,7 @@ contains
       call self%get_parameter(self%EPSESSX,  'EPSESS',  'm^2/mg','specific shortwave attenuation of silt', default=4.E-5_rk)
       call self%get_parameter(self%pEIR_eowX,'pEIR_eow','-',     'photosynthetically active fraction of shortwave radiation', default=.4_rk)
       call self%get_parameter(self%pEPSCHL,  'pEPSCHL', 'm^2/mg Chl', 'attenuation by Chlorophyll', default=.0088_rk)
+      call self%get_parameter(self%pEPSCDOM, 'pEPSCDOM','m^2/mgC', 'attenuation by CDOM', default=.0646_rk)
 
       ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_EIR,'EIR','uE m-2 d-1','shortwave radiation', &
@@ -70,24 +72,29 @@ contains
       call self%register_state_dependency(self%id_P3chl,'P3chl','mg chl/m^3', 'PicoPhytoplankton chlorophyll')
       call self%register_state_dependency(self%id_P4chl,'P4chl','mg chl/m^3', 'DinoFlagellates chlorophyll')
 !     call self%register_dependency(self%id_ESS, type_bulk_standard_variable(name='mass_concentration_of_silt'))
+      call self%register_state_dependency(self%id_X1c,'X1c','mg c/m^3', 'labile CDOM')
+      call self%register_state_dependency(self%id_X2c,'X2c','mg c/m^3', 'semi-labile CDOM')
+      call self%register_state_dependency(self%id_X3c,'X3c','mg c/m^3', 'semi-refractory CDOM')      
    end subroutine
 
    subroutine get_light(self,_ARGUMENTS_VERTICAL_)
       class (type_ogs_bfm_light),intent(in) :: self
       _DECLARE_ARGUMENTS_VERTICAL_
 
-      real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
+      real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS,I0
       real(rk) :: P1chl, P2chl, P3chl, P4chl
       real(rk) :: zenithA,mud
       real(rk) :: Lfluc
+      real(rk) :: X1c, X2c, X3c
 
 
       _GET_HORIZONTAL_(self%id_I_0,buffer)
+      _GET_HORIZONTAL_(self%id_I_0,I0)
       _GET_HORIZONTAL_(self%id_Lfluc,Lfluc)
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
 
-      buffer=buffer*(1._rk+ Lfluc)
+      buffer=buffer!*(1._rk+ Lfluc)
 
 !     if ( (buffer.lt.0._rk) .and. (mud.lt.0._rk) ) buffer=0._rk
       if (buffer.lt.0._rk)     buffer=0._rk
@@ -98,14 +105,20 @@ contains
          _GET_(self%id_P2chl,P2chl)
          _GET_(self%id_P3chl,P3chl)
          _GET_(self%id_P4chl,P4chl)
+         _GET_(self%id_X1c,X1c)
+         _GET_(self%id_X2c,X2c)
+         _GET_(self%id_X3c,X3c)
 
          _GET_(self%id_dz,dz)     ! Layer height (m)
          _GET_(self%id_xEPSp,xEPS) ! Extinction coefficient of shortwave radiation, due to particulate organic material (m-1)
 !        _GET_(self%id_ESS,ESS)   ! Suspended silt
-         xEPS = self%EPS0X + self%pEPSCHL * (P1chl + P2chl + P3chl + P4chl)
+         xEPS = self%EPS0X + self%pEPSCHL * (P1chl + P2chl + P3chl + P4chl) + self%pEPSCDOM * (X1c + X2c + X3c)
 !        xEPS = xEPS + self%EPS0X + self%EPSESSX*ESS
-         xtnc = xEPS*dz
+         xtnc = xEPS*dz*(1._rk+ Lfluc)
+!        EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.
+!        EIR = I0/(1._rk+ Lfluc)/xtnc*(1.0_rk-exp(- (1._rk+ Lfluc) * xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.
          EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.
+!        buffer = log (buffer*exp(-xtnc) )
          buffer = buffer*exp(-xtnc)
          _SET_DIAGNOSTIC_(self%id_EIR,EIR)                     ! Local shortwave radiation
          _SET_DIAGNOSTIC_(self%id_parEIR,EIR*self%pEIR_eowX)   ! Local photosynthetically active radiation
