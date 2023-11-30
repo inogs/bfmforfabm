@@ -78,7 +78,7 @@ contains
 !     call self%initialize_ersem_base(rm=rRPmX, sedimentation=rRPmX>0._rk)
 
       if (index(composition,'c')/=0) then
-         call self%add_constituent('c', 0.0_rk, c0, qn, qp)
+         call self%add_constituent('c', 0.0_rk, 0.0_rk, qn, qp)
 
          ! Add contributions to light attenuation, absorption, scattering.
          ! Contributions with a scale_factor of 0.0 will automatically be
@@ -93,7 +93,7 @@ contains
       if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk)
       if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk)
       if (index(composition,'s')/=0) then 
-         call self%add_constituent('s',0.0_rk,s0)
+         call self%add_constituent('s',0.0_rk,0.0_rk)
       end if
       if (index(composition,'f')/=0) call self%add_constituent('f',0.0_rk)
       if (index(composition,'o')/=0) call self%add_constituent('o',0.0_rk)
