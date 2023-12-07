@@ -707,7 +707,7 @@ contains
 
 ! rep1 (remineraliz contiene valori positivi) => -ALK ; rep (uptake, ma la variabile contiene valori negativi) => +ALK
 ! _SET_ODE_(self%id_O3h,-(rep1) + -rep )
- _SET_DIAGNOSTIC_(self%id_B_P_O3h,-(rep1) + -rep)
+ _SET_DIAGNOSTIC_(self%id_B_P_O3h,-(rep1) + (-rep))
   
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excess carbon (also considering dissolved nutrient uptake ren and rep) 
