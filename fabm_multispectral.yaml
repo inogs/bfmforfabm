@@ -114,7 +114,7 @@ instances:
 #    parameters:
 #      composition: c                                       # elemental composition
     initialization:
-      c: 28500.00                                           # Dissolved Inorganic Carbon (mg C /m^3)
+      c: 28500.01                                           # Dissolved Inorganic Carbon (mg C /m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N5s: N5/s                                            # silicate  (mmol Si/m^3)
