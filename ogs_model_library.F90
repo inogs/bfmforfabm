@@ -15,6 +15,7 @@ module ogs_model_library
    use bfm_zenith_angle
    use bfm_CalciteDissolution
    use bfm_PelagicCSYS
+   use bfm_BenthicLayer
 
 
    ! Add use statements for new models here
@@ -58,6 +59,7 @@ contains
          case ('zenith_angle'); allocate(type_ogs_bfm_zenith_angle::model)
          case ('CalciteDissolution'); allocate(type_ogs_bfm_CalciteDissolution::model)
          case ('PelagicCSYS'); allocate(type_ogs_bfm_PelagicCSYS::model)
+         case ('BenthicLayer'); allocate(type_BenthicLayer::model)            
       end select
 
    end subroutine create

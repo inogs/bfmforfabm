@@ -3,6 +3,10 @@ check_conservation: false
 require_initialization: true
 log: true
 instances:
+  Benthic_layer:
+    model: ogs/BenthicLayer
+    parameters:
+      p_BenDepth: 12000.0
   zenith_angle:
     model: ogs/zenith_angle
   light:
@@ -237,8 +241,14 @@ instances:
       p_rX3c: 0.00003      # [1/d]            remineralization rate X3c and R3c
       p_q10X: 2.95         # [-]              q10 for CDOM degradation
       p_Esource: 6         # [5 or 6]         source of light for CDOM bleaching, 5=spectral, 6=mono
+      p_use_benthic: 0     #[0=F or 1=T]  activate first-order benthic return
+      p_TauC:        1.0   #[d]           remineralization of Carbon in detritus
+      p_TauN:        0.5   #[d]           remineralization of Nitrogen in detritus
+      p_TauP:        1.0   #[d]           remineralization of Phosphorus in detritus
+      p_Amm_rem:     0.2   #[0 to 1]      fraction of detritus remineralized to NH4      
     initialization:
     coupling:
+      N1p: N1/p                                            # phosphate (mmol P/m^3)    
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O2o: O2/o                                            # oxygen (mmol O_2/m^3)
@@ -252,7 +262,11 @@ instances:
       X3c: X3/c                                            # cdom X3c (mgC/m^3)
       R3c: R3/c                                            # cdom R3c (mgC/m^3)
       R6s: R6/s                                            # POSi (mgSi/m3)
+      R6c: R6/c                                            # POC  (mgC/m3)
+      R6n: R6/n                                            # PON  (mmolN/m3)
+      R6p: R6/p                                            # POP (mmolP/m3)
       PAR_tot: light/parEIR
+      isBen:  Benthic_layer/isBen
 ##  --------------------- CalciteDissolution
   O5:
 #    use: false
