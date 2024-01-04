@@ -6,7 +6,7 @@ instances:
   Benthic_layer:
     model: ogs/BenthicLayer
     parameters:
-      p_BenDepth: 14000.0
+      p_BenDepth: 12000.0
   zenith_angle:
     model: ogs/zenith_angle
   light:
