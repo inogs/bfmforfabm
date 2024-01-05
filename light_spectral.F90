@@ -14,17 +14,16 @@ module ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
       type (type_diagnostic_variable_id)   :: id_PAR_tot
-!      type (type_diagnostic_variable_id)   :: id_P1chl,id_P2chl,id_P3chl,id_P4chl,id_P5chl,id_P6chl,id_P7chl,id_P8chl,id_P9chl
-!      type (type_diagnostic_variable_id)   :: id_P1c  ,id_P2c  ,id_P3c  ,id_P4c  ,id_P5c  ,id_P6c  ,id_P7c  ,id_P8c,  id_P9c      
-
-!      type (type_diagnostic_variable_id)   :: id_anap450, id_aph450
-!      type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425, id_acdom450
+      type (type_diagnostic_variable_id)   :: id_anap450, id_aph450, id_acdom450
+!      type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425
 !      type (type_diagnostic_variable_id)   :: id_Scdom350_500, id_Scdom250_325       
 !      type (type_diagnostic_variable_id)   :: id_bbp450, id_bbp550, id_bbp700
+      type (type_diagnostic_variable_id)   :: id_Ed400, id_Ed425, id_Ed450, id_Ed475, id_Ed500, id_Ed525, id_Ed550, id_Ed575, id_Ed675
+      type (type_diagnostic_variable_id)   :: id_E0475, id_E0500
 
-!      type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
-!      type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575, id_Rrs675
-!      type (type_horizontal_diagnostic_variable_id) :: id_kd375, id_kd400, id_kd425, id_kd475, id_kd500
+      type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
+      type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575, id_Rrs675
+      type (type_horizontal_diagnostic_variable_id) :: id_kd375, id_kd400, id_kd425, id_kd475, id_kd500
       
       type (type_dependency_id)            :: id_dz
       type (type_dependency_id)            :: id_aP1c, id_aP2c, id_aP3c, id_aP4c, id_aP5c, id_aP6c, id_aP7c, id_aP8c, id_aP9c
@@ -50,6 +49,8 @@ module ogs_bfm_light_spectral
 
 ! END BLOCK 1 python generated  code
 
+      type (type_horizontal_dependency_id) :: id_spm      
+      
       ! Parameters
       integer  :: nlt,npft
       real(rk) :: rd, rs, ru, vs, vu
@@ -62,7 +63,8 @@ module ogs_bfm_light_spectral
       real(rk) :: p_bpsP1,p_bpsP2,p_bpsP3,p_bpsP4,p_bpsP5,p_bpsP6,p_bpsP7,p_bpsP8,p_bpsP9
       real(rk) :: p_bbrP1,p_bbrP2,p_bbrP3,p_bbrP4,p_bbrP5,p_bbrP6,p_bbrP7,p_bbrP8,p_bbrP9
       logical :: compute_aph, compute_bph, compute_bbc
-      
+      real(rk) :: p_spmc1, p_spmc2, p_spmS, lambda_aSPM, p_spmb, p_spmbb
+
    contains
 !     Model procedures
       procedure :: initialize
@@ -142,6 +144,12 @@ contains
       call self%get_parameter(self%p_bbrP8,       'p_bbrP8',       '-',           'backscattering to total scattering ratio for P8')
       call self%get_parameter(self%p_bbrP9,       'p_bbrP9',       '-',           'backscattering to total scattering ratio for P9')
       call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
+      call self%get_parameter(self%p_spmc1,     'p_spmc1', 'm2 g-1',    'specific absorption at ',default=0.014_rk)
+      call self%get_parameter(self%p_spmc2,     'p_spmc2', 'm2 g-1',    'specific absorption at ',default=0.000_rk)
+      call self%get_parameter(self%p_spmS,      'p_spmS',  'nm-1',      'slope parameter for aSPM wavelength dependence',default=0.00_rk)
+      call self%get_parameter(self%lambda_aSPM, 'lambda_aSPM',  'nm',   'wavelength where c2 aSPM is given')
+      call self%get_parameter(self%p_spmb,      'p_spmb',  'm2 g-1',    'specific absorption at ',default=0.7_rk)
+      call self%get_parameter(self%p_spmbb,     'p_spmbb', 'm2 g-1',    'specific absorption at ',default=0.008_rk)
       
       if (self%nlt>0) then
           allocate(lam(self%nlt));             lam(:)=huge(lam(1))
@@ -345,44 +353,38 @@ contains
 !      call self%register_diagnostic_variable(self%id_acdom325, 'acdom325', 'm-1', 'acdom in 325 nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_acdom400, 'acdom400', 'm-1', 'acdom in 400 nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_acdom425, 'acdom425', 'm-1', 'acdom in 425 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_acdom450, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_anap450, 'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_aph450,  'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_acdom450, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_anap450, 'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_aph450,  'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_bbp450,  'bbp450',   'm-1', 'particle backscattering in 450 nm band', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_bbp550,  'bbp550',   'm-1', 'particle backscattering in 550 nm band', source=source_do_column)      
 !      call self%register_diagnostic_variable(self%id_bbp700,  'bbp700',   'm-1', 'particle backscattering in 700 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs400,   'Rrs400',   '-',  'subsurface reflectance in 400nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs425,   'Rrs425',   '-',  'subsurface reflectance in 425nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs450,   'Rrs450',   '-',  'subsurface reflectance in 450nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs475,   'Rrs475',   '-',  'subsurface reflectance in 475nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs500,   'Rrs500',   '-',  'subsurface reflectance in 500nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs525,   'Rrs525',   '-',  'subsurface reflectance in 525nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs550,   'Rrs550',   '-',  'subsurface reflectance in 550nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs575,   'Rrs575',   '-',  'subsurface reflectance in 575nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Rrs675,   'Rrs675',   '-',  'subsurface reflectance in 675nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd375,    'kd375',  'm-1',  'extinction coefficient in 375nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd400,    'kd400',  'm-1',  'extinction coefficient in 400nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd425,    'kd425',  'm-1',  'extinction coefficient in 425nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_P1chl, 'P1chl', 'mg m-3', 'chlorophyll_P1', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P2chl, 'P2chl', 'mg m-3', 'chlorophyll_P2', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P3chl, 'P3chl', 'mg m-3', 'chlorophyll_P3', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P4chl, 'P4chl', 'mg m-3', 'chlorophyll_P4', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P5chl, 'P5chl', 'mg m-3', 'chlorophyll_P5', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P6chl, 'P6chl', 'mg m-3', 'chlorophyll_P6', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P7chl, 'P7chl', 'mg m-3', 'chlorophyll_P7', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P8chl, 'P8chl', 'mg m-3', 'chlorophyll_P8', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P9chl, 'P9chl', 'mg m-3', 'chlorophyll_P9', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P1c, 'P1c', 'mg m-3', 'carbon_P1', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P2c, 'P2c', 'mg m-3', 'carbon_P2', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P3c, 'P3c', 'mg m-3', 'carbon_P3', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P4c, 'P4c', 'mg m-3', 'carbon_P4', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P5c, 'P5c', 'mg m-3', 'carbon_P5', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P6c, 'P6c', 'mg m-3', 'carbon_P6', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P7c, 'P7c', 'mg m-3', 'carbon_P7', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P8c, 'P8c', 'mg m-3', 'carbon_P8', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_P9c, 'P9c', 'mg m-3', 'carbon_P9', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_Rrs400,   'Rrs400',   '-',  'subsurface reflectance in 400nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs425,   'Rrs425',   '-',  'subsurface reflectance in 425nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs450,   'Rrs450',   '-',  'subsurface reflectance in 450nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs475,   'Rrs475',   '-',  'subsurface reflectance in 475nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs500,   'Rrs500',   '-',  'subsurface reflectance in 500nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs525,   'Rrs525',   '-',  'subsurface reflectance in 525nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs550,   'Rrs550',   '-',  'subsurface reflectance in 550nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs575,   'Rrs575',   '-',  'subsurface reflectance in 575nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Rrs675,   'Rrs675',   '-',  'subsurface reflectance in 675nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd375,    'kd375',  'm-1',  'extinction coefficient in 375nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd400,    'kd400',  'm-1',  'extinction coefficient in 400nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd425,    'kd425',  'm-1',  'extinction coefficient in 425nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
+
+      call self%register_diagnostic_variable(self%id_Ed400, 'Ed400', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed425, 'Ed425', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed450, 'Ed450', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed475, 'Ed475', 'W m-2', 'E downwelling', source=source_do_column)      
+      call self%register_diagnostic_variable(self%id_Ed500, 'Ed500', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed525, 'Ed525', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed550, 'Ed550', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed575, 'Ed575', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_Ed675, 'Ed675', 'W m-2', 'E downwelling', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_E0475, 'E0475', 'W m-2', 'E scalar', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_E0500, 'E0500', 'W m-2', 'E scalar', source=source_do_column)
       
       ! Register dependencies on aggregated variables
       call self%register_dependency(self%id_aP1c, carbon_P1)
@@ -414,6 +416,7 @@ contains
       ! Register environmental dependencies 
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
       call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
+      call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
 
 ! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
       call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
@@ -493,13 +496,14 @@ contains
       real(rk) :: dz,zenithA,mud
       real(rk) :: phy_a,phy_b,phy_bb
       real(rk) :: cdom_a
+      real(rk) :: spm, spm_a, spm_b, spm_bb      
       real(rk) :: tot_a,tot_b,tot_bb
       real(rk) :: R6c,X1c,X2c,X3c
       real(rk) :: P1c,P2c,P3c,P4c,P5c,P6c,P7c,P8c,P9c
       real(rk) :: P1chl,P2chl,P3chl,P4chl
       real(rk) :: P5chl,P6chl,P7chl,P8chl,P9chl
-!      real(rk) :: aph450, anap450
-!      real(rk) :: acdom250,acdom325,acdom400,acdom425,acdom450
+      real(rk) :: aph450, anap450, acdom450
+!      real(rk) :: acdom250,acdom325,acdom400,acdom425
 !      real(rk) :: Scdom350_500, Scdom250_325
 !      real(rk) :: bbp450, bbp550, bbp700
 !      real(rk) :: equis(self%nlt),ies(self%nlt)
@@ -636,24 +640,10 @@ contains
        _GET_(self%id_X2c,X2c)
        _GET_(self%id_X3c,X3c)
 
-!          _SET_DIAGNOSTIC_(self%id_P1chl, max(p_small,P1chl))
-!          _SET_DIAGNOSTIC_(self%id_P2chl, max(p_small,P2chl))       
-!          _SET_DIAGNOSTIC_(self%id_P3chl, max(p_small,P3chl))       
-!          _SET_DIAGNOSTIC_(self%id_P4chl, max(p_small,P4chl))       
-!          _SET_DIAGNOSTIC_(self%id_P5chl, max(p_small,P5chl))       
-!          _SET_DIAGNOSTIC_(self%id_P6chl, max(p_small,P6chl))       
-!          _SET_DIAGNOSTIC_(self%id_P7chl, max(p_small,P7chl))       
-!          _SET_DIAGNOSTIC_(self%id_P8chl, max(p_small,P8chl))       
-!          _SET_DIAGNOSTIC_(self%id_P9chl, max(p_small,P9chl))       
-!          _SET_DIAGNOSTIC_(self%id_P1c, max(p_small,P1c))
-!          _SET_DIAGNOSTIC_(self%id_P2c, max(p_small,P2c))       
-!          _SET_DIAGNOSTIC_(self%id_P3c, max(p_small,P3c))       
-!          _SET_DIAGNOSTIC_(self%id_P4c, max(p_small,P4c))       
-!          _SET_DIAGNOSTIC_(self%id_P5c, max(p_small,P5c))       
-!          _SET_DIAGNOSTIC_(self%id_P6c, max(p_small,P6c))       
-!          _SET_DIAGNOSTIC_(self%id_P7c, max(p_small,P7c))       
-!          _SET_DIAGNOSTIC_(self%id_P8c, max(p_small,P8c))       
-!          _SET_DIAGNOSTIC_(self%id_P9c, max(p_small,P9c))       
+       _GET_HORIZONTAL_(self%id_spm,spm)  ! suspended particle matter in g/m3
+!          spm_a  = spm*p_spmc1        ! Wozniak et al. 2019 (consistent with Gallegos et a. 2011 for small minerals at 555).
+          spm_b  = spm*self%p_spmb    ! Wozniak et al. 2018 JMS for the Baltic
+          spm_bb = spm*self%p_spmbb   ! Wozniak et al. 2018 JMS for the Baltic       
        
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
@@ -664,11 +654,17 @@ contains
 !             phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl + bc(3,l)*bbc(3,l)*P3chl + bc(4,l)*bbc(4,l)*P4chl
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
              cdom_a = MAX(cdom_a, acdom_min(l))
+
+             rlamm = real(lam(l),8)
+!             rlamm1 = real(lam1(l),8)
+!             rlamm2 = real(lam2(l),8)
+             spm_a = spm * (self%p_spmc1 + (self%p_spmc2 * exp(-self%p_spmS*(rlamm-self%lambda_aSPM))))
+!             spm_a = spm * (self%p_spmc1 + (self%p+spmc2 * (exp(-self%p_spmS*(rlamm2-self%lambda_aSPM))-exp(-self%p_spmS*(rlamm1-self%lambda_aSPM)))/(-self%p_spmS*(rlamm2-rlamm1))))             
              
 ! Need to add also cdom
-             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a
-             tot_b  =  bw(l) + phy_b  + bpoc(l) * R6c 
-             tot_bb = bbw(l) + phy_bb + bbpoc(l)* R6c 
+             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a + spm_a
+             tot_b  =  bw(l) + phy_b  + bpoc(l) * R6c + spm_b
+             tot_bb = bbw(l) + phy_bb + bbpoc(l)* R6c + spm_bb
 
              a_array(kk,l)  = tot_a
              b_array(kk,l)  = tot_b
@@ -680,9 +676,9 @@ contains
 !       acdom325 = MAX(acdom(1,2)*X1c + acdom(2,2)*X2c + acdom(3,2)*X3c, acdom_min(2))
 !       acdom400 = MAX(acdom(1,5)*X1c + acdom(2,5)*X2c + acdom(3,5)*X3c, acdom_min(5))
 !       acdom425 = MAX(acdom(1,6)*X1c + acdom(2,6)*X2c + acdom(3,6)*X3c, acdom_min(6))
-!       acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
-!       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
-!       anap450  = apoc(7) * R6c
+       acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
+       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
+       anap450  = apoc(7) * R6c
 !       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c
 !       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c
 !       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c + bc(2,17)*bbc(2,17)*P5c + bc(3,17)*bbc(3,17)*P6c + bc(2,17)*bbc(2,17)*P7c + bc(2,17)*bbc(2,17)*P8c + bc(3,17)*bbc(3,17)*P9c) + bbpoc(17)*R6c
@@ -691,9 +687,9 @@ contains
 !         _SET_DIAGNOSTIC_(self%id_acdom325, max(p_small,acdom325))            
 !         _SET_DIAGNOSTIC_(self%id_acdom400, max(p_small,acdom400))            
 !         _SET_DIAGNOSTIC_(self%id_acdom425, max(p_small,acdom425))            
-!         _SET_DIAGNOSTIC_(self%id_acdom450, max(p_small,acdom450))
-!         _SET_DIAGNOSTIC_(self%id_aph450, max(p_small,aph450))              
-!         _SET_DIAGNOSTIC_(self%id_anap450, max(p_small,anap450))
+         _SET_DIAGNOSTIC_(self%id_acdom450, max(p_small,acdom450))
+         _SET_DIAGNOSTIC_(self%id_aph450, max(p_small,aph450))              
+         _SET_DIAGNOSTIC_(self%id_anap450, max(p_small,anap450))
 !         _SET_DIAGNOSTIC_(self%id_bbp450, max(p_small,bbp450))
 !         _SET_DIAGNOSTIC_(self%id_bbp550, max(p_small,bbp550))
 !         _SET_DIAGNOSTIC_(self%id_bbp700, max(p_small,bbp700))
@@ -759,26 +755,26 @@ contains
 ! AOPs observed for diagnostics     
 !    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
 
-!     _HORIZONTAL_LOOP_BEGIN_
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/max(p_small,(E(1,1,5)+E(2,1,5))))
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/max(p_small,(E(1,1,6)+E(2,1,6))))
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/max(p_small,(E(1,1,7)+E(2,1,7)))) 
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs475,E(3,1,8)/max(p_small,(E(1,1,8)+E(2,1,8))))
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs500,E(3,1,9)/max(p_small,(E(1,1,9)+E(2,1,9))))
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs525,E(3,1,10)/max(p_small,(E(1,1,10)+E(2,1,10)))) 
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs550,E(3,1,11)/max(p_small,(E(1,1,11)+E(2,1,11)))) 
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs575,E(3,1,12)/max(p_small,(E(1,1,12)+E(2,1,12)))) 
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs675,E(3,1,16)/max(p_small,(E(1,1,16)+E(2,1,16)))) 
+     _HORIZONTAL_LOOP_BEGIN_
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/max(p_small,(E(1,1,5)+E(2,1,5))))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/max(p_small,(E(1,1,6)+E(2,1,6))))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/max(p_small,(E(1,1,7)+E(2,1,7)))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs475,E(3,1,8)/max(p_small,(E(1,1,8)+E(2,1,8))))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs500,E(3,1,9)/max(p_small,(E(1,1,9)+E(2,1,9))))
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs525,E(3,1,10)/max(p_small,(E(1,1,10)+E(2,1,10)))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs550,E(3,1,11)/max(p_small,(E(1,1,11)+E(2,1,11)))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs575,E(3,1,12)/max(p_small,(E(1,1,12)+E(2,1,12)))) 
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs675,E(3,1,16)/max(p_small,(E(1,1,16)+E(2,1,16)))) 
 
 !     write(*,*) 'Z9= ', zgrid(26)
      
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd375,-LOG(max(p_small,(E(1,26,4)+E(2,26,4))/(max(p_small,E(1,1,4)+E(2,1,4)))))/9.05_rk)
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd400,-LOG(max(p_small,(E(1,26,5)+E(2,26,5))/(max(p_small,E(1,1,5)+E(2,1,5)))))/9.05_rk)     
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd425,-LOG(max(p_small,(E(1,26,6)+E(2,26,6))/(max(p_small,E(1,1,6)+E(2,1,6)))))/9.05_rk)
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG(max(p_small,(E(1,26,8)+E(2,26,8))/(max(p_small,E(1,1,8)+E(2,1,8)))))/9.05_rk)
-!     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG(max(p_small,(E(1,26,9)+E(2,26,9))/(max(p_small,E(1,1,9)+E(2,1,9)))))/9.05_rk)     
-     
-!      _HORIZONTAL_LOOP_END_
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd375,-LOG(max(p_small,(E(1,26,4)+E(2,26,4))/(max(p_small,E(1,1,4)+E(2,1,4)))))/9.05_rk)
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd400,-LOG(max(p_small,(E(1,26,5)+E(2,26,5))/(max(p_small,E(1,1,5)+E(2,1,5)))))/9.05_rk)     
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd425,-LOG(max(p_small,(E(1,26,6)+E(2,26,6))/(max(p_small,E(1,1,6)+E(2,1,6)))))/9.05_rk)
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG(max(p_small,(E(1,26,8)+E(2,26,8))/(max(p_small,E(1,1,8)+E(2,1,8)))))/9.05_rk)
+     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG(max(p_small,(E(1,26,9)+E(2,26,9))/(max(p_small,E(1,1,9)+E(2,1,9)))))/9.05_rk)     
+    
+      _HORIZONTAL_LOOP_END_
 
       kk=0
 
@@ -797,6 +793,19 @@ contains
          _SET_DIAGNOSTIC_(self%id_par_P9, max(p_small,PAR_P9_array(kk)))         
          _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
 
+         _SET_DIAGNOSTIC_(self%id_Ed400, max(p_small, (E(1,kk,5)+E(2,kk,5)) ))                 
+         _SET_DIAGNOSTIC_(self%id_Ed425, max(p_small, (E(1,kk,6)+E(2,kk,6)) ))           
+         _SET_DIAGNOSTIC_(self%id_Ed450, max(p_small, (E(1,kk,7)+E(2,kk,7)) ))
+         _SET_DIAGNOSTIC_(self%id_Ed475, max(p_small, (E(1,kk,8)+E(2,kk,8)) ))         
+         _SET_DIAGNOSTIC_(self%id_Ed500, max(p_small, (E(1,kk,9)+E(2,kk,9)) ))         
+         _SET_DIAGNOSTIC_(self%id_Ed525, max(p_small,(E(1,kk,10)+E(2,kk,10)) ))          
+         _SET_DIAGNOSTIC_(self%id_Ed550, max(p_small,(E(1,kk,11)+E(2,kk,11)) ))          
+         _SET_DIAGNOSTIC_(self%id_Ed575, max(p_small,(E(1,kk,12)+E(2,kk,12)) ))          
+         _SET_DIAGNOSTIC_(self%id_Ed675, max(p_small,(E(1,kk,16)+E(2,kk,16)) ))         
+
+         _SET_DIAGNOSTIC_(self%id_E0475, max(p_small,E_scalar(kk,8) ))          
+         _SET_DIAGNOSTIC_(self%id_E0500, max(p_small,E_scalar(kk,9) ))         
+         
      _DOWNWARD_LOOP_END_
 
    end subroutine do_column

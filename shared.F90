@@ -116,6 +116,9 @@ module ogs_bfm_shared
    ! Gelbstoff absorption.
    type (type_horizontal_standard_variable),parameter :: gelbstoff_absorption_from_satellite = type_horizontal_standard_variable(name='gelbstoff_absorption_from_satellite',units='1/m')
 
+   ! Suspended Particle Matter.
+   type (type_horizontal_standard_variable),parameter :: spm_from_satellite = type_horizontal_standard_variable(name='spm_from_satellite',units='g/m3')   
+   
    ! Zenith angle.
    type (type_horizontal_standard_variable),parameter :: zenith_angle = type_horizontal_standard_variable(name='zenith_angle',units='degrees')
 
