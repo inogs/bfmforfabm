@@ -168,7 +168,8 @@ contains
       call self%get_parameter(self%p_Amm_rem,     'p_Amm_rem',    '[0-1]','Fraction of remineralization to NH4', default=0.0_rk)
 
       ! Register links to external nutrient pools.
-      call self%register_state_dependency(self%id_O3c,'O3c','mgC /m^3','dissolved organic carbon')      call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
+      call self%register_state_dependency(self%id_O3c,'O3c','mgC /m^3','dissolved organic carbon')
+      call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')      
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
