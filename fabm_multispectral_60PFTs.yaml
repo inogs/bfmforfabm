@@ -294,10 +294,10 @@ instances:
       p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
       p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
       p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
-      p_bX3c: 0.167        # [1/d]            photodegradation (bleaching) rate X3c
+      p_bX3c: 0.00119      # [1/d]            photodegradation (bleaching) rate X3c
       p_IX1: 60.0          # [uE m-2 s-1]     light threshold for X1c bleaching
       p_IX2: 60.0          # [uE m-2 s-1]     light threshold for X2c bleaching
-      p_IX3: 60.0          # [uE m-2 s-1]     light threshold for X3c bleaching
+      p_IX3: 50.0          # [uE m-2 s-1]     light threshold for X3c bleaching
       p_rX3c: 0.00003      # [1/d]            remineralization rate X3c and R3c
       p_q10X: 2.95         # [-]              q10 for CDOM degradation
       p_Esource: 5         # [5 or 6]         source of light for CDOM bleaching, 5=spectral, 6=mono
