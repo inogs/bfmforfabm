@@ -144,12 +144,12 @@ contains
       call self%get_parameter(self%p_bbrP8,       'p_bbrP8',       '-',           'backscattering to total scattering ratio for P8')
       call self%get_parameter(self%p_bbrP9,       'p_bbrP9',       '-',           'backscattering to total scattering ratio for P9')
       call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
-      call self%get_parameter(self%p_spmc1,     'p_spmc1', 'm2 g-1',    'specific absorption at ',default=0.014_rk)
-      call self%get_parameter(self%p_spmc2,     'p_spmc2', 'm2 g-1',    'specific absorption at ',default=0.000_rk)
+      call self%get_parameter(self%p_spmc1,     'p_spmc1', 'm2 g-1',    'background non-spectral absorption',default=0.014_rk)
+      call self%get_parameter(self%p_spmc2,     'p_spmc2', 'm2 g-1',    'specific absorption at lambda_aSPM',default=0.000_rk)
       call self%get_parameter(self%p_spmS,      'p_spmS',  'nm-1',      'slope parameter for aSPM wavelength dependence',default=0.00_rk)
       call self%get_parameter(self%lambda_aSPM, 'lambda_aSPM',  'nm',   'wavelength where c2 aSPM is given')
-      call self%get_parameter(self%p_spmb,      'p_spmb',  'm2 g-1',    'specific absorption at ',default=0.7_rk)
-      call self%get_parameter(self%p_spmbb,     'p_spmbb', 'm2 g-1',    'specific absorption at ',default=0.008_rk)
+      call self%get_parameter(self%p_spmb,      'p_spmb',  'm2 g-1',    'non-spectral scattering ',default=0.7_rk)
+      call self%get_parameter(self%p_spmbb,     'p_spmbb', 'm2 g-1',    'non-spectral backscattering',default=0.008_rk)
       
       if (self%nlt>0) then
           allocate(lam(self%nlt));             lam(:)=huge(lam(1))
@@ -679,9 +679,9 @@ contains
        acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
        aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
        anap450  = apoc(7) * R6c
-!       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c
-!       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c
-!       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c + bc(2,17)*bbc(2,17)*P5c + bc(3,17)*bbc(3,17)*P6c + bc(2,17)*bbc(2,17)*P7c + bc(2,17)*bbc(2,17)*P8c + bc(3,17)*bbc(3,17)*P9c) + bbpoc(17)*R6c
+!       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c + spm_bb
+!       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c + spm_bb
+!       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c + bc(2,17)*bbc(2,17)*P5c + bc(3,17)*bbc(3,17)*P6c + bc(2,17)*bbc(2,17)*P7c + bc(2,17)*bbc(2,17)*P8c + bc(3,17)*bbc(3,17)*P9c) + bbpoc(17)*R6c + spm_bb
 
 !         _SET_DIAGNOSTIC_(self%id_acdom250, max(p_small,acdom250))            
 !         _SET_DIAGNOSTIC_(self%id_acdom325, max(p_small,acdom325))            
