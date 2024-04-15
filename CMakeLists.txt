@@ -19,4 +19,6 @@ add_library(fabm_models_ogs OBJECT
            )
 
 add_dependencies(fabm_models_ogs fabm_base)
+add_subdirectory(Forward_Adjoint EXCLUDE_FROM_ALL)
+install(TARGETS adj EXPORT fabmConfig)
 target_link_libraries(fabm_models_ogs adj)
