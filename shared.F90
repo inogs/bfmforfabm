@@ -55,9 +55,9 @@ module ogs_bfm_shared
    type (type_bulk_standard_variable),parameter :: total_bioirrigation_activity = type_bulk_standard_variable(name='total_bioirrigation_activity',units='mg C/m^2/d',aggregate_variable=.true.)
 
    ! Spectral light variables
-   real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,acdom,apoc,bpoc,bbpoc,WtoQ
+   real(rk), allocatable, dimension(:)                 :: lam,lam1,lam2,aw,bw,bbw,apoc,bpoc,bbpoc,WtoQ,acdom_min
    real(rk), allocatable, dimension(:)                 :: Ed_0,Es_0
-   real(rk), allocatable, dimension(:,:)               :: ac,ac_ps,bc,bbc
+   real(rk), allocatable, dimension(:,:)               :: ac,ac_ps,bc,bbc,acdom
 !  real(rk), allocatable, dimension(:,:)               :: a_array, b_array, bb_array
 !  type (type_surface_standard_variable),parameter     :: surf_direct_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_direct_downward_irradiance_250_nm',units='W/m2')
 !  type (type_surface_standard_variable),parameter     :: surf_diffuse_downward_irradiance_250_nm = type_surface_standard_variable(name='surf_diffuse_downward_irradiance_250_nm',units='W/m2')
@@ -140,8 +140,24 @@ module ogs_bfm_shared
 
     end function MM_POWER
 
-
-
+    subroutine linear_regression(x, y, n, a, b)
+      
+        IMPLICIT NONE
+        real(rk), intent(IN) :: x(:), y(:)
+        integer,  intent(IN) :: n
+        real(rk), intent(OUT) :: a, b
+        real(rk) :: s1,s2,s3,s4
+        integer :: i
+        do i=1,n
+           s1=s1+x(i)
+           s2=s2+x(i)**2
+           s3=s3+y(i)
+           s4=s4+x(i)*y(i)
+        enddo
+        b=((n*s4)-(s1*s3))/((n*s2)-(s1**2))
+        a=(s3-(s1*b))/n
+        
+    end subroutine linear_regression
 
 
 end module

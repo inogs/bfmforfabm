@@ -138,7 +138,7 @@
       type (type_diagnostic_variable_id) :: id_rric   ! tbd
       type (type_diagnostic_variable_id) :: id_reac   ! tbd
       type (type_diagnostic_variable_id) :: id_rdc    ! tbd
-      type (type_diagnostic_variable_id) :: id_rr1c   ! tbd
+      type (type_diagnostic_variable_id) :: id_rr1c   ! exudation flux to DOC
       type (type_diagnostic_variable_id) :: id_rr6c   ! tbd
       type (type_diagnostic_variable_id) :: id_rrin   ! tbd
       type (type_diagnostic_variable_id) :: id_rr1n   ! tbd
@@ -171,7 +171,7 @@
       real(rk) :: p_pu, p_pu_ea, p_chro, p_chuc, p_minfood
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
-      
+      real(rk) :: p_fX1z
       
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -239,6 +239,8 @@
         call self%get_parameter(self%p_pe_R1c,  'p_pe_R1c',  '-',         'Fractional content of C in cytoplasm')
         call self%get_parameter(self%p_pe_R1n,  'p_pe_R1n',  '-',         'Fractional content of N in cytoplasm')
         call self%get_parameter(self%p_pe_R1p,  'p_pe_R1p',  '-',         'Fractional content of P in cytoplasm')
+!              --------- Flux partition CDOM parameters ------------
+        call self%get_parameter(self%p_fX1z,    'p_fX1z',    '-',         'colored fraction in labile DOC', default=0.02_rk)
         
         ! Register state variables (handled by type_bfm_pelagic_base)
         call self%initialize_bfm_base()
@@ -318,7 +320,7 @@
         call self%register_diagnostic_variable(self%id_rric, 'rric', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_reac, 'reac', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rdc,  'rdc',  'tbd',      'tbd',output=output_none)
-        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'tbd',      'tbd',output=output_none)
+        call self%register_diagnostic_variable(self%id_rr1c, 'rr1c', 'mgC/m3/d', 'exudation flux to DOC')
         call self%register_diagnostic_variable(self%id_rr6c, 'rr6c', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rrin, 'rrin', 'tbd',      'tbd',output=output_none)
         call self%register_diagnostic_variable(self%id_rr1n, 'rr1n', 'tbd',      'tbd',output=output_none)
@@ -335,9 +337,10 @@
        call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz',output=output_none)
        call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz',output=output_none)
       do iprey=1,self%nprey
+       write (index,'(i0)') iprey
        if (self%p_isP2(iprey).eq.1) then
-         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_P2_CaCO3precip','mgC/m^3/d',  '_P2_CaCO3precip',output=output_none)
-         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_P2_consumeO3h_for_CaCO3precip','mmol/m^3/d','_P2_consumeO3h_for_CaCO3precip',output=output_none)
+         call self%register_diagnostic_variable(self%id_CaCO3precip(iprey),'_'//trim(index)//'_CaCO3precip','mgC/m^3/d','prey '//trim(index)//' CaCO3precip',output=output_none)
+         call self%register_diagnostic_variable(self%id_CaCO3_to_O3h(iprey),'_'//trim(index)//'_consumeO3h_for_CaCO3precip','mmol/m^3/d','prey '//trim(index)//' consumeO3h_for_CaCO3precip',output=output_none)
        endif
       end do
 
@@ -575,12 +578,21 @@
       rric = reac + rdc
       rr1c = rric*self%p_pe_R1c
       rr6c = rric*(ONE - self%p_pe_R1c)
-      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC)
-      _SET_ODE_(self%id_c, -0.98D0*rr1c) !anna cambiare la costante in yaml?
-      _SET_ODE_(self%id_R1c,0.98D0*rr1c)
-      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! To  CDOM
-      _SET_ODE_(self%id_c, -0.02D0*rr1c) !anna cambiare la costante in yaml?
-      _SET_ODE_(self%id_X1c,0.02D0*rr1c) ! anna: è corretto?
+
+      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC) ! flux to non CDOM
+      _SET_ODE_(self%id_c, -(1.00D0-self%p_fX1z)*rr1c)
+      _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1z)*rr1c)
+      ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! flux to CDOM
+      _SET_ODE_(self%id_c, -self%p_fX1z*rr1c)
+      _SET_ODE_(self%id_X1c,self%p_fX1z*rr1c)
+
+      !CEA to DOC: (1-fX1) of reac and all rdc
+!      _SET_ODE_(self%id_c, -(((1.00D0-self%p_fX1z)*(reac*rr1c/rric))+(rdc*rr1c/rric))  )
+!      _SET_ODE_(self%id_R1c,(((1.00D0-self%p_fX1z)*(reac*rr1c/rric))+(rdc*rr1c/rric))  )
+      !CEA to CDOM: fX1 of reac
+!      _SET_ODE_(self%id_c, -self%p_fX1z*(reac*rr1c/rric))
+!      _SET_ODE_(self%id_X1c,self%p_fX1z*(reac*rr1c/rric))
+
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR6c, rr6c, tfluxC)
       _SET_ODE_(self%id_c, -rr6c)
       _SET_ODE_(self%id_R6c,rr6c)

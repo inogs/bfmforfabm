@@ -86,15 +86,17 @@
       type (type_diagnostic_variable_id) :: id_flN3O4n_N6r ! impact of denitrification on reduction equivalent
       type (type_diagnostic_variable_id) :: id_fN6O2r  ! reoxydation of reduction equivalents
       type (type_diagnostic_variable_id) :: id_fR6N5s  ! dissolution of biogenic silicate
-      type (type_diagnostic_variable_id) :: id_degX1c  ! degradation cdom X1c
-      type (type_diagnostic_variable_id) :: id_degX2c  ! degradation cdom X2c
-      type (type_diagnostic_variable_id) :: id_degX3c  ! degradation cdom X3c
+      type (type_diagnostic_variable_id) :: id_degX1c  ! photodegradation cdom X1c
+      type (type_diagnostic_variable_id) :: id_degX2c  ! photodegradation cdom X2c
+      type (type_diagnostic_variable_id) :: id_degX3c  ! photodegradation cdom X3c
+      type (type_diagnostic_variable_id) :: id_remX3c  ! remineralization of cdom X3c
+      type (type_diagnostic_variable_id) :: id_remR3c  ! remineralization of dom R3c      
       type (type_diagnostic_variable_id) :: id_varO3h_for_nitr ! variation of O3h for nitrification (-1 mole of NH4 -> + 2 mole of alk)
       type (type_diagnostic_variable_id) :: id_varO3h_for_denitr ! variation of O3h for denitrification (-1 mole of NO3 (consumed) -> + 1 mole of alk)
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
       real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
-      real(rk) :: p_rX1c,p_rX2c,p_rX3c, p_Icdom    
+      real(rk) :: p_bX1c, p_bX2c, p_bX3c, p_IX1, p_IX2, p_IX3, p_rX3c, p_q10X    
       integer :: p_Esource
   
     contains     
@@ -145,12 +147,16 @@ contains
       call self%get_parameter(self%p_rPAo,        'p_rPAo',      '[mmolO2/m3/d]' ,  'Reference anoxic mineralization rate')
       call self%get_parameter(self%p_qon_dentri,  'p_qon_dentri','[mmolO2/mmolN]',  'Stoichiometric coefficient for denitrification')
       call self%get_parameter(self%p_rOS,         'p_rOS',       '[1/d]',           'Specific reoxidation rate of reduction equivalents')
-      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',          'Specific remineralization rate of biogenic silica')
-      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',            'Q10 factor for biogenic silica')
-      call self%get_parameter(self%p_rX1c,        'p_rX1c',      '[1/d]',           'degradation rate X1c')
-      call self%get_parameter(self%p_rX2c,        'p_rX2c',      '[1/d]',           'degradation rate X2c')
+      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',           'Specific remineralization rate of biogenic silica')
+      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',             'Q10 factor for biogenic silica')
+      call self%get_parameter(self%p_bX1c,        'p_bX1c',      '[1/d]',           'photodegradation (bleaching) rate X1c')
+      call self%get_parameter(self%p_bX2c,        'p_bX2c',      '[1/d]',           'photodegradation (bleaching) rate X2c')
+      call self%get_parameter(self%p_bX3c,        'p_bX3c',      '[1/d]',           'photodegradation (bleaching) rate X3c')
+      call self%get_parameter(self%p_IX1,         'p_IX1',       '[uE m-2 s-1]',    'light threshold for X1c bleaching')
+      call self%get_parameter(self%p_IX2,         'p_IX2',       '[uE m-2 s-1]',    'light threshold for X2c bleaching')
+      call self%get_parameter(self%p_IX3,         'p_IX3',       '[uE m-2 s-1]',    'light threshold for X3c bleaching')
       call self%get_parameter(self%p_rX3c,        'p_rX3c',      '[1/d]',           'degradation rate X3c')
-      call self%get_parameter(self%p_Icdom,       'p_Icdom',     '[uE m-2 s-1]',    'light threshold for CDOM bleaching')
+      call self%get_parameter(self%p_q10X,        'p_q10X',      '[-]',             'q10 for CDOM degradation')
       call self%get_parameter(self%p_Esource,     'p_Esource',   '5-6',             'source of light for CDOM bleaching')
 
       ! Register links to external nutrient pools.
@@ -181,9 +187,11 @@ contains
       call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent',output=output_none)
       call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents',output=output_none)
       call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate',output=output_none)
-      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'degradation of cdom X1c',output=output_none)
-      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'degradation of cdom X2c',output=output_none)
-      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'degradation of cdom X3c',output=output_none)
+      call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'photodegradation of cdom X1c')
+      call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'photodegradation of cdom X2c')
+      call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'photodegradation of cdom X3c')
+      call self%register_diagnostic_variable(self%id_remX3c,    'remX3c',     'mgC/m3/d',  'remineralization of cdom X3c')
+      call self%register_diagnostic_variable(self%id_remR3c,    'remR3c',     'mgC/m3/d',  'remineralization of dom R3c')      
 !     call self%register_diagnostic_dependency(self%id_flPTN6r,'flPTN6r','mmolHS/m3/d','total rate of formation of reduction equivalent') ! from PelBac
       call self%register_diagnostic_variable(self%id_varO3h_for_nitr,'varO3h_for_nitr','mmol/m3/d','O3h increase for nitrification',output=output_none)
       call self%register_diagnostic_variable(self%id_varO3h_for_denitr,'varO3h_for_denitr','mmol/m3/d','O3h increase for denitrification',output=output_none)
@@ -202,6 +210,7 @@ contains
       real(rk) :: eo, er
       real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo,fR6N5s
       real(rk) :: degX1c, degX2c, degX3c
+      real(rk) :: remX3c, remR3c
 
 
      ! Enter spatial loops (if any)
@@ -351,21 +360,20 @@ contains
 !GP  BIOPTIMOD T2
 !GP   PAR(:) =EIR(:)
 
- ! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1 
-  degX1c = X1c * ( self%p_rX1c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-  degX2c = X2c * ( self%p_rX2c  * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-  degX3c = X3c * ( eTq( ETW, 2.95_rk ) * self%p_rX3c  + 0.03_rk * min(parEIR/(self%p_Icdom*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-
-  _SET_DIAGNOSTIC_(self%id_degX1c,degX1c) ! degradation of CDOM
-  _SET_DIAGNOSTIC_(self%id_degX2c,degX2c) ! degradation of CDOM
-  _SET_DIAGNOSTIC_(self%id_degX3c,degX3c) ! degradation of CDOM
-
-
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/120.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = R1l * ( eTq_vector( ETW(:), 2.95_RLEN ) * 0.0003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! 
-! GP ! degCDOM = eTq_vector( ETW(:), 2.95_RLEN ) *  R1l * (0.003_RLEN + 0.167_RLEN * min(EIR(:)/60.0_RLEN,1.0_RLEN) ) ! Eq A13
-
-!  call flux_vector( iiPel, ppR1l, ppR3c, degR1l )
+! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1, p_IXn in uE m-2 s-1                             
+  degX1c = X1c * ( self%p_bX1c * min(parEIR/(self%p_IX1*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX2c = X2c * ( self%p_bX2c * min(parEIR/(self%p_IX2*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX3c = X3c * ( self%p_bX3c * min(parEIR/(self%p_IX3*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  
+!EA  degR1l = R1l * ( 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+!EA  degR2l = R2l * ( 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+!EA  degR3l = R3l * ( eTq( ETW(:), 2.95D0 ) * 0.00003D0 + 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
+  
+  _SET_DIAGNOSTIC_(self%id_degX1c,degX1c) ! photodegradation of labile CDOM
+  _SET_DIAGNOSTIC_(self%id_degX2c,degX2c) ! photodegradation of semi-labile CDOM
+  _SET_DIAGNOSTIC_(self%id_degX3c,degX3c) ! photodegradation of semi-refractory CDOM
+  
+! call flux_vector( iiPel, ppR1l, ppR3c, degR1l )
  _SET_ODE_(self%id_R3c,degX1c)
  _SET_ODE_(self%id_X1c,-degX1c)
 ! call flux_vector( iiPel, ppR2l, ppR3c, degR2l )
@@ -375,7 +383,24 @@ contains
  _SET_ODE_(self%id_R3c,degX3c)
  _SET_ODE_(self%id_X3c,-degX3c)
 
-      ! Leave spatial loops (if any)
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !  Remineralization of semi-recalcitrant DOC
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  remX3c = X3c * ( eTq( ETW, self%p_q10X ) * self%p_rX3c )
+  remR3c = R3c * ( eTq( ETW, self%p_q10X ) * self%p_rX3c )
+    
+  _SET_DIAGNOSTIC_(self%id_remX3c,remX3c) ! remineralization of semi-refractory CDOM
+  _SET_DIAGNOSTIC_(self%id_remR3c,remR3c) ! remineralization of semi-refractory DOC
+  
+ _SET_ODE_(self%id_O3c, remX3c)
+ _SET_ODE_(self%id_X3c,-remX3c)
+
+ _SET_ODE_(self%id_O3c, remR3c)
+ _SET_ODE_(self%id_R3c,-remR3c)
+
+     ! Leave spatial loops (if any)
       _LOOP_END_
 
    end subroutine do
