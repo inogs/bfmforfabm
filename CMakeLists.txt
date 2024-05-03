@@ -20,7 +20,7 @@ add_library(fabm_models_ogs OBJECT
 target_link_libraries(fabm_models_ogs PRIVATE fabm_base)
 add_subdirectory(Forward_Adjoint EXCLUDE_FROM_ALL)
 install(TARGETS adj EXPORT fabmConfig)
-target_link_libraries(fabm_models_ogs adj)
+target_link_libraries(fabm_models_ogs PRIVATE adj)
 include_directories(Forward_Adjoint/include)
 
 
