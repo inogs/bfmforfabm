@@ -62,7 +62,7 @@ module ogs_bfm_light_spectral
       real(rk) :: p_epsP1,p_epsP2,p_epsP3,p_epsP4,p_epsP5,p_epsP6,p_epsP7,p_epsP8,p_epsP9
       real(rk) :: p_bpsP1,p_bpsP2,p_bpsP3,p_bpsP4,p_bpsP5,p_bpsP6,p_bpsP7,p_bpsP8,p_bpsP9
       real(rk) :: p_bbrP1,p_bbrP2,p_bbrP3,p_bbrP4,p_bbrP5,p_bbrP6,p_bbrP7,p_bbrP8,p_bbrP9
-      logical :: compute_aph, compute_bph, compute_bbc
+      logical :: compute_aph, compute_bph, compute_bbc, p_useSPM
       real(rk) :: p_spmc1, p_spmc2, p_spmS, lambda_aSPM, p_spmb, p_spmbb
 
    contains
@@ -84,8 +84,9 @@ contains
 ! !REVISION HISTORY:
 !
 ! !LOCAL VARIABLES:
-      real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2, nl
-      real(rk) :: n, dummy_p, cu_area, aph_mean, bph_mean
+      integer nl,n
+      real(rk) :: hc, hcoavo, rlamm, rlamm1, rlamm2
+      real(rk) :: dummy_p, cu_area, aph_mean, bph_mean
 
 !EOP
 !-----------------------------------------------------------------------
@@ -112,8 +113,8 @@ contains
       call self%get_parameter(self%lambda_bPart,  'lambda_bPart',  'nm',       'wavelength where reference bNAP is given')
       call self%get_parameter(self%bparcoeff,     'bparcoeff',     'm2 mgC-1', 'specific scatter at lambda_bPart')
       call self%get_parameter(self%bb_to_b,       'bb_to_b',       '-',        'backscatter to total scatter ratio') 
-      call self%get_parameter(self%compute_acdom, 'compute_acdom', '[T or F]', 'logical flag to compute acdom') 
-      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap')
+      call self%get_parameter(self%compute_acdom, 'compute_acdom', '[T or F]', 'logical flag to compute acdom', default=.False.) 
+      call self%get_parameter(self%compute_anap,  'compute_anap',  '[T or F]', 'logical flag to compute anap', default=.False.)
       call self%get_parameter(self%p_epsP1,       'p_epsP1',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P1', default=0.03_rk)
       call self%get_parameter(self%p_epsP2,       'p_epsP2',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P2', default=0.03_rk)
       call self%get_parameter(self%p_epsP3,       'p_epsP3',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P3', default=0.03_rk)
@@ -123,27 +124,28 @@ contains
       call self%get_parameter(self%p_epsP7,       'p_epsP7',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P7', default=0.03_rk)
       call self%get_parameter(self%p_epsP8,       'p_epsP8',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P8', default=0.03_rk)
       call self%get_parameter(self%p_epsP9,       'p_epsP9',       'm2 mgChl-1',  'mean absorption coefficient from 400-700nm for P9', default=0.03_rk)
-      call self%get_parameter(self%compute_aph,   'compute_aph',   '[T or F]',    'logical flag to scale aph')
-      call self%get_parameter(self%p_bpsP1,       'p_bpsP1',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P1')
-      call self%get_parameter(self%p_bpsP2,       'p_bpsP2',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P2')
-      call self%get_parameter(self%p_bpsP3,       'p_bpsP3',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P3')
-      call self%get_parameter(self%p_bpsP4,       'p_bpsP4',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P4')
-      call self%get_parameter(self%p_bpsP5,       'p_bpsP5',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P5')
-      call self%get_parameter(self%p_bpsP6,       'p_bpsP6',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P6')
-      call self%get_parameter(self%p_bpsP7,       'p_bpsP7',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P7')
-      call self%get_parameter(self%p_bpsP8,       'p_bpsP8',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P8')
-      call self%get_parameter(self%p_bpsP9,       'p_bpsP9',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P9')      
-      call self%get_parameter(self%compute_bph,   'compute_bph',   '[T or F]',    'logical flag to scale bph')
-      call self%get_parameter(self%p_bbrP1,       'p_bbrP1',       '-',           'backscattering to total scattering ratio for P1')
-      call self%get_parameter(self%p_bbrP2,       'p_bbrP2',       '-',           'backscattering to total scattering ratio for P2')
-      call self%get_parameter(self%p_bbrP3,       'p_bbrP3',       '-',           'backscattering to total scattering ratio for P3')
-      call self%get_parameter(self%p_bbrP4,       'p_bbrP4',       '-',           'backscattering to total scattering ratio for P4')
-      call self%get_parameter(self%p_bbrP5,       'p_bbrP5',       '-',           'backscattering to total scattering ratio for P5')
-      call self%get_parameter(self%p_bbrP6,       'p_bbrP6',       '-',           'backscattering to total scattering ratio for P6')
-      call self%get_parameter(self%p_bbrP7,       'p_bbrP7',       '-',           'backscattering to total scattering ratio for P7')
-      call self%get_parameter(self%p_bbrP8,       'p_bbrP8',       '-',           'backscattering to total scattering ratio for P8')
-      call self%get_parameter(self%p_bbrP9,       'p_bbrP9',       '-',           'backscattering to total scattering ratio for P9')
-      call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr')
+      call self%get_parameter(self%compute_aph,   'compute_aph',   '[T or F]',    'logical flag to scale aph', default=.False.)
+      call self%get_parameter(self%p_bpsP1,       'p_bpsP1',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P1', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP2,       'p_bpsP2',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P2', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP3,       'p_bpsP3',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P3', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP4,       'p_bpsP4',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P4', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP5,       'p_bpsP5',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P5', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP6,       'p_bpsP6',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P6', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP7,       'p_bpsP7',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P7', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP8,       'p_bpsP8',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P8', default=0.00_rk)
+      call self%get_parameter(self%p_bpsP9,       'p_bpsP9',       'm2 mgC-1',  'mean scattering coefficient from 400-700nm for P9', default=0.00_rk)      
+      call self%get_parameter(self%compute_bph,   'compute_bph',   '[T or F]',    'logical flag to scale bph', default=.False.)
+      call self%get_parameter(self%p_bbrP1,       'p_bbrP1',       '-',           'backscattering to total scattering ratio for P1', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP2,       'p_bbrP2',       '-',           'backscattering to total scattering ratio for P2', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP3,       'p_bbrP3',       '-',           'backscattering to total scattering ratio for P3', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP4,       'p_bbrP4',       '-',           'backscattering to total scattering ratio for P4', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP5,       'p_bbrP5',       '-',           'backscattering to total scattering ratio for P5', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP6,       'p_bbrP6',       '-',           'backscattering to total scattering ratio for P6', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP7,       'p_bbrP7',       '-',           'backscattering to total scattering ratio for P7', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP8,       'p_bbrP8',       '-',           'backscattering to total scattering ratio for P8', default=0.00_rk)
+      call self%get_parameter(self%p_bbrP9,       'p_bbrP9',       '-',           'backscattering to total scattering ratio for P9', default=0.00_rk)
+      call self%get_parameter(self%compute_bbc,   'compute_bbc',   '[T or F]',    'logical flag to compute bbc from bc*bbr', default=.False.)
+      call self%get_parameter(self%p_useSPM,      'p_useSPM', '[T or F]',    'logical flag to compute SPM',default=.False.)
       call self%get_parameter(self%p_spmc1,     'p_spmc1', 'm2 g-1',    'background non-spectral absorption',default=0.014_rk)
       call self%get_parameter(self%p_spmc2,     'p_spmc2', 'm2 g-1',    'specific absorption at lambda_aSPM',default=0.000_rk)
       call self%get_parameter(self%p_spmS,      'p_spmS',  'nm-1',      'slope parameter for aSPM wavelength dependence',default=0.00_rk)
@@ -296,15 +298,15 @@ contains
  !   PHYTO backscattering coefficients       
       if (self%compute_bbc) then
        do nl = 1,19
-          bbc(1,nl) = self%p_bbrP1
-          bbc(2,nl) = self%p_bbrP2
-          bbc(3,nl) = self%p_bbrP3
-          bbc(4,nl) = self%p_bbrP4
-          bbc(5,nl) = self%p_bbrP5
-          bbc(6,nl) = self%p_bbrP6
-          bbc(7,nl) = self%p_bbrP7
-          bbc(8,nl) = self%p_bbrP8
-          bbc(9,nl) = self%p_bbrP9
+          if (self%npft .GT. 0) bbc(1,nl) = self%p_bbrP1
+          if (self%npft .GT. 1) bbc(2,nl) = self%p_bbrP2
+          if (self%npft .GT. 2) bbc(3,nl) = self%p_bbrP3
+          if (self%npft .GT. 3) bbc(4,nl) = self%p_bbrP4
+          if (self%npft .GT. 4) bbc(5,nl) = self%p_bbrP5
+          if (self%npft .GT. 5) bbc(6,nl) = self%p_bbrP6
+          if (self%npft .GT. 6) bbc(7,nl) = self%p_bbrP7
+          if (self%npft .GT. 7) bbc(8,nl) = self%p_bbrP8
+          if (self%npft .GT. 8) bbc(9,nl) = self%p_bbrP9
        enddo
       endif
 
@@ -337,15 +339,15 @@ contains
 !      enddo
       
      ! Register diagnostic variables
-      call self%register_diagnostic_variable(self%id_par_P1, 'PAR_P1', 'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P2, 'PAR_P2', 'uE mgChl-1 d-1', 'PAR_flagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P3, 'PAR_P3', 'uE mgChl-1 d-1', 'PAR_picoeukaryotes', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P4, 'PAR_P4', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P5, 'PAR_P5', 'uE mgChl-1 d-1', 'PAR_coccoloithophores', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P6, 'PAR_P6', 'uE mgChl-1 d-1', 'PAR_prochlorococcus', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P7, 'PAR_P7', 'uE mgChl-1 d-1', 'PAR_green1', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P8, 'PAR_P8', 'uE mgChl-1 d-1', 'PAR_green2', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_par_P9, 'PAR_P9', 'uE mgChl-1 d-1', 'PAR_synechococcus', source=source_do_column)
+      if (self%npft .GT. 0) call self%register_diagnostic_variable(self%id_par_P1, 'PAR_P1', 'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
+      if (self%npft .GT. 1) call self%register_diagnostic_variable(self%id_par_P2, 'PAR_P2', 'uE mgChl-1 d-1', 'PAR_flagellates', source=source_do_column)
+      if (self%npft .GT. 2) call self%register_diagnostic_variable(self%id_par_P3, 'PAR_P3', 'uE mgChl-1 d-1', 'PAR_picoeukaryotes', source=source_do_column)
+      if (self%npft .GT. 3) call self%register_diagnostic_variable(self%id_par_P4, 'PAR_P4', 'uE mgChl-1 d-1', 'PAR_dinoflagellates', source=source_do_column)
+      if (self%npft .GT. 4) call self%register_diagnostic_variable(self%id_par_P5, 'PAR_P5', 'uE mgChl-1 d-1', 'PAR_coccoloithophores', source=source_do_column)
+      if (self%npft .GT. 5) call self%register_diagnostic_variable(self%id_par_P6, 'PAR_P6', 'uE mgChl-1 d-1', 'PAR_prochlorococcus', source=source_do_column)
+      if (self%npft .GT. 6) call self%register_diagnostic_variable(self%id_par_P7, 'PAR_P7', 'uE mgChl-1 d-1', 'PAR_green1', source=source_do_column)
+      if (self%npft .GT. 7) call self%register_diagnostic_variable(self%id_par_P8, 'PAR_P8', 'uE mgChl-1 d-1', 'PAR_green2', source=source_do_column)
+      if (self%npft .GT. 8) call self%register_diagnostic_variable(self%id_par_P9, 'PAR_P9', 'uE mgChl-1 d-1', 'PAR_synechococcus', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_Scdom350_500, 'Scdom350_500', 'nm-1','visible spectral slope acdom', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_Scdom250_325, 'Scdom250_325', 'nm-1','UV spectral slope acdom', source=source_do_column)
@@ -387,25 +389,25 @@ contains
       call self%register_diagnostic_variable(self%id_E0500, 'E0500', 'W m-2', 'E scalar', source=source_do_column)
       
       ! Register dependencies on aggregated variables
-      call self%register_dependency(self%id_aP1c, carbon_P1)
-      call self%register_dependency(self%id_aP2c, carbon_P2)
-      call self%register_dependency(self%id_aP3c, carbon_P3)
-      call self%register_dependency(self%id_aP4c, carbon_P4)
-      call self%register_dependency(self%id_aP5c, carbon_P5)
-      call self%register_dependency(self%id_aP6c, carbon_P6)
-      call self%register_dependency(self%id_aP7c, carbon_P7)
-      call self%register_dependency(self%id_aP8c, carbon_P8)
-      call self%register_dependency(self%id_aP9c, carbon_P9)
+      if (self%npft .GT. 0) call self%register_dependency(self%id_aP1c, carbon_P1)
+      if (self%npft .GT. 1) call self%register_dependency(self%id_aP2c, carbon_P2)
+      if (self%npft .GT. 2) call self%register_dependency(self%id_aP3c, carbon_P3)
+      if (self%npft .GT. 3) call self%register_dependency(self%id_aP4c, carbon_P4)
+      if (self%npft .GT. 4) call self%register_dependency(self%id_aP5c, carbon_P5)
+      if (self%npft .GT. 5) call self%register_dependency(self%id_aP6c, carbon_P6)
+      if (self%npft .GT. 6) call self%register_dependency(self%id_aP7c, carbon_P7)
+      if (self%npft .GT. 7) call self%register_dependency(self%id_aP8c, carbon_P8)
+      if (self%npft .GT. 8) call self%register_dependency(self%id_aP9c, carbon_P9)
 
-      call self%register_dependency(self%id_aP1chl,chlorophyll_P1)
-      call self%register_dependency(self%id_aP2chl,chlorophyll_P2)
-      call self%register_dependency(self%id_aP3chl,chlorophyll_P3)
-      call self%register_dependency(self%id_aP4chl,chlorophyll_P4)
-      call self%register_dependency(self%id_aP5chl,chlorophyll_P5)
-      call self%register_dependency(self%id_aP6chl,chlorophyll_P6)
-      call self%register_dependency(self%id_aP7chl,chlorophyll_P7)
-      call self%register_dependency(self%id_aP8chl,chlorophyll_P8)
-      call self%register_dependency(self%id_aP9chl,chlorophyll_P9)
+      if (self%npft .GT. 0) call self%register_dependency(self%id_aP1chl,chlorophyll_P1)
+      if (self%npft .GT. 1) call self%register_dependency(self%id_aP2chl,chlorophyll_P2)
+      if (self%npft .GT. 2) call self%register_dependency(self%id_aP3chl,chlorophyll_P3)
+      if (self%npft .GT. 3) call self%register_dependency(self%id_aP4chl,chlorophyll_P4)
+      if (self%npft .GT. 4) call self%register_dependency(self%id_aP5chl,chlorophyll_P5)
+      if (self%npft .GT. 5) call self%register_dependency(self%id_aP6chl,chlorophyll_P6)
+      if (self%npft .GT. 6) call self%register_dependency(self%id_aP7chl,chlorophyll_P7)
+      if (self%npft .GT. 7) call self%register_dependency(self%id_aP8chl,chlorophyll_P8)
+      if (self%npft .GT. 8) call self%register_dependency(self%id_aP9chl,chlorophyll_P9)
 
       ! Register biogeochemical dependencies
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC')
@@ -416,7 +418,7 @@ contains
       ! Register environmental dependencies 
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
       call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
-      call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
+      if (self%p_useSPM)  call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
 
 ! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
       call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
@@ -535,6 +537,28 @@ contains
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
 
+! set to zero carbon concentrations in Phytoplankton
+      P1c=0.0
+      P2c=0.0
+      P3c=0.0
+      P4c=0.0
+      P5c=0.0
+      P6c=0.0
+      P7c=0.0
+      P8c=0.0
+      P9c=0.0
+! set to zero chlorophyll concentrations in Phytoplankton
+      P1chl=0.0
+      P2chl=0.0
+      P3chl=0.0
+      P4chl=0.0
+      P5chl=0.0
+      P6chl=0.0
+      P7chl=0.0
+      P8chl=0.0
+      P9chl=0.0
+
+
 !START BLOCK3
       _GET_SURFACE_(self%id_Ed_0_0250,Ed_0(1))
       _GET_SURFACE_(self%id_Ed_0_0325,Ed_0(2))
@@ -614,57 +638,102 @@ contains
 
          zgrid(kk+1)=zgrid(kk)+dz
 
+      if (self%npft .GT. 0) then
        _GET_(self%id_aP1chl,P1chl)
+      endif
+      if (self%npft .GT. 1) then
        _GET_(self%id_aP2chl,P2chl)
+      endif
+      if (self%npft .GT. 2) then
        _GET_(self%id_aP3chl,P3chl)
+       endif
+      if (self%npft .GT. 3) then
        _GET_(self%id_aP4chl,P4chl)
+       endif
+      if (self%npft .GT. 4) then
        _GET_(self%id_aP5chl,P5chl)
+       endif
+      if (self%npft .GT. 5) then
        _GET_(self%id_aP6chl,P6chl)
+       endif
+      if (self%npft .GT. 6) then
        _GET_(self%id_aP7chl,P7chl)
+       endif
+      if (self%npft .GT. 7) then
        _GET_(self%id_aP8chl,P8chl)
+       endif
+      if (self%npft .GT. 8) then
        _GET_(self%id_aP9chl,P9chl)
+       endif
 
+      if (self%npft .GT. 0) then
        _GET_(self%id_aP1c,P1c)
+       endif 
+      if (self%npft .GT. 1) then
        _GET_(self%id_aP2c,P2c)
+       endif 
+      if (self%npft .GT. 2) then
        _GET_(self%id_aP3c,P3c)
+       endif 
+      if (self%npft .GT. 3) then
        _GET_(self%id_aP4c,P4c)       
+       endif 
+      if (self%npft .GT. 4) then
        _GET_(self%id_aP5c,P5c)
+       endif 
+      if (self%npft .GT. 5) then
        _GET_(self%id_aP6c,P6c)
+       endif 
+      if (self%npft .GT. 6) then
        _GET_(self%id_aP7c,P7c)
+       endif 
+      if (self%npft .GT. 7) then
        _GET_(self%id_aP8c,P8c)       
+       endif 
+      if (self%npft .GT. 8) then
        _GET_(self%id_aP9c,P9c)       
-       
+       endif 
+
        _GET_(self%id_R6c,R6c)
 
        _GET_(self%id_X1c,X1c)
        _GET_(self%id_X2c,X2c)
        _GET_(self%id_X3c,X3c)
 
+       if(self%p_useSPM) then
        _GET_HORIZONTAL_(self%id_spm,spm)  ! suspended particle matter in g/m3
-!          spm_a  = spm*p_spmc1        ! Wozniak et al. 2019 (consistent with Gallegos et a. 2011 for small minerals at 555).
+!         spm_a  = spm*self%p_spmc1        ! Wozniak et al. 2019 (consistent with Gallegos et a. 2011 for small minerals at 555).
           spm_b  = spm*self%p_spmb    ! Wozniak et al. 2018 JMS for the Baltic
           spm_bb = spm*self%p_spmbb   ! Wozniak et al. 2018 JMS for the Baltic       
+        else
+          spm_a  = 0.0
+          spm_b  = 0.0
+          spm_bb = 0.0
+        endif
        
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
-             phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
-             phy_b  = bc(1,l)*P1c + bc(2,l)*P2c + bc(3,l)*P3c + bc(4,l)*P4c   +bc(2,l)*P5c + bc(3,l)*P6c + bc(2,l)*P7c + bc(2,l)*P8c+ bc(3,l)*P9c
+              phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
+              phy_b  = bc(1,l)*P1c + bc(2,l)*P2c + bc(3,l)*P3c + bc(4,l)*P4c   +bc(2,l)*P5c + bc(3,l)*P6c + bc(2,l)*P7c + bc(2,l)*P8c+ bc(3,l)*P9c
 !             phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
-             phy_bb = bc(1,l)*bbc(1,l)*P1c + bc(2,l)*bbc(2,l)*P2c + bc(3,l)*bbc(3,l)*P3c + bc(4,l)*bbc(4,l)*P4c + bc(2,l)*bbc(2,l)*P5c + bc(3,l)*bbc(3,l)*P6c + bc(2,l)*bbc(2,l)*P7c + bc(2,l)*bbc(2,l)*P8c + bc(3,l)*bbc(3,l)*P9c
+              phy_bb = bc(1,l)*bbc(1,l)*P1c + bc(2,l)*bbc(2,l)*P2c + bc(3,l)*bbc(3,l)*P3c + bc(4,l)*bbc(4,l)*P4c + bc(2,l)*bbc(2,l)*P5c + bc(3,l)*bbc(3,l)*P6c + bc(2,l)*bbc(2,l)*P7c + bc(2,l)*bbc(2,l)*P8c + bc(3,l)*bbc(3,l)*P9c
 !             phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl + bc(3,l)*bbc(3,l)*P3chl + bc(4,l)*bbc(4,l)*P4chl
+
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
              cdom_a = MAX(cdom_a, acdom_min(l))
 
              rlamm = real(lam(l),8)
 !             rlamm1 = real(lam1(l),8)
 !             rlamm2 = real(lam2(l),8)
+       if(self%p_useSPM) then
              spm_a = spm * (self%p_spmc1 + (self%p_spmc2 * exp(-self%p_spmS*(rlamm-self%lambda_aSPM))))
+       endif
 !             spm_a = spm * (self%p_spmc1 + (self%p+spmc2 * (exp(-self%p_spmS*(rlamm2-self%lambda_aSPM))-exp(-self%p_spmS*(rlamm1-self%lambda_aSPM)))/(-self%p_spmS*(rlamm2-rlamm1))))             
              
 ! Need to add also cdom
-             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a + spm_a
-             tot_b  =  bw(l) + phy_b  + bpoc(l) * R6c + spm_b
-             tot_bb = bbw(l) + phy_bb + bbpoc(l)* R6c + spm_bb
+             tot_a  =  aw(l) + phy_a  + apoc(l) * R6c + cdom_a  + spm_a
+             tot_b  =  bw(l) + phy_b  + bpoc(l) * R6c  + spm_b
+             tot_bb = bbw(l) + phy_bb + bbpoc(l)* R6c  + spm_bb
 
              a_array(kk,l)  = tot_a
              b_array(kk,l)  = tot_b
@@ -677,7 +746,8 @@ contains
 !       acdom400 = MAX(acdom(1,5)*X1c + acdom(2,5)*X2c + acdom(3,5)*X3c, acdom_min(5))
 !       acdom425 = MAX(acdom(1,6)*X1c + acdom(2,6)*X2c + acdom(3,6)*X3c, acdom_min(6))
        acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
-       aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
+        aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
+
        anap450  = apoc(7) * R6c
 !       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c + spm_bb
 !       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c + spm_bb
@@ -724,28 +794,29 @@ contains
 ! Scalar irradiance
      E_scalar(:,:)=E_ave(1,:,:)/vd + E_ave(2,:,:)/vs + E_ave(3,:,:)/vu
 
-     PAR_P1_array(:)       = 0.0_rk
-     PAR_P2_array(:)       = 0.0_rk
-     PAR_P3_array(:)       = 0.0_rk
-     PAR_P4_array(:)       = 0.0_rk
-     PAR_P5_array(:)       = 0.0_rk
-     PAR_P6_array(:)       = 0.0_rk
-     PAR_P7_array(:)       = 0.0_rk
-     PAR_P8_array(:)       = 0.0_rk
-     PAR_P9_array(:)       = 0.0_rk
+     if (self%npft .GT. 0) PAR_P1_array(:) = 0.0_rk
+     if (self%npft .GT. 1) PAR_P2_array(:) = 0.0_rk
+     if (self%npft .GT. 2) PAR_P3_array(:) = 0.0_rk
+     if (self%npft .GT. 3) PAR_P4_array(:) = 0.0_rk
+     if (self%npft .GT. 4) PAR_P5_array(:) = 0.0_rk
+     if (self%npft .GT. 5) PAR_P6_array(:) = 0.0_rk
+     if (self%npft .GT. 6) PAR_P7_array(:) = 0.0_rk
+     if (self%npft .GT. 7) PAR_P8_array(:) = 0.0_rk
+     if (self%npft .GT. 8) PAR_P9_array(:) = 0.0_rk
+
      PAR_scalar_array(:)   = 0.0_rk
 
 !     do l=1,self%nlt
      do l=5,17     
-         PAR_P1_array(:) = PAR_P1_array(:) + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P2_array(:) = PAR_P2_array(:) + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P3_array(:) = PAR_P3_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P4_array(:) = PAR_P4_array(:) + (WtoQ(l) * ac_ps(4,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P5_array(:) = PAR_P5_array(:) + (WtoQ(l) * ac_ps(5,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P6_array(:) = PAR_P6_array(:) + (WtoQ(l) * ac_ps(6,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P7_array(:) = PAR_P7_array(:) + (WtoQ(l) * ac_ps(7,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P8_array(:) = PAR_P8_array(:) + (WtoQ(l) * ac_ps(8,l) * E_scalar(:,l)) * SEC_PER_DAY
-         PAR_P9_array(:) = PAR_P9_array(:) + (WtoQ(l) * ac_ps(9,l) * E_scalar(:,l)) * SEC_PER_DAY         
+         if (self%npft .GT. 0) PAR_P1_array(:) = PAR_P1_array(:) + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 1) PAR_P2_array(:) = PAR_P2_array(:) + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 2) PAR_P3_array(:) = PAR_P3_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 3) PAR_P4_array(:) = PAR_P4_array(:) + (WtoQ(l) * ac_ps(4,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 4) PAR_P5_array(:) = PAR_P5_array(:) + (WtoQ(l) * ac_ps(5,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 5) PAR_P6_array(:) = PAR_P6_array(:) + (WtoQ(l) * ac_ps(6,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 6) PAR_P7_array(:) = PAR_P7_array(:) + (WtoQ(l) * ac_ps(7,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 7) PAR_P8_array(:) = PAR_P8_array(:) + (WtoQ(l) * ac_ps(8,l) * E_scalar(:,l)) * SEC_PER_DAY
+         if (self%npft .GT. 8) PAR_P9_array(:) = PAR_P9_array(:) + (WtoQ(l) * ac_ps(9,l) * E_scalar(:,l)) * SEC_PER_DAY         
      enddo
 
      do l=5,17
@@ -782,15 +853,34 @@ contains
 
           kk = kk + 1
 
+         if (self%npft .GT. 0) then
          _SET_DIAGNOSTIC_(self%id_par_P1, max(p_small,PAR_P1_array(kk)))                  
+          endif
+         if (self%npft .GT. 1) then
          _SET_DIAGNOSTIC_(self%id_par_P2, max(p_small,PAR_P2_array(kk)))            
+          endif
+         if (self%npft .GT. 2) then
          _SET_DIAGNOSTIC_(self%id_par_P3, max(p_small,PAR_P3_array(kk)))
+          endif
+         if (self%npft .GT. 3) then
          _SET_DIAGNOSTIC_(self%id_par_P4, max(p_small,PAR_P4_array(kk)))
+          endif
+         if (self%npft .GT. 4) then
          _SET_DIAGNOSTIC_(self%id_par_P5, max(p_small,PAR_P5_array(kk)))                  
+          endif
+         if (self%npft .GT. 5) then
          _SET_DIAGNOSTIC_(self%id_par_P6, max(p_small,PAR_P6_array(kk)))            
+          endif
+         if (self%npft .GT. 6) then
          _SET_DIAGNOSTIC_(self%id_par_P7, max(p_small,PAR_P7_array(kk)))
+          endif
+         if (self%npft .GT. 7) then
          _SET_DIAGNOSTIC_(self%id_par_P8, max(p_small,PAR_P8_array(kk)))          
+          endif
+         if (self%npft .GT. 8) then
          _SET_DIAGNOSTIC_(self%id_par_P9, max(p_small,PAR_P9_array(kk)))         
+          endif
+
          _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
 
          _SET_DIAGNOSTIC_(self%id_Ed400, max(p_small, (E(1,kk,5)+E(2,kk,5)) ))                 
