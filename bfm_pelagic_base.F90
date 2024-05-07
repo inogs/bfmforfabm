@@ -50,6 +50,7 @@ contains
 
       call self%get_parameter(composition, 'composition', '', 'elemental composition')
 !     call self%get_parameter(c0, 'c0', 'mg C/m^3', 'background concentration in carbon units', default=0.0_rk, minimum=0.0_rk)
+      c0=0.0_rk
 
       if (index(composition,'c')/=0) then
          ! Carbon-based light attenuation [optional, off by default]
@@ -93,6 +94,7 @@ contains
       if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk)
       if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk)
       if (index(composition,'s')/=0) then 
+         s0=0.0_rk
          call self%add_constituent('s',0.0_rk,s0)
       end if
       if (index(composition,'f')/=0) call self%add_constituent('f',0.0_rk)
