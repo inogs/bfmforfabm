@@ -1,8 +1,8 @@
 Scripts for integrating BFM in FABM
 
 
-To use these with in seamless notebooks 
-clone bfmforfabm in folder in extern
+To use these within seamless notebooks 
+clone bfmforfabm in folder extern
 
 git clone --recurse-submodules git@github.com:inogs/bfmforfabm.git ogs
 git checkout dev_1D_diverse
