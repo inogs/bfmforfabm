@@ -24,7 +24,7 @@ instances:
     model: ogs/light_spectral
     parameters:
        nlt: 33                                             # number of wavelenghts considered
-       npft: 4                                             # number of PFT considered
+       npft: 9                                             # number of PFT considered
        SdomX1: 0.0175                                      # spectral slope acdom of X1c [nm-1]
        X1coeff: 0.015                                      # acdom coeff of X1c at lambda_aCDOM [m2/mgC]
        SdomX2: 0.0162                                      # spectral slope acdom of X2c [nm-1]
