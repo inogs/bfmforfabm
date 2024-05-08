@@ -2,12 +2,20 @@ Scripts for integrating BFM in FABM
 
 
 To use these with in seamless notebooks 
-copy this folder in extern
+clone bfmforfabm in folder in extern
+
+git clone --recurse-submodules git@github.com:inogs/bfmforfabm.git ogs
+git checkout dev_1D_diverse
+
 
 go to fabm submodule and checkout the neccton branch
 git checkout neccton
 go to gotm submodule and check that you are using branch v6.0
-no modifications of gotm are needed
+idifferently from before no modifications of gotm are needed
+
++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++
+
 
 use the following my_install
 
