@@ -9,17 +9,20 @@ git checkout dev_1D_diverse
 
 
 go to fabm submodule and checkout the neccton branch
+
 git checkout neccton
+
 go to gotm submodule and check that you are using branch v6.0
-idifferently from before no modifications of gotm are needed
+differently from before no modifications of gotm are needed
 
 +++++++++++++++++++++++++++++++
 +++++++++++++++++++++++++++++++
 
+<div>
 
 use the following my_install
 
-# This script is intended to be source'd, not executed
+#This script is intended to be source'd, not executed
 
 set -e
 
@@ -68,3 +71,4 @@ rm -rf ${WORK_DIR}
 #rm -rf ${WORK_DIR}
 
 #cd ../..
+</div>
