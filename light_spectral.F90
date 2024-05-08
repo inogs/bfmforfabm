@@ -494,16 +494,14 @@ contains
       class (type_ogs_bfm_light_spectral),intent(in) :: self
       _DECLARE_ARGUMENTS_VERTICAL_
 
-      integer  :: kk,nlev,l
+      integer  :: kk,nlev,l,pp
       real(rk) :: dz,zenithA,mud
       real(rk) :: phy_a,phy_b,phy_bb
       real(rk) :: cdom_a
       real(rk) :: spm, spm_a, spm_b, spm_bb      
       real(rk) :: tot_a,tot_b,tot_bb
       real(rk) :: R6c,X1c,X2c,X3c
-      real(rk) :: P1c,P2c,P3c,P4c,P5c,P6c,P7c,P8c,P9c
-      real(rk) :: P1chl,P2chl,P3chl,P4chl
-      real(rk) :: P5chl,P6chl,P7chl,P8chl,P9chl
+      real(rk) :: Pchl(9), Pc(9)
       real(rk) :: aph450, anap450, acdom450
 !      real(rk) :: acdom250,acdom325,acdom400,acdom425
 !      real(rk) :: Scdom350_500, Scdom250_325
@@ -538,25 +536,9 @@ contains
       call getrmud(zenithA,mud) ! average cosine direct component in the water
 
 ! set to zero carbon concentrations in Phytoplankton
-      P1c=0.0
-      P2c=0.0
-      P3c=0.0
-      P4c=0.0
-      P5c=0.0
-      P6c=0.0
-      P7c=0.0
-      P8c=0.0
-      P9c=0.0
+      Pc(:)=0.0_rk
 ! set to zero chlorophyll concentrations in Phytoplankton
-      P1chl=0.0
-      P2chl=0.0
-      P3chl=0.0
-      P4chl=0.0
-      P5chl=0.0
-      P6chl=0.0
-      P7chl=0.0
-      P8chl=0.0
-      P9chl=0.0
+      Pchl(:)=0.0_rk
 
 
 !START BLOCK3
@@ -639,59 +621,59 @@ contains
          zgrid(kk+1)=zgrid(kk)+dz
 
       if (self%npft .GT. 0) then
-       _GET_(self%id_aP1chl,P1chl)
+       _GET_(self%id_aP1chl,Pchl(1))
       endif
       if (self%npft .GT. 1) then
-       _GET_(self%id_aP2chl,P2chl)
+       _GET_(self%id_aP2chl,Pchl(2))
       endif
       if (self%npft .GT. 2) then
-       _GET_(self%id_aP3chl,P3chl)
+       _GET_(self%id_aP3chl,Pchl(3))
        endif
       if (self%npft .GT. 3) then
-       _GET_(self%id_aP4chl,P4chl)
+       _GET_(self%id_aP4chl,Pchl(4))
        endif
       if (self%npft .GT. 4) then
-       _GET_(self%id_aP5chl,P5chl)
+       _GET_(self%id_aP5chl,Pchl(5))
        endif
       if (self%npft .GT. 5) then
-       _GET_(self%id_aP6chl,P6chl)
+       _GET_(self%id_aP6chl,Pchl(6))
        endif
       if (self%npft .GT. 6) then
-       _GET_(self%id_aP7chl,P7chl)
+       _GET_(self%id_aP7chl,Pchl(7))
        endif
       if (self%npft .GT. 7) then
-       _GET_(self%id_aP8chl,P8chl)
+       _GET_(self%id_aP8chl,Pchl(8))
        endif
       if (self%npft .GT. 8) then
-       _GET_(self%id_aP9chl,P9chl)
+       _GET_(self%id_aP9chl,Pchl(9))
        endif
 
       if (self%npft .GT. 0) then
-       _GET_(self%id_aP1c,P1c)
+       _GET_(self%id_aP1c,Pc(1))
        endif 
       if (self%npft .GT. 1) then
-       _GET_(self%id_aP2c,P2c)
+       _GET_(self%id_aP2c,Pc(2))
        endif 
       if (self%npft .GT. 2) then
-       _GET_(self%id_aP3c,P3c)
+       _GET_(self%id_aP3c,Pc(3))
        endif 
       if (self%npft .GT. 3) then
-       _GET_(self%id_aP4c,P4c)       
+       _GET_(self%id_aP4c,Pc(4))       
        endif 
       if (self%npft .GT. 4) then
-       _GET_(self%id_aP5c,P5c)
+       _GET_(self%id_aP5c,Pc(5))
        endif 
       if (self%npft .GT. 5) then
-       _GET_(self%id_aP6c,P6c)
+       _GET_(self%id_aP6c,Pc(6))
        endif 
       if (self%npft .GT. 6) then
-       _GET_(self%id_aP7c,P7c)
+       _GET_(self%id_aP7c,Pc(7))
        endif 
       if (self%npft .GT. 7) then
-       _GET_(self%id_aP8c,P8c)       
+       _GET_(self%id_aP8c,Pc(8))       
        endif 
       if (self%npft .GT. 8) then
-       _GET_(self%id_aP9c,P9c)       
+       _GET_(self%id_aP9c,Pc(9))       
        endif 
 
        _GET_(self%id_R6c,R6c)
@@ -713,11 +695,14 @@ contains
        
 ! Equations determining optical properties in relations to biogeochemical variables
           do l=1,self%nlt
-              phy_a  = ac(1,l)*P1chl+ac(2,l)*P2chl+ac(3,l)*P3chl+ac(4,l)*P4chl +ac(2,l)*P5chl+ac(3,l)*P6chl+ac(2,l)*P7chl+ac(2,l)*P8chl+ac(3,l)*P9chl
-              phy_b  = bc(1,l)*P1c + bc(2,l)*P2c + bc(3,l)*P3c + bc(4,l)*P4c   +bc(2,l)*P5c + bc(3,l)*P6c + bc(2,l)*P7c + bc(2,l)*P8c+ bc(3,l)*P9c
-!             phy_b  = bc(1,l)*P1chl + bc(2,l)*P2chl + bc(3,l)*P3chl + bc(4,l)*P4chl
-              phy_bb = bc(1,l)*bbc(1,l)*P1c + bc(2,l)*bbc(2,l)*P2c + bc(3,l)*bbc(3,l)*P3c + bc(4,l)*bbc(4,l)*P4c + bc(2,l)*bbc(2,l)*P5c + bc(3,l)*bbc(3,l)*P6c + bc(2,l)*bbc(2,l)*P7c + bc(2,l)*bbc(2,l)*P8c + bc(3,l)*bbc(3,l)*P9c
-!             phy_bb = bc(1,l)*bbc(1,l)*P1chl + bc(2,l)*bbc(2,l)*P2chl + bc(3,l)*bbc(3,l)*P3chl + bc(4,l)*bbc(4,l)*P4chl
+              phy_a = 0.0_rk
+              phy_b = 0.0_rk
+              phy_bb = 0.0_rk
+              do  pp=1,self%npft
+                  phy_a  = phy_a  + ac(pp,l)*Pchl(pp)
+                  phy_b  = phy_b  + bc(pp,l)*Pc(pp) 
+                  phy_bb = phy_bb + bc(pp,l)*bbc(pp,l)*Pc(pp) 
+              enddo
 
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
              cdom_a = MAX(cdom_a, acdom_min(l))
@@ -746,7 +731,10 @@ contains
 !       acdom400 = MAX(acdom(1,5)*X1c + acdom(2,5)*X2c + acdom(3,5)*X3c, acdom_min(5))
 !       acdom425 = MAX(acdom(1,6)*X1c + acdom(2,6)*X2c + acdom(3,6)*X3c, acdom_min(6))
        acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
-        aph450   = ac(1,7)*P1chl + ac(2,7)*P2chl + ac(3,7)*P3chl + ac(4,7)*P4chl + ac(2,7)*P5chl + ac(3,7)*P6chl + ac(2,7)*P7chl + ac(2,7)*P8chl + ac(3,7)*P9chl
+       aph450   = 0.0_rk
+       do  pp=1,self%npft
+           aph450  = aph450 + ac(pp,7)*Pchl(pp)
+       enddo
 
        anap450  = apoc(7) * R6c
 !       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c + spm_bb
