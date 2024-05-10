@@ -71,6 +71,7 @@ instances:
        p_bbrP8: 0.0062                            # non-spectral backscattering to total scattering ratio for P8 [-]
        p_bbrP9: 0.0062                            # non-spectral backscattering to total scattering ratio for P9 [-]
        compute_bbc: .FALSE.           # logical flag to compute bbc or read it from file [T=compute bc*bbr or F=use file]
+       p_useSPM: .FALSE.                     # if true requires input data specification in gotm.yaml
        p_spmc1: 0.016                       # basal absorption for minimal absorption at long wavelengths [m2 g-1]
        p_spmc2: 0.054                       # specific absorption at the reference wavelength [m2 g-1]
        p_spmS: 0.012                        # slope for exponential decline of aSPM with wavelength [nm-1]
