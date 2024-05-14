@@ -814,7 +814,7 @@ contains
 ! AOPs observed for diagnostics     
 !    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
 
-     _HORIZONTAL_LOOP_BEGIN_
+!    _HORIZONTAL_LOOP_BEGIN_
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/max(p_small,(E(1,1,5)+E(2,1,5))))
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/max(p_small,(E(1,1,6)+E(2,1,6))))
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/max(p_small,(E(1,1,7)+E(2,1,7)))) 
@@ -833,7 +833,7 @@ contains
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG(max(p_small,(E(1,26,8)+E(2,26,8))/(max(p_small,E(1,1,8)+E(2,1,8)))))/9.05_rk)
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG(max(p_small,(E(1,26,9)+E(2,26,9))/(max(p_small,E(1,1,9)+E(2,1,9)))))/9.05_rk)     
     
-      _HORIZONTAL_LOOP_END_
+!     _HORIZONTAL_LOOP_END_
 
       kk=0
 
