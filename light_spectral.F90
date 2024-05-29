@@ -20,6 +20,7 @@ module ogs_bfm_light_spectral
 !      type (type_diagnostic_variable_id)   :: id_bbp450, id_bbp550, id_bbp700
       type (type_diagnostic_variable_id)   :: id_Ed400, id_Ed425, id_Ed450, id_Ed475, id_Ed500, id_Ed525, id_Ed550, id_Ed575, id_Ed675
       type (type_diagnostic_variable_id)   :: id_E0475, id_E0500
+      type (type_diagnostic_variable_id)   :: id_swr_abs
 
       type (type_horizontal_diagnostic_variable_id) :: id_Rrs400, id_Rrs425, id_Rrs450, id_Rrs475
       type (type_horizontal_diagnostic_variable_id) :: id_Rrs500, id_Rrs525, id_Rrs550, id_Rrs575, id_Rrs675
@@ -387,6 +388,8 @@ contains
       call self%register_diagnostic_variable(self%id_Ed675, 'Ed675', 'W m-2', 'E downwelling', source=source_do_column)
       call self%register_diagnostic_variable(self%id_E0475, 'E0475', 'W m-2', 'E scalar', source=source_do_column)
       call self%register_diagnostic_variable(self%id_E0500, 'E0500', 'W m-2', 'E scalar', source=source_do_column)
+
+      call self%register_diagnostic_variable(self%id_swr_abs, 'swr_abs', 'W/m^2',      'absorption of shortwave energy in layer', standard_variable=standard_variables%net_rate_of_absorption_of_shortwave_energy_in_layer, source=source_do_column)
       
       ! Register dependencies on aggregated variables
       if (self%npft .GT. 0) call self%register_dependency(self%id_aP1c, carbon_P1)
@@ -527,6 +530,7 @@ contains
       real(rk) :: PAR_P8_array(cache%n)
       real(rk) :: PAR_P9_array(cache%n)
       real(rk) :: PAR_scalar_array(cache%n)
+      real(rk) :: SWR_ABS(cache%n)
       real(rk) :: PAR_P1,PAR_P4
       real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
       real(rk) :: PAR_P3,PAR_P6,PAR_P9
@@ -883,6 +887,14 @@ contains
 
          _SET_DIAGNOSTIC_(self%id_E0475, max(p_small,E_scalar(kk,8) ))          
          _SET_DIAGNOSTIC_(self%id_E0500, max(p_small,E_scalar(kk,9) ))         
+
+ 
+         SWR_ABS(kk) = SUM( (E(1,kk,:) - E(1,kk+1,:)) + (E(2,kk,:) - E(2,kk+1,:)) + (E(3,kk+1,:) - E(3,kk,:)))
+!        SWR_ABS(kk)   = 0.0_rk
+!        do l=1,self%nlt
+!           SWR_ABS(kk)   = SWR_ABS(kk) + (E(1,kk,l) - E(1,kk+1,l)) +  (E(2,kk,l) - E(2,kk+1,l)) &
+!        end do
+         _SET_DIAGNOSTIC_(self%id_swr_abs, SWR_ABS(kk)) 
          
      _DOWNWARD_LOOP_END_
 
