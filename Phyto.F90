@@ -915,7 +915,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   _SET_ODE_(self%id_R6p,rr6p)
 !SEAMLESS  call quota_flux( iiPel, ppphytop, ppphytop,ppR1p, rr1p, tfluxP )  ! source/sink.p
   _SET_ODE_(self%id_p,-rr1p)
-  _SET_ODE_(self%id_R6p,rr1p)
+  _SET_ODE_(self%id_R1p,rr1p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: SILICATE
