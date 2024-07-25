@@ -10,6 +10,7 @@ add_library(fabm_models_ogs OBJECT
             shared.F90
             light.F90
             light_spectral.F90
+	    light_spectral_OASIM.F90
             lidata.F90
             getrmud.F90 
             zenith_angle.F90
