@@ -106,7 +106,6 @@ contains
       character(len=8) :: strwavelength, strindex, strindex2
       real(rk) :: lambda_ref_iop, a_star_iop, S_iop, b_star_iop, eta_iop
 
-      write(*,*) 'Start initialize light_spectral_OASIM'
       call self%get_parameter(lambda_method, 'lambda_method', '', 'choice of wavebands (0: custom range, 1: OASIM)', default=1)
       select case (lambda_method)
       case (0)
@@ -588,7 +587,6 @@ contains
       real(rk) :: PAR_scalar
       real(rk), dimension(self%nlambda) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
       real(rk) :: costheta_r
-      write(*,*) 'Star Colum loop light_spectral_OASIM'
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
@@ -953,7 +951,6 @@ contains
          
      _DOWNWARD_LOOP_END_
 
-     write(*,*) 'End Column loop light_spectral_OASIM'
    end subroutine do_column
 
 end module
