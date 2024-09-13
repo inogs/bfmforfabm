@@ -142,7 +142,7 @@ module ogs_bfm_shared
         real(rk),intent(IN) :: x, m
         real(rk)            :: MM
 
-        MM = x / (x + m)
+        MM = x / (x + m + p_small)
 
     end function MM
 
@@ -166,7 +166,7 @@ module ogs_bfm_shared
         integer   ,intent(IN) :: p
         real(rk)            :: MM_POWER
 
-        MM_POWER = x**p / ( x**p+ m**p)
+        MM_POWER = x**p / ( x**p+ m**p + p_small)
 
     end function MM_POWER
 
