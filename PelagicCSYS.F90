@@ -51,6 +51,7 @@ contains
 !-----------------------------------------------------------------------
 !BOC
       call self%register_state_variable(self%id_O3c,'c','mgC/m^3','total dissolved inorganic carbon', 26400._rk,minimum=10000._rk)
+      call self%add_to_aggregate_variable(standard_variables%total_carbon,self%id_O3c,scale_factor=1.0_rk/12.0_rk)
 !      call self%add_to_aggregate_variable(standard_variables%total_carbon,self%id_O3c) !not used yet and attention, scale_factor must be used (standard_variable for C is mmol/m3)
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','Silicate')
