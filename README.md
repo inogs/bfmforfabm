@@ -1,5 +1,5 @@
 # bfm for fabm model
-![bfm_for_fabm](https://github.com/inogs/bfmforfabm/blob/main/DOC/PICTURES/bfm_scheme.pdf)
+![bfm_for_fabm](https://github.com/inogs/bfmforfabm/blob/master/DOC/PICTURES/bfm_scheme.pdf)
 
 ## What is the bfmforfabm ?
 bfmforfabm allows to couple [BFM model](https://bfm-community.github.io/www.bfm-community.eu/) to The Framework for Aquatic Biogeochemical Models ([FABM](https://github.com/fabm-model/fabm/wiki)).
