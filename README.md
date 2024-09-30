@@ -1,4 +1,4 @@
-# bfm for fabm model
+# bfmforfabm model
 ![bfm_for_fabm](https://github.com/inogs/bfmforfabm/blob/master/DOC/PICTURES/bfm_scheme.png)
 
 ## What is the bfmforfabm ?
@@ -8,9 +8,9 @@ It is currently maintained in the [fabm-plus](https://github.com/fabm-model/fabm
 The application was developed within the [Seamless H2020 project](https://zenodo.org/records/6401395).
 
 
-## Scripts for integrating BFM in FABM
+## Scripts for downloading BFM in FABM
 
-To use these within seamless notebooks 
+To use these within [seamless notebooks](https://github.com/BoldingBruggeman/seamless-notebooks).
 
 clone bfmforfabm in folder extern
 
