@@ -36,24 +36,6 @@ module ogs_bfm_light_spectral_OASIM
       integer :: nlambda
       real(rk), dimension(:), allocatable :: lambda, lambda_bounds, par_weights, par_E_weights, swr_weights, uv_weights, F, lambda_out
 
-! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_0550, id_Ed_0_0575, id_Ed_0_0600, id_Ed_0_0625, id_Ed_0_0650
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_0675, id_Ed_0_0700, id_Ed_0_0725, id_Ed_0_0775, id_Ed_0_0850
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_0950, id_Ed_0_1050, id_Ed_0_1150, id_Ed_0_1250, id_Ed_0_1350
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_1450, id_Ed_0_1550, id_Ed_0_1650, id_Ed_0_1750, id_Ed_0_1900
-!     type (type_horizontal_dependency_id) ::  id_Ed_0_2200, id_Ed_0_2900, id_Ed_0_3700
-!     type (type_horizontal_dependency_id) ::  id_Es_0_0250, id_Es_0_0325, id_Es_0_0350, id_Es_0_0375, id_Es_0_0400
-!     type (type_horizontal_dependency_id) ::  id_Es_0_0425, id_Es_0_0450, id_Es_0_0475, id_Es_0_0500, id_Es_0_0525
-!     type (type_horizontal_dependency_id) ::  id_Es_0_0550, id_Es_0_0575, id_Es_0_0600, id_Es_0_0625, id_Es_0_0650
-!     type (type_horizontal_dependency_id) ::  id_Es_0_0675, id_Es_0_0700, id_Es_0_0725, id_Es_0_0775, id_Es_0_0850
-!     type (type_horizontal_dependency_id) ::  id_Es_0_0950, id_Es_0_1050, id_Es_0_1150, id_Es_0_1250, id_Es_0_1350
-!     type (type_horizontal_dependency_id) ::  id_Es_0_1450, id_Es_0_1550, id_Es_0_1650, id_Es_0_1750, id_Es_0_1900
-!     type (type_horizontal_dependency_id) ::  id_Es_0_2200, id_Es_0_2900, id_Es_0_3700
-
-! END BLOCK 1 python generated  code
-
       type (type_horizontal_dependency_id) :: id_spm      
       
       ! Parameters
@@ -455,75 +437,6 @@ contains
       call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
       if (self%p_useSPM)  call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
 
-! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
-!     call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
-!     call self%register_dependency(self%id_Ed_0_0325,type_surface_standard_variable(name='surf_direct_downward_irradiance_0325_nm'))
-!     call self%register_dependency(self%id_Ed_0_0350,type_surface_standard_variable(name='surf_direct_downward_irradiance_0350_nm'))
-!     call self%register_dependency(self%id_Ed_0_0375,type_surface_standard_variable(name='surf_direct_downward_irradiance_0375_nm'))
-!     call self%register_dependency(self%id_Ed_0_0400,type_surface_standard_variable(name='surf_direct_downward_irradiance_0400_nm'))
-!     call self%register_dependency(self%id_Ed_0_0425,type_surface_standard_variable(name='surf_direct_downward_irradiance_0425_nm'))
-!     call self%register_dependency(self%id_Ed_0_0450,type_surface_standard_variable(name='surf_direct_downward_irradiance_0450_nm'))
-!     call self%register_dependency(self%id_Ed_0_0475,type_surface_standard_variable(name='surf_direct_downward_irradiance_0475_nm'))
-!     call self%register_dependency(self%id_Ed_0_0500,type_surface_standard_variable(name='surf_direct_downward_irradiance_0500_nm'))
-!     call self%register_dependency(self%id_Ed_0_0525,type_surface_standard_variable(name='surf_direct_downward_irradiance_0525_nm'))
-!     call self%register_dependency(self%id_Ed_0_0550,type_surface_standard_variable(name='surf_direct_downward_irradiance_0550_nm'))
-!     call self%register_dependency(self%id_Ed_0_0575,type_surface_standard_variable(name='surf_direct_downward_irradiance_0575_nm'))
-!     call self%register_dependency(self%id_Ed_0_0600,type_surface_standard_variable(name='surf_direct_downward_irradiance_0600_nm'))
-!     call self%register_dependency(self%id_Ed_0_0625,type_surface_standard_variable(name='surf_direct_downward_irradiance_0625_nm'))
-!     call self%register_dependency(self%id_Ed_0_0650,type_surface_standard_variable(name='surf_direct_downward_irradiance_0650_nm'))
-!     call self%register_dependency(self%id_Ed_0_0675,type_surface_standard_variable(name='surf_direct_downward_irradiance_0675_nm'))
-!     call self%register_dependency(self%id_Ed_0_0700,type_surface_standard_variable(name='surf_direct_downward_irradiance_0700_nm'))
-!     call self%register_dependency(self%id_Ed_0_0725,type_surface_standard_variable(name='surf_direct_downward_irradiance_0725_nm'))
-!     call self%register_dependency(self%id_Ed_0_0775,type_surface_standard_variable(name='surf_direct_downward_irradiance_0775_nm'))
-!     call self%register_dependency(self%id_Ed_0_0850,type_surface_standard_variable(name='surf_direct_downward_irradiance_0850_nm'))
-!     call self%register_dependency(self%id_Ed_0_0950,type_surface_standard_variable(name='surf_direct_downward_irradiance_0950_nm'))
-!     call self%register_dependency(self%id_Ed_0_1050,type_surface_standard_variable(name='surf_direct_downward_irradiance_1050_nm'))
-!     call self%register_dependency(self%id_Ed_0_1150,type_surface_standard_variable(name='surf_direct_downward_irradiance_1150_nm'))
-!     call self%register_dependency(self%id_Ed_0_1250,type_surface_standard_variable(name='surf_direct_downward_irradiance_1250_nm'))
-!     call self%register_dependency(self%id_Ed_0_1350,type_surface_standard_variable(name='surf_direct_downward_irradiance_1350_nm'))
-!     call self%register_dependency(self%id_Ed_0_1450,type_surface_standard_variable(name='surf_direct_downward_irradiance_1450_nm'))
-!     call self%register_dependency(self%id_Ed_0_1550,type_surface_standard_variable(name='surf_direct_downward_irradiance_1550_nm'))
-!     call self%register_dependency(self%id_Ed_0_1650,type_surface_standard_variable(name='surf_direct_downward_irradiance_1650_nm'))
-!     call self%register_dependency(self%id_Ed_0_1750,type_surface_standard_variable(name='surf_direct_downward_irradiance_1750_nm'))
-!     call self%register_dependency(self%id_Ed_0_1900,type_surface_standard_variable(name='surf_direct_downward_irradiance_1900_nm'))
-!     call self%register_dependency(self%id_Ed_0_2200,type_surface_standard_variable(name='surf_direct_downward_irradiance_2200_nm'))
-!     call self%register_dependency(self%id_Ed_0_2900,type_surface_standard_variable(name='surf_direct_downward_irradiance_2900_nm'))
-!     call self%register_dependency(self%id_Ed_0_3700,type_surface_standard_variable(name='surf_direct_downward_irradiance_3700_nm'))
-!     call self%register_dependency(self%id_Es_0_0250,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0250_nm'))
-!     call self%register_dependency(self%id_Es_0_0325,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0325_nm'))
-!     call self%register_dependency(self%id_Es_0_0350,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0350_nm'))
-!     call self%register_dependency(self%id_Es_0_0375,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0375_nm'))
-!     call self%register_dependency(self%id_Es_0_0400,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0400_nm'))
-!     call self%register_dependency(self%id_Es_0_0425,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0425_nm'))
-!     call self%register_dependency(self%id_Es_0_0450,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0450_nm'))
-!     call self%register_dependency(self%id_Es_0_0475,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0475_nm'))
-!     call self%register_dependency(self%id_Es_0_0500,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0500_nm'))
-!     call self%register_dependency(self%id_Es_0_0525,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0525_nm'))
-!     call self%register_dependency(self%id_Es_0_0550,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0550_nm'))
-!     call self%register_dependency(self%id_Es_0_0575,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0575_nm'))
-!     call self%register_dependency(self%id_Es_0_0600,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0600_nm'))
-!     call self%register_dependency(self%id_Es_0_0625,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0625_nm'))
-!     call self%register_dependency(self%id_Es_0_0650,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0650_nm'))
-!     call self%register_dependency(self%id_Es_0_0675,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0675_nm'))
-!     call self%register_dependency(self%id_Es_0_0700,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0700_nm'))
-!     call self%register_dependency(self%id_Es_0_0725,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0725_nm'))
-!     call self%register_dependency(self%id_Es_0_0775,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0775_nm'))
-!     call self%register_dependency(self%id_Es_0_0850,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0850_nm'))
-!     call self%register_dependency(self%id_Es_0_0950,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_0950_nm'))
-!     call self%register_dependency(self%id_Es_0_1050,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1050_nm'))
-!     call self%register_dependency(self%id_Es_0_1150,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1150_nm'))
-!     call self%register_dependency(self%id_Es_0_1250,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1250_nm'))
-!     call self%register_dependency(self%id_Es_0_1350,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1350_nm'))
-!     call self%register_dependency(self%id_Es_0_1450,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1450_nm'))
-!     call self%register_dependency(self%id_Es_0_1550,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1550_nm'))
-!     call self%register_dependency(self%id_Es_0_1650,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1650_nm'))
-!     call self%register_dependency(self%id_Es_0_1750,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1750_nm'))
-!     call self%register_dependency(self%id_Es_0_1900,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_1900_nm'))
-!     call self%register_dependency(self%id_Es_0_2200,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2200_nm'))
-!     call self%register_dependency(self%id_Es_0_2900,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2900_nm'))
-!     call self%register_dependency(self%id_Es_0_3700,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_3700_nm'))
-! END BLOCK2 python generated code
-
       allocate(self%id_diffuse_sf(self%nlambda))
       allocate(self%id_direct_sf(self%nlambda))
       do l = 1, self%nlambda
@@ -541,6 +454,22 @@ contains
       end do
       call self%register_dependency(self%id_costheta_r, 'costheta_r', '-', 'cosine of zenith angle of underwater direct irradiance')
       write(*,*) 'End initialize in light_spectral_OASIM'
+            ! Find wavelength bounds of photosynthetically active radiation
+      self%nlambda=self%nlt
+!     allocate(self%lambda(self%nlambda), self%lambda_bounds(self%nlambda + 1))
+      self%lambda(:) = lambda_oasim
+      allocate(self%par_weights(self%nlambda))
+      allocate(self%swr_weights(self%nlambda))
+      allocate(self%uv_weights(self%nlambda))
+      allocate(self%par_E_weights(self%nlambda))
+      call calculate_integral_weights(400._rk, 700._rk, self%nlambda, self%lambda, self%par_weights)
+      call calculate_integral_weights(300._rk, 4000._rk, self%nlambda, self%lambda, self%swr_weights)
+      call calculate_integral_weights(300._rk, 400._rk, self%nlambda, self%lambda, self%uv_weights)
+      ! h_planck      = 6.6256E-34   !Plancks constant J sec
+      ! c_light       = 2.998E8      !speed of light m/sec
+      ! oavo          = 1.0D0/6.023E23   ! 1/Avogadros number
+      self%par_E_weights(:) = self%par_weights * self%lambda /(h_Planck*c_light)*oavo*1e-3_rk ! divide by 1e9 to go from nm to m, multiply by 1e6 to go from mol to umol
+
    end subroutine initialize
 
    subroutine do_column(self,_ARGUMENTS_VERTICAL_)
@@ -601,81 +530,14 @@ contains
          _GET_SURFACE_(self%id_diffuse_sf(l), diffuse(l))
          _GET_SURFACE_(self%id_direct_sf(l),  Ed_dummy)
          _GET_SURFACE_(self%id_diffuse_sf(l), Es_dummy)
-         Ed_0(l)=Ed_dummy * 25.
-         Es_0(l)=Es_dummy * 25.
+         write(*,*) ' weights', self%swr_weights(l)
+         write(*,*) ' weights', self%swr_weights(l)
+!        write(*,*) ' dwl', self%swr_weights(l)*(4000._rk - 300._rk )
+         Ed_0(l)=Ed_dummy * self%swr_weights(l)
+         Es_0(l)=Es_dummy * self%swr_weights(l)
       end do
       _GET_SURFACE_(self%id_costheta_r, costheta_r)
 
-!START BLOCK3
-!     _GET_SURFACE_(self%id_Ed_0_0250,Ed_0(1))
-!     _GET_SURFACE_(self%id_Ed_0_0325,Ed_0(2))
-!     _GET_SURFACE_(self%id_Ed_0_0350,Ed_0(3))
-!     _GET_SURFACE_(self%id_Ed_0_0375,Ed_0(4))
-!     _GET_SURFACE_(self%id_Ed_0_0400,Ed_0(5))
-!     _GET_SURFACE_(self%id_Ed_0_0425,Ed_0(6))
-!     _GET_SURFACE_(self%id_Ed_0_0450,Ed_0(7))
-!     _GET_SURFACE_(self%id_Ed_0_0475,Ed_0(8))
-!     _GET_SURFACE_(self%id_Ed_0_0500,Ed_0(9))
-!     _GET_SURFACE_(self%id_Ed_0_0525,Ed_0(10))
-!     _GET_SURFACE_(self%id_Ed_0_0550,Ed_0(11))
-!     _GET_SURFACE_(self%id_Ed_0_0575,Ed_0(12))
-!     _GET_SURFACE_(self%id_Ed_0_0600,Ed_0(13))
-!     _GET_SURFACE_(self%id_Ed_0_0625,Ed_0(14))
-!     _GET_SURFACE_(self%id_Ed_0_0650,Ed_0(15))
-!     _GET_SURFACE_(self%id_Ed_0_0675,Ed_0(16))
-!     _GET_SURFACE_(self%id_Ed_0_0700,Ed_0(17))
-!     _GET_SURFACE_(self%id_Ed_0_0725,Ed_0(18))
-!     _GET_SURFACE_(self%id_Ed_0_0775,Ed_0(19))
-!     _GET_SURFACE_(self%id_Ed_0_0850,Ed_0(20))
-!     _GET_SURFACE_(self%id_Ed_0_0950,Ed_0(21))
-!     _GET_SURFACE_(self%id_Ed_0_1050,Ed_0(22))
-!     _GET_SURFACE_(self%id_Ed_0_1150,Ed_0(23))
-!     _GET_SURFACE_(self%id_Ed_0_1250,Ed_0(24))
-!     _GET_SURFACE_(self%id_Ed_0_1350,Ed_0(25))
-!     _GET_SURFACE_(self%id_Ed_0_1450,Ed_0(26))
-!     _GET_SURFACE_(self%id_Ed_0_1550,Ed_0(27))
-!     _GET_SURFACE_(self%id_Ed_0_1650,Ed_0(28))
-!     _GET_SURFACE_(self%id_Ed_0_1750,Ed_0(29))
-!     _GET_SURFACE_(self%id_Ed_0_1900,Ed_0(30))
-!     _GET_SURFACE_(self%id_Ed_0_2200,Ed_0(31))
-!     _GET_SURFACE_(self%id_Ed_0_2900,Ed_0(32))
-!     _GET_SURFACE_(self%id_Ed_0_3700,Ed_0(33))
-!     _GET_SURFACE_(self%id_Es_0_0250,Es_0(1))
-!     _GET_SURFACE_(self%id_Es_0_0325,Es_0(2))
-!     _GET_SURFACE_(self%id_Es_0_0350,Es_0(3))
-!     _GET_SURFACE_(self%id_Es_0_0375,Es_0(4))
-!     _GET_SURFACE_(self%id_Es_0_0400,Es_0(5))
-!     _GET_SURFACE_(self%id_Es_0_0425,Es_0(6))
-!     _GET_SURFACE_(self%id_Es_0_0450,Es_0(7))
-!     _GET_SURFACE_(self%id_Es_0_0475,Es_0(8))
-!     _GET_SURFACE_(self%id_Es_0_0500,Es_0(9))
-!     _GET_SURFACE_(self%id_Es_0_0525,Es_0(10))
-!     _GET_SURFACE_(self%id_Es_0_0550,Es_0(11))
-!     _GET_SURFACE_(self%id_Es_0_0575,Es_0(12))
-!     _GET_SURFACE_(self%id_Es_0_0600,Es_0(13))
-!     _GET_SURFACE_(self%id_Es_0_0625,Es_0(14))
-!     _GET_SURFACE_(self%id_Es_0_0650,Es_0(15))
-!     _GET_SURFACE_(self%id_Es_0_0675,Es_0(16))
-!     _GET_SURFACE_(self%id_Es_0_0700,Es_0(17))
-!     _GET_SURFACE_(self%id_Es_0_0725,Es_0(18))
-!     _GET_SURFACE_(self%id_Es_0_0775,Es_0(19))
-!     _GET_SURFACE_(self%id_Es_0_0850,Es_0(20))
-!     _GET_SURFACE_(self%id_Es_0_0950,Es_0(21))
-!     _GET_SURFACE_(self%id_Es_0_1050,Es_0(22))
-!     _GET_SURFACE_(self%id_Es_0_1150,Es_0(23))
-!     _GET_SURFACE_(self%id_Es_0_1250,Es_0(24))
-!     _GET_SURFACE_(self%id_Es_0_1350,Es_0(25))
-!     _GET_SURFACE_(self%id_Es_0_1450,Es_0(26))
-!     _GET_SURFACE_(self%id_Es_0_1550,Es_0(27))
-!     _GET_SURFACE_(self%id_Es_0_1650,Es_0(28))
-!     _GET_SURFACE_(self%id_Es_0_1750,Es_0(29))
-!     _GET_SURFACE_(self%id_Es_0_1900,Es_0(30))
-!     _GET_SURFACE_(self%id_Es_0_2200,Es_0(31))
-!     _GET_SURFACE_(self%id_Es_0_2900,Es_0(32))
-!     _GET_SURFACE_(self%id_Es_0_3700,Es_0(33))
-
-!END BLOCK3 python generated code
-      
       kk=0
       zgrid(1)=0.0_rk
 
