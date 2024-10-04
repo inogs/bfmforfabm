@@ -120,6 +120,8 @@
       type (type_state_variable_id)      :: id_N1p,id_N4n                   !  nutrients: phosphate, ammonium
       type (type_state_variable_id)      :: id_R6c,id_R6p,id_R6n            !  particulate organic carbon
       type (type_state_variable_id)      :: id_R6s                          !  biogenic silica
+      type (type_state_variable_id)      :: id_R8c,id_R8p,id_R8n            !  particulate organic carbon
+      type (type_state_variable_id)      :: id_R8s                          !  biogenic silica
       type (type_state_variable_id)      :: id_O3h                          !  alkalinity
       type (type_state_variable_id)      :: id_O5c                          !  calcite
   
@@ -177,6 +179,7 @@
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
+      real(rk) :: p_fR6
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
 !      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
@@ -229,6 +232,7 @@ contains
       call self%get_parameter(self%p_sdo,    'p_sdo',     'm3/mgC/d',   'specific density-dependent mortality')
       call self%get_parameter(self%p_sds,    'p_sds',     '-',          'exponent of density-dependent mortality')
       call self%get_parameter(self%p_pecaco3,'p_pecaco3', '-',          'portion of egested calcified shells during grazing')
+      call self%get_parameter(self%p_fR6,    'p_fR6',  '-',  'fraction of egestion to R6 (small POC)', default=0.8_rk)
       call self%get_parameter(self%p_qpcMEZ, 'p_qpcMEZ',  'mmolP/mgC',  'maximum quotum P:C')
       call self%get_parameter(self%p_qncMEZ, 'p_qncMEZ',  'mmolN/mgC',  'maximum quotum N:C')
       call self%get_parameter(self%p_clO2o,  'p_clO2o',   'mmolO2/m3',  'half-saturation oxygen concentration')
@@ -305,10 +309,14 @@ contains
       call self%register_state_dependency(self%id_O5c,'O5c' ,'mgC/m^3'    ,'calcite'    ,required=.false.)
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3' ,'phosphate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3' ,'ammonium')
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3'   ,'POC')
-      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3' ,'POP')
-      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3' ,'PON')
-      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','biogenic silica')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3'   ,'small POC')
+      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3' ,'small POP')
+      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3' ,'small PON')
+      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small biogenic silica')
+      call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3'   ,'large POC')
+      call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3' ,'large POP')
+      call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3' ,'large PON')
+      call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large biogenic silica')
 
 ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_qncMEZ,'qncMEZ', 'mmolN/mgC', 'N:C quontum',output=output_none)
@@ -578,7 +586,8 @@ contains
     ! silicon constituent is transferred to biogenic silicate
 !    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
 !       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
-    _SET_ODE_(self%id_R6s,           ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
+    _SET_ODE_(self%id_R6s,           self%p_fR6 * ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
+    _SET_ODE_(self%id_R8s,           (ONE - self%p_fR6) * ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
     _SET_ODE_(self%id_preys(iprey), -ruPPYc*(preysP(iprey)/(preycP(iprey)+p_small)))
 !    end if
 
@@ -712,13 +721,16 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !  call quota_flux(iiPel, ppzooc, ppzooc,ppR6c, rq6c, tfluxC)
    _SET_ODE_(self%id_c,  -rq6c)
-   _SET_ODE_(self%id_R6c, rq6c)
+   _SET_ODE_(self%id_R6c, self%p_fR6 * rq6c)
+   _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * rq6c)
 !  call quota_flux(iiPel, ppzoon, ppzoon,ppR6n, rq6n, tfluxN)
    _SET_ODE_(self%id_n,  -rq6n)
-   _SET_ODE_(self%id_R6n, rq6n)
+   _SET_ODE_(self%id_R6n, self%p_fR6 * rq6n)
+   _SET_ODE_(self%id_R8n, (ONE - self%p_fR6) * rq6n)
 !  call quota_flux(iiPel, ppzoop, ppzoop,ppR6p, rq6p, tfluxP)
    _SET_ODE_(self%id_p,  -rq6p)
-   _SET_ODE_(self%id_R6p, rq6p)
+   _SET_ODE_(self%id_R6p, self%p_fR6 * rq6p)
+   _SET_ODE_(self%id_R8p, (ONE - self%p_fR6) * rq6p)
 
 
 !  if ( zoon > 0 .and. zoop > 0 ) then
@@ -848,7 +860,8 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !  call flux_vector(iiPel, ppzooc, ppR6c, pe_R6c)
    _SET_ODE_(self%id_c,  -pe_R6c)
-   _SET_ODE_(self%id_R6c, pe_R6c)
+   _SET_ODE_(self%id_R6c, self%p_fR6 * pe_R6c)
+   _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * pe_R6c)
 !  call flux_vector(iiPel, ppzoop, ppN1p, pe_N1p)
    _SET_ODE_(self%id_p,  -pe_N1p)
    _SET_ODE_(self%id_N1p, pe_N1p)

@@ -70,7 +70,8 @@
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h,id_O4n          !  dissolved inorganic carbon, oxygen, total alkalinity, N2
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s,id_N6r   !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile, R3: semi-refractory)
-      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
+      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
+      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       type (type_state_variable_id) :: id_X1c, id_X2c, id_X3c               !  CDOM
       type (type_dependency_id)     :: id_dz
@@ -87,6 +88,7 @@
       type (type_diagnostic_variable_id) :: id_flN3O4n_N6r ! impact of denitrification on reduction equivalent
       type (type_diagnostic_variable_id) :: id_fN6O2r  ! reoxydation of reduction equivalents
       type (type_diagnostic_variable_id) :: id_fR6N5s  ! dissolution of biogenic silicate
+      type (type_diagnostic_variable_id) :: id_fR8N5s  ! dissolution of biogenic silicate
       type (type_diagnostic_variable_id) :: id_degX1c  ! photodegradation cdom X1c
       type (type_diagnostic_variable_id) :: id_degX2c  ! photodegradation cdom X2c
       type (type_diagnostic_variable_id) :: id_degX3c  ! photodegradation cdom X3c
@@ -96,7 +98,7 @@
       type (type_diagnostic_variable_id) :: id_varO3h_for_denitr ! variation of O3h for denitrification (-1 mole of NO3 (consumed) -> + 1 mole of alk)
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_clO2o, p_clN6r, p_sN4N3, p_q10N4N3, p_qon_nitri, p_qro
-      real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5      
+      real(rk) :: p_sN3O4n, p_rPAo, p_qon_dentri, p_rOS, p_sR6N5, p_q10R6N5, p_sR8N5, p_q10R8N5      
       real(rk) :: p_bX1c, p_bX2c, p_bX3c, p_IX1, p_IX2, p_IX3, p_rX3c, p_q10X    
       real(rk) :: p_TauC,p_TauP,p_TauN
       real(rk) :: p_Amm_rem
@@ -150,8 +152,10 @@ contains
       call self%get_parameter(self%p_rPAo,        'p_rPAo',      '[mmolO2/m3/d]' ,  'Reference anoxic mineralization rate')
       call self%get_parameter(self%p_qon_dentri,  'p_qon_dentri','[mmolO2/mmolN]',  'Stoichiometric coefficient for denitrification')
       call self%get_parameter(self%p_rOS,         'p_rOS',       '[1/d]',           'Specific reoxidation rate of reduction equivalents')
-      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',           'Specific remineralization rate of biogenic silica')
-      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',             'Q10 factor for biogenic silica')
+      call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',           'Specific remineralization rate of biogenicsilica (small POC)')
+      call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',             'Q10 factor for biogenic silica (small POC)')
+      call self%get_parameter(self%p_sR8N5,       'p_sR8N5',     '[1/d]',           'Specific remineralization rate of biogenic silica (large POC)')
+      call self%get_parameter(self%p_q10R8N5,     'p_q10R8N5',   '[-]',             'Q10 factor for biogenic silica (large POC)')
       call self%get_parameter(self%p_bX1c,        'p_bX1c',      '[1/d]',           'photodegradation (bleaching) rate X1c')
       call self%get_parameter(self%p_bX2c,        'p_bX2c',      '[1/d]',           'photodegradation (bleaching) rate X2c')
       call self%get_parameter(self%p_bX3c,        'p_bX3c',      '[1/d]',           'photodegradation (bleaching) rate X3c')
@@ -177,10 +181,14 @@ contains
       call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
       call self%register_state_dependency(self%id_N6r,'N6r','mmol HS/m^3','reduction equivalent')
       call self%register_state_dependency(self%id_R3c,'R3c','mgC /m^3','semi-refractory DOC')
-      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','biogenic silicate')
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','detritus-C')
-      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','detritus-P')
-      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','detritus-N')      
+      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small biogenic silicate')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','small detritus-C')
+      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','small detritus-P')
+      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','small detritus-N')
+      call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large biogenic silicate')
+      call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3','large detritus-C')
+      call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3','large detritus-P')
+      call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3','large detritus-N') 
       call self%register_state_dependency(self%id_X1c,'X1c','mgC/m^3','labile cdom')
       call self%register_state_dependency(self%id_X2c,'X2c','mgC/m^3','semilabile cdom')
       call self%register_state_dependency(self%id_X3c,'X3c','mgC/m^3','semi refractory cdom')
@@ -200,7 +208,8 @@ contains
       call self%register_diagnostic_variable(self%id_flN3O4n,   'flN3O4n',    'mmolN/m3/d',  'denitrification',source=source_do_column,output=output_none)
       call self%register_diagnostic_variable(self%id_flN3O4n_N6r,'flN3O4n_N6r','mmolHS/m3/d',  'impact of denitrification on reduction equivalent',source=source_do_column,output=output_none)
       call self%register_diagnostic_variable(self%id_fN6O2r,    'fN6O2r',     'mmolHS/m3/d',  'reoxydation of reduction equivalents',source=source_do_column,output=output_none)
-      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of biogenic silicate',source=source_do_column,output=output_none)
+      call self%register_diagnostic_variable(self%id_fR6N5s,    'fR6N5s',     'mmolSi/m3/d',  'dissolution of small biogenic silicate',source=source_do_column,output=output_none)
+      call self%register_diagnostic_variable(self%id_fR8N5s,    'fR8N5s',     'mmolSi/m3/d',  'dissolution of large biogenic silicate',source=source_do_column,output=output_none)
       call self%register_diagnostic_variable(self%id_degX1c,    'degX1c',     'mgC/m3/d',  'photodegradation of cdom X1c',output=output_none)
       call self%register_diagnostic_variable(self%id_degX2c,    'degX2c',     'mgC/m3/d',  'photodegradation of cdom X2c',output=output_none)
       call self%register_diagnostic_variable(self%id_degX3c,    'degX3c',     'mgC/m3/d',  'photodegradation of cdom X3c',output=output_none)
@@ -219,11 +228,12 @@ contains
 
    ! !LOCAL VARIABLES:
       real(rk) :: ETW, parEIR
-      real(rk) :: N1p,N5s,N3n,N4n,O2o,N6r, R3c, R6s, O4n, O3h,O3c
+      real(rk) :: N1p,N5s,N3n,N4n,O2o,N6r, R3c, R6s, R8s, O4n, O3h,O3c
       real(rk) :: R6c,R6n,R6p      
+      real(rk) :: R8c,R8n,R8p      
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
-      real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo,fR6N5s
+      real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo, fR6N5s, fR8N5s
       real(rk) :: degX1c, degX2c, degX3c
       real(rk) :: remX3c, remR3c
       real(rk) :: isBen      
@@ -248,6 +258,10 @@ contains
          _GET_(self%id_R6c,R6c)
          _GET_(self%id_R6p,R6p)
          _GET_(self%id_R6n,R6n)         
+         _GET_(self%id_R8s,R8s)
+         _GET_(self%id_R8c,R8c)
+         _GET_(self%id_R8p,R8p)
+         _GET_(self%id_R8n,R8n)
 
          _GET_(self%id_O2o,O2o)
          _GET_(self%id_O3h,O3h)
@@ -341,10 +355,12 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   fR6N5s  =   self%p_sR6N5* eTq(  ETW,  self%p_q10R6N5)* R6s
    _SET_DIAGNOSTIC_(self%id_fR6N5s,fR6N5s) ! dissolution of biogenic silicate
+  fR8N5s  =   self%p_sR8N5* eTq(  ETW,  self%p_q10R8N5)* R8s
+   _SET_DIAGNOSTIC_(self%id_fR8N5s,fR8N5s) ! dissolution of biogenic silicate
 
 ! call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
- _SET_ODE_(self%id_N5s,fR6N5s)
- _SET_ODE_(self%id_R6s,-fR6N5s)
+ _SET_ODE_(self%id_N5s,fR6N5s + fR8N5s)
+ _SET_ODE_(self%id_R6s,-fR6N5s - fR8N5s)
 
 !GP #ifdef INCLUDE_PELFE
 !GP   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -427,6 +443,7 @@ contains
   !  Benthic remineralization 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if (self%p_use_benthic .EQ. 1) then
+   ! small detritus (R6)
    _SET_ODE_(self%id_R6c,- 1.0D0/self%p_TauC * R6c * isBen)
    _SET_ODE_(self%id_O3c,+ 1.0D0/self%p_TauC * R6c * isBen)
    _SET_ODE_(self%id_O2o,- 1.0D0/self%p_TauC * R6c * isBen/12.0D0)
@@ -436,6 +453,16 @@ contains
 !  _SET_ODE_(self%id_O3h,- 1.0D0/self%p_TauN * R6n * isBen) 
    _SET_ODE_(self%id_R6p,- 1.0D0/self%p_TauP * R6p * isBen)
    _SET_ODE_(self%id_N1p,+ 1.0D0/self%p_TauP * R6p * isBen)
+   ! large detritus (R8)
+   _SET_ODE_(self%id_R8c,- 1.0D0/self%p_TauC * R8c * isBen)
+   _SET_ODE_(self%id_O3c,+ 1.0D0/self%p_TauC * R8c * isBen)
+   _SET_ODE_(self%id_O2o,- 1.0D0/self%p_TauC * R8c * isBen/12.0D0)
+   _SET_ODE_(self%id_R8n,- 1.0D0/self%p_TauN * R8n * isBen)
+   _SET_ODE_(self%id_N3n,+ (1.00 - self%p_Amm_rem)/self%p_TauN * R8n * isBen)
+   _SET_ODE_(self%id_N4n,+ self%p_Amm_rem/self%p_TauN * R8n * isBen)
+!  _SET_ODE_(self%id_O3h,- 1.0D0/self%p_TauN * R8n * isBen) 
+   _SET_ODE_(self%id_R8p,- 1.0D0/self%p_TauP * R8p * isBen)
+   _SET_ODE_(self%id_N1p,+ 1.0D0/self%p_TauP * R8p * isBen)
    endif
  
      ! Leave spatial loops (if any)

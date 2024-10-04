@@ -66,7 +66,8 @@
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                 !  dissolved inorganic carbon, oxygen, total alkalinity
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
-      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
+      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
+      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       ! Environmental dependencies
@@ -141,6 +142,7 @@
       real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
+      real(rk) :: p_fR6
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
@@ -262,6 +264,8 @@ contains
 !              --------- Flux partition CDOM parameters ------------
       call self%get_parameter(self%p_fX1p,   'p_fX1p',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2p,   'p_fX2p',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
+!              --------- Flux partition POM parameters ------------
+      call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
 
@@ -293,10 +297,14 @@ contains
       call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3','labile DOP')
       call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
       call self%register_state_dependency(self%id_R2c,'R2c','mg C/m^3','semi labile DOC')
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','POC')
-      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','POP')
-      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','PON')
-      if (self%use_Si) call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','POS')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','small POC')
+      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','small POP')
+      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','small PON')
+      if (self%use_Si) call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small POS')
+      call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3','large POC')
+      call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3','large POP')
+      call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3','large PON')
+      if (self%use_Si) call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large POS')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       ! Register environmental dependencies (temperature, shortwave radiation)
@@ -346,12 +354,12 @@ contains
       call self%register_diagnostic_variable(self%id_seo,  'seo', 'mgC/m3/d','nutrient stress excretion',output=output_none)
       call self%register_diagnostic_variable(self%id_rr1c, 'rr1c','mgC/m3/d','lysis fraction to labile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration',output=output_none)
-      call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production',output=output_none)
+      call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production')
       call self%register_diagnostic_variable(self%id_flPIR2c_tot,'flPIR2c_tot', 'mgC/m3/d', 'total flux to semilabile DOC',output=output_none)      
       call self%register_diagnostic_variable(self%id_flPIR2c_act,'flPIR2c_act', 'mgC/m3/d', 'activity flux to semilabile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_flPIR2c,    'flPIR2c',     'mgC/m3/d', 'flux to transparent semilabile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_f2cdom,  'f2cdom', '-', 'fraction to semilabile CDOM',output=output_none)      
-      call self%register_diagnostic_variable(self%id_run,   'run',   'mgC/m3/d','net primary production',output=output_none)
+      call self%register_diagnostic_variable(self%id_run,   'run',   'mgC/m3/d','net primary production')
       call self%register_diagnostic_variable(self%id_sadap, 'sadap', 'mgC/m3/d',' adaptation',output=output_none)
       call self%register_diagnostic_variable(self%id_cqun3, 'cqun3', '-',' preference for ammonia',output=output_none)
       call self%register_diagnostic_variable(self%id_rumn3, 'rumn3', '-',' max pot. uptake of N3',output=output_none)
@@ -435,6 +443,7 @@ contains
       real(rk) :: R1c,R1n,R1p
       real(rk) :: R2c
       real(rk) :: R6c,R6p,R6n,R6s
+      real(rk) :: R8c,R8p,R8n,R8s
       real(rk) :: X1c,X2c
       real(rk) :: iNIn,iN1p,eN5s,iN5s,iNf,iNI
       real(rk) :: iN,tN
@@ -444,7 +453,7 @@ contains
       real(rk) :: eiPPY,photochem
       real(rk) :: sum
       real(rk) :: sdo, sea, seo
-      real(rk) :: pe_R6, rr1c, rr6c
+      real(rk) :: pe_R6, rr1c, rr6c, rr8c
       real(rk) :: sra, srs, srt, rrc
       real(rk) :: rugc, slc, flPIR2c, flPIR2c_tot, f2cdom
       real(rk) :: run, sadap 
@@ -735,7 +744,7 @@ end select
 
 !CEA Activity excretion produces CDOM, nutrient-stress excretion dont  
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-  f2cdom = self%p_fX2p * ( qlcPPY/self%p_qlcPPY ) 
+  f2cdom = self%p_fX2p * ( (phytol/phytoc)/self%p_qlcPPY ) 
   _SET_ODE_(self%id_c, -f2cdom * flPIR2c)
   _SET_ODE_(self%id_X2c,f2cdom * flPIR2c)
 
@@ -743,8 +752,9 @@ end select
   _SET_DIAGNOSTIC_(self%id_f2cdom, f2cdom)
   
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR6c, rr6c, tfluxC )
-  _SET_ODE_(self%id_c,-rr6c)
-  _SET_ODE_(self%id_R6c,rr6c)
+  _SET_ODE_(self%id_c, -rr6c)
+  _SET_ODE_(self%id_R6c, self%p_fR6 * rr6c)
+  _SET_ODE_(self%id_R8c, (1.00D0-self%p_fR6) * rr6c)
 !SEAMLESS
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppO3c, rrc, tfluxC )
   _SET_ODE_(self%id_c,-rrc)
@@ -816,7 +826,6 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 !  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c_tot)
 
 ! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
-! write(*,*) 'flPIR2c', flPIR2c
   _SET_ODE_(self%id_c,-flPIR2c)
   _SET_ODE_(self%id_R2c,flPIR2c)
 
@@ -894,10 +903,10 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rr6n =     pe_R6     * sdo * phyton
+  rr6n = pe_R6 * sdo * phyton
   rr1n = (ONE - pe_R6) * sdo * phyton
 
-  rr6p =     pe_R6     * sdo * phytop
+  rr6p = pe_R6 * sdo * phytop
   rr1p = (ONE - pe_R6) * sdo * phytop
 
  _SET_DIAGNOSTIC_(self%id_rr6n, rr6n)
@@ -907,16 +916,18 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rr1p, rr1p)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR6n, rr6n, tfluxN )  ! source/sink.n
   _SET_ODE_(self%id_n,-rr6n)
-  _SET_ODE_(self%id_R6n,rr6n)
+  _SET_ODE_(self%id_R6n,(self%p_fR6) * rr6n)
+  _SET_ODE_(self%id_R8n,(ONE - self%p_fR6) * rr6n)
 !SEAMLESS  call quota_flux( iiPel, ppphyton, ppphyton,ppR1n, rr1n, tfluxN )  ! source/sink.n
   _SET_ODE_(self%id_n,-rr1n)
   _SET_ODE_(self%id_R1n,rr1n)
 !SEAMLESS  call quota_flux( iiPel, ppphytop, ppphytop,ppR6p, rr6p, tfluxP )  ! source/sink.p
   _SET_ODE_(self%id_p,-rr6p)
-  _SET_ODE_(self%id_R6p,rr6p)
+  _SET_ODE_(self%id_R6p,(self%p_fR6) * rr6p)
+  _SET_ODE_(self%id_R8p,(ONE - self%p_fR6) * rr6p)
 !SEAMLESS  call quota_flux( iiPel, ppphytop, ppphytop,ppR1p, rr1p, tfluxP )  ! source/sink.p
   _SET_ODE_(self%id_p,-rr1p)
-  _SET_ODE_(self%id_R1p,rr1p)
+  _SET_ODE_(self%id_R1p, rr1p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: SILICATE
@@ -948,7 +959,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   _SET_ODE_(self%id_s,runs)
 !SEAMLESS    call flux_vector( iiPel, ppphytos, ppR6s, sdo*phytos )
   _SET_ODE_(self%id_s,-sdo*phytos)
-  _SET_ODE_(self%id_R6s,sdo*phytos)
+  _SET_ODE_(self%id_R6s, self%p_fR6 * sdo * phytos)
+  _SET_ODE_(self%id_R8s, (ONE - self%p_fR6) * sdo * phytos)
 
  _SET_DIAGNOSTIC_(self%id_rums, rums)
  _SET_DIAGNOSTIC_(self%id_miss, miss)

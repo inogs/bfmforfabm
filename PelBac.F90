@@ -66,7 +66,8 @@
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                 !  dissolved inorganic carbon, oxygen, total alkalinity
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n                 !  nutrients: phosphate, nitrate, ammonium, silicate, iron
       type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile)
-      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  particulate organic carbon
+      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
+      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c,id_X3c                 !  CDOM
       type (type_state_variable_id) :: id_N6r              
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
@@ -82,13 +83,15 @@
       type (type_diagnostic_variable_id) :: id_rum   ! Potential uptake by bacteria
       type (type_diagnostic_variable_id) :: id_cuR1  ! correction of organic material quality
       type (type_diagnostic_variable_id) :: id_cuR6  ! correction of organic material quality
+      type (type_diagnostic_variable_id) :: id_cuR8  ! correction of organic material quality
       type (type_diagnostic_variable_id) :: id_iNIn  ! internal quota nitrogen limitation 
       type (type_diagnostic_variable_id) :: id_iN1p  ! internal quota phosphorus limitation 
       type (type_diagnostic_variable_id) :: id_iN    ! P and N limitation
       type (type_diagnostic_variable_id) :: id_ruR1c ! Labile DOC realized uptake
       type (type_diagnostic_variable_id) :: id_ruR2c ! Semi-Labile DOC realized uptake
       type (type_diagnostic_variable_id) :: id_ruR3c ! Semi-Refractory DOC realized uptake
-      type (type_diagnostic_variable_id) :: id_ruR6c ! POC realized uptake
+      type (type_diagnostic_variable_id) :: id_ruR6c ! small POC realized uptake
+      type (type_diagnostic_variable_id) :: id_ruR8c ! large POC realized uptake
       type (type_diagnostic_variable_id) :: id_ruX1c ! Labile CDOM realized uptake
       type (type_diagnostic_variable_id) :: id_ruX2c ! Semi-Labile CDOM realized uptake
       type (type_diagnostic_variable_id) :: id_ruX3c ! Semi-Refractory CDOM realized uptake
@@ -96,8 +99,10 @@
       type (type_diagnostic_variable_id) :: id_rug   ! 
       type (type_diagnostic_variable_id) :: id_ruR1n ! Organic Nitrogen uptake
       type (type_diagnostic_variable_id) :: id_ruR6n ! Organic Nitrogen uptake
+      type (type_diagnostic_variable_id) :: id_ruR8n ! Organic Nitrogen uptake
       type (type_diagnostic_variable_id) :: id_ruR1p ! Organic Nitrogen uptake
       type (type_diagnostic_variable_id) :: id_ruR6p ! Organic Nitrogen uptake
+      type (type_diagnostic_variable_id) :: id_ruR8p ! Organic Nitrogen uptake
       type (type_diagnostic_variable_id) :: id_rrc   ! total respiration
       type (type_diagnostic_variable_id) :: id_flN6rPBA ! electron acceptor in the respiration process
       type (type_diagnostic_variable_id) :: id_runr    !Net production
@@ -117,11 +122,13 @@
 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10, p_chdo, p_sd, p_sd2, p_suhR1, p_sulR1, p_suR2
-      real(rk) :: p_suR3, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qncPBA
+      real(rk) :: p_suR3, p_suR6, p_suR8, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qncPBA
       real(rk) :: p_qpcPBA, p_qlnc, p_qlpc, p_qun, p_qup, p_chn, p_chp
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
-      real(rk) :: p_fX1b, p_fX2b, p_fX3b      
+      real(rk) :: p_fX1b, p_fX2b, p_fX3b 
+      real(rk) :: p_fR6
+      real(rk) :: p_fr_R8     
       integer :: p_version
 
    contains
@@ -165,7 +172,8 @@ contains
       call self%get_parameter(self%p_sulR1,   'p_sulR1',   '1/d',     'Specific potential uptake for nutrient-poor DOM')
       call self%get_parameter(self%p_suR2,    'p_suR2',    '1/d',     'Specific potential uptake for semi-labile DOC')
       call self%get_parameter(self%p_suR3,    'p_suR3',    '1/d',     'Specific potential uptake for semi-refractory DOC')
-      call self%get_parameter(self%p_suR6,    'p_suR6',    '1/d',     'Specific potential uptake for POM (1/d)')
+      call self%get_parameter(self%p_suR6,    'p_suR6',    '1/d',     'Specific potential uptake for small POM (1/d)')
+      call self%get_parameter(self%p_suR8,    'p_suR8',    '1/d',     'Specific potential uptake for large POM (1/d)')
       call self%get_parameter(self%p_sum,     'p_sum',     '1/d',     'Potential specific growth rate')
       call self%get_parameter(self%p_pu_ra,   'p_pu_ra',     '-',     'Activity respiration fraction')
       call self%get_parameter(self%p_pu_ra_o, 'p_pu_ra_o',   '-',     'Additional respiration fraction at low O2 conc')
@@ -186,10 +194,13 @@ contains
       call self%get_parameter(self%p_pe_R1c, 'p_pe_R1c'  , '-', 'Fractional content of C in cytoplasm')
       call self%get_parameter(self%p_pe_R1n, 'p_pe_R1n'  , '-', 'Fractional content of N in cytoplasm')
       call self%get_parameter(self%p_pe_R1p, 'p_pe_R1p'  , '-', 'Fractional content of P in cytoplasm')
+      call self%get_parameter(self%p_fr_R8,   'p_fr_R8',  '-',  'large POC (R8) fragmentation rate', default=0.0_rk)
 !              --------- Flux partition CDOM parameters ------------
       call self%get_parameter(self%p_fX1b,   'p_fX1b',  '-',  'colored fraction in labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX2b,   'p_fX2b',  '-',  'colored fraction in semi-labile dissolved organic carbon', default=0.02_rk)
       call self%get_parameter(self%p_fX3b,   'p_fX3b',  '-',  'colored fraction in semi-refractory dissolved organic carbon', default=0.02_rk)
+!              --------- Flux partition POM parameters ------------
+      call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
       
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
@@ -208,9 +219,14 @@ contains
       call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
       call self%register_state_dependency(self%id_R2c,'R2c','mg C/m^3','semi-labile DOC')
       call self%register_state_dependency(self%id_R3c,'R3c','mg C/m^3','semi-refractory DOC')
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','POC')
-      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','POP')
-      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','PON')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','small POC')
+      call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','small POP')
+      call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','small PON')
+      call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small POS')
+      call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3','large POC')
+      call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3','large POP')
+      call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3','large PON')
+      call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large POS')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semi-labile CDOM')
       call self%register_state_dependency(self%id_X3c,'X3c','mg C/m^3','semi-refractory CDOM')
@@ -225,6 +241,7 @@ contains
       call self%register_diagnostic_variable(self%id_rum, 'rum', 'mgC/m3/d', 'Potential uptake by bacteria',output=output_none)
       call self%register_diagnostic_variable(self%id_cuR1, 'cuR1', '-','correction of organic material quality',output=output_none)
       call self%register_diagnostic_variable(self%id_cuR6, 'cuR6', '-','correction of organic material quality',output=output_none)
+      call self%register_diagnostic_variable(self%id_cuR8, 'cuR8', '-','correction of organic material quality',output=output_none)
       call self%register_diagnostic_variable(self%id_iNIn, 'iNIn', '-','Nutrient limitation',output=output_none)
       call self%register_diagnostic_variable(self%id_iN1p, 'iN1p', '-','Nutrient limitation',output=output_none)
       call self%register_diagnostic_variable(self%id_iN,   'iN',   '-','Total Nutrient limitation',output=output_none)
@@ -232,6 +249,7 @@ contains
       call self%register_diagnostic_variable(self%id_ruR2c,'ruR2c', 'mgC/m3/d','Semi-Labile DOC realized uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR3c,'ruR3c', 'mgC/m3/d','Semi-Refractory DOC realized uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR6c,'ruR6c', 'mgC/m3/d','POC realized uptake',output=output_none)
+      call self%register_diagnostic_variable(self%id_ruR8c,'ruR8c', 'mgC/m3/d','POC realized uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruX1c,'ruX1c', 'mgC/m3/d','labile-CDOM realized uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruX2c,'ruX2c', 'mgC/m3/d','semilabile-CDOM realized uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruX3c,'ruX3c', 'mgC/m3/d','semirefractory-CDOM realized uptake',output=output_none)
@@ -239,8 +257,10 @@ contains
       call self%register_diagnostic_variable(self%id_rug,  'rug', 'mgC/m3/d','Actual uptake by bacteria',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR1n,'ruR1n', 'mmolN/m3/d',' Organic Nitrogen uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR6n,'ruR6n', 'mmolN/m3/d',' Organic Nitrogen uptake',output=output_none)
+      call self%register_diagnostic_variable(self%id_ruR8n,'ruR8n', 'mmolN/m3/d',' Organic Nitrogen uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR1p,'ruR1p', 'mmolP/m3/d',' Organic Phosphorus uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_ruR6p,'ruR6p', 'mmolP/m3/d',' Organic Phosphorus uptake',output=output_none)
+      call self%register_diagnostic_variable(self%id_ruR8p,'ruR8p', 'mmolP/m3/d',' Organic Phosphorus uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_rrc,'rrc', 'mgC/m3/d','Aerobic and anaerobic respiration',output=output_none)
       call self%register_diagnostic_variable(self%id_flN6rPBA,'flN6rPBA', '-','electron acceptor in the respiration process',output=output_none)
       select case (self%p_version)
@@ -281,23 +301,24 @@ contains
       real(rk) :: R2c
       real(rk) :: R3c
       real(rk) :: X1c,X2c,X3c
-      real(rk) :: R6c,R6p,R6n
+      real(rk) :: R6c,R6p,R6n,R6s
+      real(rk) :: R8c,R8p,R8n,R8s
       real(rk) :: N6r
       real(rk) :: ETW,et,eO2
       real(rk) :: eN4n,eN1p
       real(rk) :: qpcPBA,qncPBA
-      real(rk) :: qpcR1,qncR1,qpcR6,qncR6
+      real(rk) :: qpcR1,qncR1,qpcR6,qncR6,qpcR8,qncR8
       real(rk) :: rd
       real(rk) :: rum
-      real(rk) :: cuR1,cuR6
+      real(rk) :: cuR1,cuR6,cuR8
       real(rk) :: iNIn,iN1p, iN
-      real(rk) :: ruR1c,ruR2c,ruR3c,ruR6c
+      real(rk) :: ruR1c,ruR2c,ruR3c,ruR6c,ruR8c
       real(rk) :: ruX1c,ruX2c,ruX3c
       real(rk) :: rut,rug
       real(rk) :: rrc
       real(rk) :: flN6rPBA
-      real(rk) :: ruR1n,ruR6n
-      real(rk) :: ruR1p,ruR6p
+      real(rk) :: ruR1n,ruR6n,ruR8n
+      real(rk) :: ruR1p,ruR6p,ruR8p
       real(rk) :: huln,ren, rep, rep1
       real(rk) :: run
       real(rk) :: rump,hulp
@@ -344,8 +365,14 @@ contains
          _GET_(self%id_R3c,R3c)
 
          _GET_(self%id_R6c,R6c)
-         _GET_(self%id_R6p,R6p)
          _GET_(self%id_R6n,R6n)
+         _GET_(self%id_R6p,R6p)
+         _GET_(self%id_R6s,R6s)
+
+         _GET_(self%id_R8c,R8c)
+         _GET_(self%id_R8n,R8n)
+         _GET_(self%id_R8p,R8p)
+         _GET_(self%id_R8s,R8s)
 
          _GET_(self%id_X1c,X1c)
          _GET_(self%id_X2c,X2c)
@@ -363,6 +390,9 @@ contains
 
          qpcR6  = R6p/(R6c+p_small)
          qncR6  = R6n/(R6c+p_small)
+
+         qpcR8  = R8p/(R8c+p_small)
+         qncR8  = R8n/(R8c+p_small)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
@@ -401,13 +431,16 @@ contains
 
  _SET_DIAGNOSTIC_(self%id_rd,rd)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR6c, rd*(ONE-p_pe_R1c)              , tfluxC)
-  _SET_ODE_(self%id_R6c,rd*(ONE-self%p_pe_R1c))
+  _SET_ODE_(self%id_R6c, self%p_fR6 * rd*(ONE-self%p_pe_R1c))
+  _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * rd*(ONE-self%p_pe_R1c))
   _SET_ODE_(self%id_c,-(rd*(ONE-self%p_pe_R1c)))
 !SEAMLESS call quota_flux(iiPel, ppbacn, ppbacn, ppR6n, rd*qncPBA(bac,:)*(ONE-p_pe_R1n), tfluxN)
-  _SET_ODE_(self%id_R6n,rd*qncPBA*(ONE-self%p_pe_R1n))
+  _SET_ODE_(self%id_R6n, self%p_fR6 * rd*qncPBA*(ONE-self%p_pe_R1n))
+  _SET_ODE_(self%id_R8n, (ONE - self%p_fR6) * rd*qncPBA*(ONE-self%p_pe_R1n))
   _SET_ODE_(self%id_n,-(rd*qncPBA*(ONE-self%p_pe_R1n)))
 !SEAMLESS call quota_flux(iiPel, ppbacp, ppbacp, ppR6p, rd*qpcPBA(bac,:)*(ONE-p_pe_R1p), tfluxP)
-  _SET_ODE_(self%id_R6p,rd*qpcPBA*(ONE-self%p_pe_R1p))
+  _SET_ODE_(self%id_R6p, self%p_fR6 * rd*qpcPBA*(ONE-self%p_pe_R1p))
+  _SET_ODE_(self%id_R8p, (ONE - self%p_fR6) * rd*qpcPBA*(ONE-self%p_pe_R1p))
   _SET_ODE_(self%id_p,-(rd*qpcPBA*(ONE-self%p_pe_R1p)))
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR1c, 0.98D0*rd*p_pe_R1c , tfluxC) ! flux to non CDOM
   _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c)
@@ -421,6 +454,15 @@ contains
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppbacp, ppR1p, rd*qpcPBA(bac,:)*p_pe_R1p, tfluxP)
   _SET_ODE_(self%id_R1p,rd*qpcPBA*self%p_pe_R1p)
   _SET_ODE_(self%id_p,-rd*qpcPBA*self%p_pe_R1p)
+  ! large POC fragmentation (does not depend on bacteria!)
+  _SET_ODE_(self%id_R8c,-self%p_fr_R8*R8c)
+  _SET_ODE_(self%id_R6c,self%p_fr_R8* R8c)
+  _SET_ODE_(self%id_R8n,-self%p_fr_R8*R8n)
+  _SET_ODE_(self%id_R6n,self%p_fr_R8* R8n)
+  _SET_ODE_(self%id_R8p,-self%p_fr_R8*R8p)
+  _SET_ODE_(self%id_R6p,self%p_fr_R8* R8p)
+  _SET_ODE_(self%id_R8s,-self%p_fr_R8*R8s)
+  _SET_ODE_(self%id_R6s,self%p_fr_R8* R8s)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Substrate availability
@@ -441,6 +483,7 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       cuR1 = ONE
       cuR6 = ONE
+      cuR8 = ONE
 
     case ( BACT1,BACT2 )  ! Vichi et al. (2004,2007), Lazzari et al. (2012) 
 
@@ -462,6 +505,7 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       cuR1 = min(ONE, qpcR1/self%p_qpcPBA, qncR1/self%p_qncPBA)
       cuR6 = min(ONE, qpcR6/self%p_qpcPBA, qncR6/self%p_qncPBA)
+      cuR8 = min(ONE, qpcR8/self%p_qpcPBA, qncR8/self%p_qncPBA)
 
   end select
 
@@ -471,6 +515,7 @@ contains
  _SET_DIAGNOSTIC_(self%id_rum,rum)
  _SET_DIAGNOSTIC_(self%id_cuR1,cuR1)
  _SET_DIAGNOSTIC_(self%id_cuR6,cuR6)
+ _SET_DIAGNOSTIC_(self%id_cuR8,cuR8)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Calculate the realized substrate uptake rate depending on the
@@ -482,12 +527,13 @@ contains
   ruR2c = self%p_suR2*R2c
   ruR3c = self%p_suR3*R3c
   ruR6c = self%p_suR6*cuR6*R6c
+  ruR8c = self%p_suR8*cuR8*R8c
 
   ruX1c = (self%p_suhR1*cuR1 + self%p_sulR1*(ONE-cuR1))*X1c
   ruX2c = self%p_suR2*X2c
   ruX3c = self%p_suR3*X3c
 
-  rut   = p_small + ruR1c + ruX1c + ruR2c + ruX2c + ruR6c + ruR3c + ruX3c
+  rut   = p_small + ruR1c + ruX1c + ruR2c + ruX2c + ruR6c + ruR8c + ruR3c + ruX3c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Actual uptake by bacteria (eq. 50 Vichi et al. 2007)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -501,6 +547,7 @@ contains
   ruR2c = rug*ruR2c/rut
   ruR3c = rug*ruR3c/rut
   ruR6c = rug*ruR6c/rut
+  ruR8c = rug*ruR8c/rut
 
   ruX1c = rug*ruX1c/rut 
   ruX2c = rug*ruX2c/rut
@@ -518,6 +565,9 @@ contains
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR6c, ppbacc, ruR6c, tfluxC)
   _SET_ODE_(self%id_c,ruR6c)
   _SET_ODE_(self%id_R6c,-ruR6c)
+!SEAMLESS  call quota_flux(iiPel, ppbacc, ppR6c, ppbacc, ruR6c, tfluxC)
+  _SET_ODE_(self%id_c,ruR8c)
+  _SET_ODE_(self%id_R8c,-ruR8c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR1l, ppbacc, ruR1l, tfluxC)
   _SET_ODE_(self%id_c,ruX1c)
   _SET_ODE_(self%id_X1c,-ruX1c)
@@ -532,6 +582,7 @@ contains
  _SET_DIAGNOSTIC_(self%id_ruR2c,ruR2c)
  _SET_DIAGNOSTIC_(self%id_ruR3c,ruR3c)
  _SET_DIAGNOSTIC_(self%id_ruR6c,ruR6c)
+ _SET_DIAGNOSTIC_(self%id_ruR8c,ruR8c)
 
  _SET_DIAGNOSTIC_(self%id_ruX1c,ruX1c)
  _SET_DIAGNOSTIC_(self%id_ruX2c,ruX2c)
@@ -543,6 +594,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ruR1n = qncR1*ruR1c
   ruR6n = qncR6*ruR6c
+  ruR8n = qncR8*ruR8c
 
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppR1n, ppbacn, ruR1n, tfluxN)
   _SET_ODE_(self%id_n,ruR1n)
@@ -550,9 +602,12 @@ contains
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppR6n, ppbacn, ruR6n, tfluxN)
   _SET_ODE_(self%id_n,ruR6n)
   _SET_ODE_(self%id_R6n,-ruR6n)
+  _SET_ODE_(self%id_n,ruR8n)
+  _SET_ODE_(self%id_R8n,-ruR8n)
 
   ruR1p = qpcR1*ruR1c
   ruR6p = qpcR6*ruR6c
+  ruR8p = qpcR8*ruR8c
 
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppR1p, ppbacp, ruR1p, tfluxP)
   _SET_ODE_(self%id_p,ruR1p)
@@ -560,12 +615,16 @@ contains
 !SEAMLESS  call quota_flux(iiPel, ppbacp, ppR6p, ppbacp, ruR6p, tfluxP)
   _SET_ODE_(self%id_p,ruR6p)
   _SET_ODE_(self%id_R6p,-ruR6p)
+  _SET_ODE_(self%id_p,ruR8p)
+  _SET_ODE_(self%id_R8p,-ruR8p)
 
  _SET_DIAGNOSTIC_(self%id_ruR1n,ruR1n)
  _SET_DIAGNOSTIC_(self%id_ruR6n,ruR6n)
+ _SET_DIAGNOSTIC_(self%id_ruR8n,ruR8n)
 
  _SET_DIAGNOSTIC_(self%id_ruR1p,ruR1p)
  _SET_DIAGNOSTIC_(self%id_ruR6p,ruR6p)
+ _SET_DIAGNOSTIC_(self%id_ruR8p,ruR8p)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Aerobic and anaerobic respiration 
   ! Pelagic bacteria are a wide functional group comprising both aerobic and
@@ -644,7 +703,7 @@ contains
       ! Ammonium remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is a bug in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      huln = (ruR6n + ruR1n) - self%p_qncPBA*run
+      huln = (ruR6n + ruR8n + ruR1n) - self%p_qncPBA*run
       ren  = huln*insw(huln)
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppbacn, ppN4n, ren, tfluxN)
   _SET_ODE_(self%id_N4n, ren)
@@ -685,7 +744,7 @@ contains
       ! Phosphate remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is an error in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      hulp = (ruR6p + ruR1p) - self%p_qpcPBA*run
+      hulp = (ruR6p + ruR8p + ruR1p) - self%p_qpcPBA*run
       rep  = hulp*insw(hulp)
 !SEAMLESS      call quota_flux(iiPel, ppbacp, ppbacp, ppN1p, rep, tfluxP)
   _SET_ODE_(self%id_N1p, rep)
@@ -715,8 +774,8 @@ contains
       ! (eq. 30 Vichi et al. 2004, unfortunately there is another error in 
       ! the paper, the flux of dissolved nutrient is not written)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      r     = min(run, (ruR6n+ruR1n-ren)/self%p_qlnc)
-      reR3c = run - min(r, (ruR6p+ruR1p-rep)/self%p_qlpc)
+      r     = min(run, (ruR6n+ruR8n+ruR1n-ren)/self%p_qlnc)
+      reR3c = run - min(r, (ruR6p+ruR8p+ruR1p-rep)/self%p_qlpc)
       reR3c = max(ZERO, reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, 0.98D0*reR3c ,tfluxC) ! flux to non-CDOM
   _SET_ODE_(self%id_R3c, (1.00D0-self%p_fX3b)*reR3c)

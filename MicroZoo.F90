@@ -117,6 +117,7 @@
       type (type_state_variable_id)      :: id_N4n   ! Ammonium
       type (type_state_variable_id)      :: id_N1p   ! Phosphate
       type (type_state_variable_id)      :: id_R6c,id_R6s,id_R6n,id_R6p   ! particulate organic carbon, silicon, nitrogen, phosphorous
+      type (type_state_variable_id)      :: id_R8c,id_R8s,id_R8n,id_R8p   ! particulate organic carbon, silicon, nitrogen, phosphorous
       type (type_state_variable_id)      :: id_X1c   ! colored dissolved organic carbon
       type (type_state_variable_id)      :: id_R1c,id_R1n,id_R1p   ! dissolved organic carbon, nitrogen, phosphorous (R1: labile)
 
@@ -172,6 +173,7 @@
       real(rk) :: p_pecaco3, p_qncMIZ, p_qpcMIZ
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1z
+      real(rk) :: p_fR6
       
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -241,6 +243,8 @@
         call self%get_parameter(self%p_pe_R1p,  'p_pe_R1p',  '-',         'Fractional content of P in cytoplasm')
 !              --------- Flux partition CDOM parameters ------------
         call self%get_parameter(self%p_fX1z,    'p_fX1z',    '-',         'colored fraction in labile DOC', default=0.02_rk)
+!              --------- Flux partition POM parameters ------------
+        call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
         
         ! Register state variables (handled by type_bfm_pelagic_base)
         call self%initialize_bfm_base()
@@ -293,10 +297,14 @@
         call self%register_state_dependency(self%id_O3h,'O3h','mmol/m^3',   'alkalinity')
         call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3', 'ammonium')
         call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3', 'phosphate')
-        call self%register_state_dependency(self%id_R6c,'R6c','mmg C/m^3',  'POC')
-        call self%register_state_dependency(self%id_R6s,'R6s','mg Si/m^3',  'POS')
-        call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3', 'PON')
-        call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3', 'POP')
+        call self%register_state_dependency(self%id_R6c,'R6c','mmg C/m^3',  'small POC')
+        call self%register_state_dependency(self%id_R6s,'R6s','mg Si/m^3',  'small POS')
+        call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3', 'small PON')
+        call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3', 'small POP')
+        call self%register_state_dependency(self%id_R8c,'R8c','mmg C/m^3',  'large POC')
+        call self%register_state_dependency(self%id_R8s,'R8s','mg Si/m^3',  'large POS')
+        call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3', 'large PON')
+        call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3', 'large POP')
         call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3',   'labile CDOM')
         call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3',   'labile DOC')
         call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3', 'labile DON')
@@ -508,7 +516,8 @@
         ! silicon constituent is transferred to biogenic silicate
         ! if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
         !   call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))
-        _SET_ODE_(self%id_R6s,          ruPPYc*qscPPY(iprey))
+        _SET_ODE_(self%id_R6s,          self%p_fR6 * ruPPYc * qscPPY(iprey))
+        _SET_ODE_(self%id_R8s,          (ONE - self%p_fR6) * ruPPYc * qscPPY(iprey))
         _SET_ODE_(self%id_preys(iprey),-ruPPYc*qscPPY(iprey))
 
         ! #ifdef INCLUDE_PELFE
@@ -594,8 +603,9 @@
 !      _SET_ODE_(self%id_X1c,self%p_fX1z*(reac*rr1c/rric))
 
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR6c, rr6c, tfluxC)
-      _SET_ODE_(self%id_c, -rr6c)
-      _SET_ODE_(self%id_R6c,rr6c)
+      _SET_ODE_(self%id_c,  -rr6c)
+      _SET_ODE_(self%id_R6c, self%p_fR6 * rr6c)
+      _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * rr6c)
       
       _SET_DIAGNOSTIC_(self%id_rdc,rdc)
       _SET_DIAGNOSTIC_(self%id_reac,reac)
@@ -617,8 +627,9 @@
       _SET_ODE_(self%id_n, -rr1n)
       _SET_ODE_(self%id_R1n,rr1n)
       !   call quota_flux(iiPel, ppzoon, ppzoon, ppR6n, rr6n, tfluxN)
-      _SET_ODE_(self%id_n, -rr6n)
-      _SET_ODE_(self%id_R6n,rr6n)
+      _SET_ODE_(self%id_n,  -rr6n)
+      _SET_ODE_(self%id_R6n, self%p_fR6 * rr6n)
+      _SET_ODE_(self%id_R8n, (ONE - self%p_fR6) * rr6n)
       
       _SET_DIAGNOSTIC_(self%id_rrin,rrin)
       _SET_DIAGNOSTIC_(self%id_rr1n,rr1n)
@@ -634,8 +645,9 @@
       _SET_ODE_(self%id_p, -rr1p)
       _SET_ODE_(self%id_R1p,rr1p)
       ! call quota_flux(iiPel, ppzoop, ppzoop, ppR6p, rr6p, tfluxP)
-      _SET_ODE_(self%id_p, -rr6p)
-      _SET_ODE_(self%id_R6p,rr6p)
+      _SET_ODE_(self%id_p,  -rr6p)
+      _SET_ODE_(self%id_R6p, self%p_fR6 * rr6p)
+      _SET_ODE_(self%id_R8p, (ONE - self%p_fR6) * rr6p)
       
       _SET_DIAGNOSTIC_(self%id_rrip,rrip)
       _SET_DIAGNOSTIC_(self%id_rr1p,rr1p)
