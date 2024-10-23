@@ -283,6 +283,11 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R6s: R6/s 
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       X3c: X3/c
@@ -304,6 +309,8 @@ instances:
       p_rOS: 0.05          # [1/d]            Specific reoxidation rate of reduction equivalents
       p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica
       p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
+      p_sR8N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica (large POC)
+      p_q10R8N5: 1.49      # [-]              Q10 factor for biogenic silica (large POC)
       p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
       p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
       p_bX3c: 0.0119      # [1/d]            photodegradation (bleaching) rate X3c
@@ -333,10 +340,14 @@ instances:
       X2c: X2/c                                            # cdom X2c (mgC/m^3)
       X3c: X3/c                                            # cdom X3c (mgC/m^3)
       R3c: R3/c                                            # cdom R3c (mgC/m^3)
-      R6s: R6/s                                            # POSi (mgSi/m3)
+      R6s: R6/s                                            # POSi (mmolSi/m3)
       R6c: R6/c                                            # POC  (mgC/m3)
       R6n: R6/n                                            # PON  (mmolN/m3)
       R6p: R6/p                                            # POP (mmolP/m3)      
+      R8c: R8/c                                            # POC (mgC/m3)      
+      R8p: R8/p                                            # POP (mmolP/m3)      
+      R8n: R8/n                                            # PON (mmolN/m3)      
+      R8s: R8/s                                            # POP (mmolSi/m3)      
       PAR_tot: lightspectral/PAR_tot
       isBen:  Benthic_layer/isBen      
 ##  --------------------- CalciteDissolution
@@ -456,14 +467,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_12/c
-      size_down_c: P1_11/c
-      size_max_c: P1_20/c
+      size_up: P1_12
+      size_down: P1_20
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_12:
@@ -565,14 +580,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_13/c
-      size_down_c: P1_11/c
-      size_max_c: P1_20/c
+      size_up: P1_13
+      size_down: P1_11
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_13:
@@ -674,14 +693,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_14/c
-      size_down_c: P1_12/c
-      size_max_c: P1_20/c
+      size_up: P1_14
+      size_down: P1_12
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_14:
@@ -783,14 +806,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_15/c
-      size_down_c: P1_13/c
-      size_max_c: P1_20/c
+      size_up: P1_15
+      size_down: P1_13
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_15:
@@ -892,14 +919,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_16/c
-      size_down_c: P1_14/c
-      size_max_c: P1_20/c
+      size_up: P1_16
+      size_down: P1_14
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_16:
@@ -1001,14 +1032,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_17/c
-      size_down_c: P1_15/c
-      size_max_c: P1_20/c
+      size_up: P1_17
+      size_down: P1_15
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_17:
@@ -1110,14 +1145,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_18/c
-      size_down_c: P1_16/c
-      size_max_c: P1_20/c
+      size_up: P1_18
+      size_down: P1_16
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_18:
@@ -1219,14 +1258,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_19/c
-      size_down_c: P1_17/c
-      size_max_c: P1_20/c
+      size_up: P1_19
+      size_down: P1_17
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_19:
@@ -1328,14 +1371,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_20/c
-      size_down_c: P1_18/c
-      size_max_c: P1_20/c
+      size_up: P1_20
+      size_down: P1_18
+      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_20:
@@ -1437,14 +1484,18 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up_c: P1_20/c
-      size_down_c: P1_19/c
-      size_max_c: P1_20/c
+      size_up: P1_20
+      size_down: P1_19
+      size_max: P1_20
 #
 #------------------------------------------------------------------
   P4_11:
@@ -1522,6 +1573,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -1604,6 +1658,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -1686,6 +1743,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -1768,6 +1828,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -1850,6 +1913,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -1932,6 +1998,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2014,6 +2083,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2096,6 +2168,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2178,6 +2253,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2260,6 +2338,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2343,6 +2424,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2426,6 +2510,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2509,6 +2596,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2592,6 +2682,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2675,6 +2768,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2758,6 +2854,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2841,6 +2940,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -2924,6 +3026,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3007,6 +3112,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3090,6 +3198,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3173,6 +3284,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3256,6 +3370,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3339,6 +3456,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3422,6 +3542,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3505,6 +3628,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3588,6 +3714,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3671,6 +3800,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3754,6 +3886,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3837,6 +3972,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -3920,6 +4058,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4003,6 +4144,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4086,6 +4230,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4169,6 +4316,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4252,6 +4402,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4335,6 +4488,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4418,6 +4574,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4501,6 +4660,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4584,6 +4746,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4667,6 +4832,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4750,6 +4918,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4833,6 +5004,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -4916,6 +5090,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -5011,6 +5188,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5106,6 +5286,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5201,6 +5384,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5283,6 +5469,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5365,6 +5554,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5447,6 +5639,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5529,6 +5724,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5611,6 +5809,9 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -5753,6 +5954,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -5944,6 +6149,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -6135,6 +6344,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -6326,6 +6539,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -6517,6 +6734,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -6708,6 +6929,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -6899,6 +7124,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -7090,6 +7319,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -7281,6 +7514,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -7472,6 +7709,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -7663,6 +7904,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -7854,6 +8099,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8045,6 +8294,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8236,6 +8489,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8427,6 +8684,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8618,6 +8879,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8809,6 +9074,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -8997,6 +9266,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P2_4
       prey2:   P2_5
       prey3:   P2_6
@@ -9181,6 +9454,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P2_4
       prey2:   P2_5
       prey3:   P2_6
@@ -9365,6 +9642,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P2_4
       prey3:   P2_5
@@ -9549,6 +9830,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P2_4
@@ -9733,6 +10018,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -9917,6 +10206,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -10101,6 +10394,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -10285,6 +10582,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -10469,6 +10770,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -10653,6 +10958,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -10837,6 +11146,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -11021,6 +11334,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -11205,6 +11522,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -11389,6 +11710,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_11
       prey2:   P1_12
       prey3:   P1_13
@@ -11573,6 +11898,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_12
       prey2:   P1_13
       prey3:   P1_14
@@ -11757,6 +12086,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_13
       prey2:   P1_14
       prey3:   P1_15
@@ -11941,6 +12274,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_14
       prey2:   P1_15
       prey3:   P1_16
@@ -12125,6 +12462,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_15
       prey2:   P1_16
       prey3:   P1_17
@@ -12309,6 +12650,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_16
       prey2:   P1_17
       prey3:   P1_18
@@ -12493,6 +12838,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       prey1:   P1_17
       prey2:   P1_18
       prey3:   P1_19

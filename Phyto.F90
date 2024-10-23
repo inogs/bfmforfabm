@@ -16,7 +16,7 @@
 
    use fabm_types
    use ogs_bfm_shared
-!  use fabm_particle
+   use fabm_particle
 
    use ogs_bfm_pelagic_base
 
@@ -70,6 +70,7 @@
       type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
+      type (type_model_id)          :: id_size_up, id_size_down, id_size_max
       type (type_state_variable_id) :: id_size_up_c,id_size_down_c          !  indicator for diatoms asexual reproduction
       type (type_state_variable_id) :: id_size_up_n,id_size_down_n          !  indicator for diatoms asexual reproduction
       type (type_state_variable_id) :: id_size_up_p,id_size_down_p          !  indicator for diatoms asexual reproduction
@@ -323,9 +324,23 @@ contains
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       if (self%use_Si) then
+
+!         allocate(self%id_size_up(1))
+!         allocate(self%id_size_down(1))
+!         allocate(self%id_size_max(1))
+
           call self%register_state_dependency(self%id_size_up_c,'size_up_c','mg C/m^3','Concentration of diatoms one size class grater')
+          call self%register_model_dependency(self%id_size_up,'size_up')
+          call self%request_coupling_to_model(self%id_size_up_c,self%id_size_up,'c')    
+
           call self%register_state_dependency(self%id_size_down_c,'size_down_c','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_model_dependency(self%id_size_down,'size_down')
+          call self%request_coupling_to_model(self%id_size_down_c,self%id_size_down,'c')    
+
           call self%register_state_dependency(self%id_size_max_c,'size_max_c','mg C/m^3','auxospores concentration of diatoms ')
+          call self%register_model_dependency(self%id_size_max,'size_max')
+          call self%request_coupling_to_model(self%id_size_max_c,self%id_size_max,'c')    
+
       endif
       ! Register environmental dependencies (temperature, shortwave radiation)
 !     call self%register_dependency(self%id_par,standard_variables%downwelling_photosynthetic_radiative_flux)
@@ -801,12 +816,13 @@ end select
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Effect of asexual reproduction for diatoms
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_Si) then 
+      _SET_ODE_(self%id_c,-self%p_arepr_rate*phytoc)
+      _SET_ODE_(self%id_size_down_c,+self%p_arepr_rate*phytoc)
   
-  _SET_ODE_(self%id_c,-self%p_arepr_rate*phytoc)
-  _SET_ODE_(self%id_size_down_c,+self%p_arepr_rate*phytoc)
-  
-  _SET_ODE_(self%id_c,-self%p_srepr_rate*phytoc)
-  _SET_ODE_(self%id_size_max_c,+self%p_srepr_rate*phytoc)
+      _SET_ODE_(self%id_c,-self%p_srepr_rate*phytoc)
+      _SET_ODE_(self%id_size_max_c,+self%p_srepr_rate*phytoc)
+  end if
 
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Potential-Net prim prod. (mgC /m3/d)
