@@ -173,7 +173,7 @@ contains
       call self%get_parameter(self%p_suR2,    'p_suR2',    '1/d',     'Specific potential uptake for semi-labile DOC')
       call self%get_parameter(self%p_suR3,    'p_suR3',    '1/d',     'Specific potential uptake for semi-refractory DOC')
       call self%get_parameter(self%p_suR6,    'p_suR6',    '1/d',     'Specific potential uptake for small POM (1/d)')
-      call self%get_parameter(self%p_suR8,    'p_suR8',    '1/d',     'Specific potential uptake for large POM (1/d)')
+      call self%get_parameter(self%p_suR8,    'p_suR8',    '1/d',     'Specific potential uptake for large POM (1/d)',default=0.0_rk)
       call self%get_parameter(self%p_sum,     'p_sum',     '1/d',     'Potential specific growth rate')
       call self%get_parameter(self%p_pu_ra,   'p_pu_ra',     '-',     'Activity respiration fraction')
       call self%get_parameter(self%p_pu_ra_o, 'p_pu_ra_o',   '-',     'Additional respiration fraction at low O2 conc')

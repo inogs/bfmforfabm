@@ -154,7 +154,7 @@ contains
       call self%get_parameter(self%p_rOS,         'p_rOS',       '[1/d]',           'Specific reoxidation rate of reduction equivalents')
       call self%get_parameter(self%p_sR6N5,       'p_sR6N5',     '[1/d]',           'Specific remineralization rate of biogenicsilica (small POC)')
       call self%get_parameter(self%p_q10R6N5,     'p_q10R6N5',   '[-]',             'Q10 factor for biogenic silica (small POC)')
-      call self%get_parameter(self%p_sR8N5,       'p_sR8N5',     '[1/d]',           'Specific remineralization rate of biogenic silica (large POC)')
+      call self%get_parameter(self%p_sR8N5,       'p_sR8N5',     '[1/d]',           'Specific remineralization rate of biogenic silica (large POC)',default=0.0_rk)
       call self%get_parameter(self%p_q10R8N5,     'p_q10R8N5',   '[-]',             'Q10 factor for biogenic silica (large POC)')
       call self%get_parameter(self%p_bX1c,        'p_bX1c',      '[1/d]',           'photodegradation (bleaching) rate X1c')
       call self%get_parameter(self%p_bX2c,        'p_bX2c',      '[1/d]',           'photodegradation (bleaching) rate X2c')
