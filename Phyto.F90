@@ -70,6 +70,16 @@
       type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
+      type (type_state_variable_id) :: id_size_up_c,id_size_down_c          !  indicator for diatoms asexual reproduction
+      type (type_state_variable_id) :: id_size_up_n,id_size_down_n          !  indicator for diatoms asexual reproduction
+      type (type_state_variable_id) :: id_size_up_p,id_size_down_p          !  indicator for diatoms asexual reproduction
+      type (type_state_variable_id) :: id_size_up_chl,id_size_down_chl      !  indicator for diatoms asexual reproduction
+      type (type_state_variable_id) :: id_size_up_s,id_size_down_s          !  indicator for diatoms asexual reproduction
+      type (type_state_variable_id) :: id_size_max_c                        !  auxospore size 
+      type (type_state_variable_id) :: id_size_max_n                        !  
+      type (type_state_variable_id) :: id_size_max_p                        !  
+      type (type_state_variable_id) :: id_size_max_chl                      !  
+      type (type_state_variable_id) :: id_size_max_s                        !  
       ! Environmental dependencies
       type (type_dependency_id)            :: id_ETW   ! PAR and temperature
 !     type (type_dependency_id)            :: id_parEIR,id_ETW   ! PAR and temperature
@@ -143,10 +153,12 @@
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
       real(rk) :: p_fR6
+      real(rk) :: p_arepr_rate,p_srepr_rate,p_min_biomass
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,p_netgrowth
       logical :: use_CaCO3
       integer :: p_OT
+
    contains
 
       ! Model procedures
@@ -235,7 +247,10 @@ contains
           call self%get_parameter(self%p_Contois,  'p_Contois', '>=0', ' If >0, use Contois formulation')
           call self%get_parameter(self%p_qus,      'p_qus',  'm3/mgC/d', 'membrane affinity for Si')
           call self%get_parameter(self%p_qslc,     'p_qslc', 'mmolSi/mgC','minimum quotum for Si:C')
-          call self%get_parameter(self%p_qscPPY,   'p_qscPPY','mmolSi/mgC',  'reference quotum Si:C')
+          call self%get_parameter(self%p_qscPPY,   'p_qscPPY','mmolSi/mgC',  'reference quontum Si:C')
+          call self%get_parameter(self%p_arepr_rate,   'p_arepr_rate','1/d',  'asexual reproduction rate for diatoms',default=0.0_rk)
+          call self%get_parameter(self%p_srepr_rate,   'p_srepr_rate','1/d',  'sexual reproduction rate for diatoms',default=0.0_rk)
+          call self%get_parameter(self%p_min_biomass,   'p_min_biomass','mgC/m3',  'quiescent biomass threshold',default=0.0_rk)
       endif
 !                   ---- nutrient stressed sinking ----
       call self%get_parameter(self%p_esNI,  'p_esNI',       '-', 'Nutrient stress threshold for sinking')
@@ -307,6 +322,11 @@ contains
       if (self%use_Si) call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large POS')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
+      if (self%use_Si) then
+          call self%register_state_dependency(self%id_size_up_c,'size_up_c','mg C/m^3','Concentration of diatoms one size class grater')
+          call self%register_state_dependency(self%id_size_down_c,'size_down_c','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_state_dependency(self%id_size_max_c,'size_max_c','mg C/m^3','auxospores concentration of diatoms ')
+      endif
       ! Register environmental dependencies (temperature, shortwave radiation)
 !     call self%register_dependency(self%id_par,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
@@ -465,6 +485,7 @@ contains
       real(rk) :: rr6n, rr1n, rr6p, rr1p
       real(rk) :: rums, miss, rups, runs
       real(rk) :: rho_Chl, rate_Chl, chl_opt
+      real(rk) :: size_up_c,size_down_c,size_max_c
 
       ! Enter spatial loops (if any)
       _LOOP_BEGIN_
@@ -488,6 +509,19 @@ contains
          _GET_(self%id_chl,phytol)
          if (self%use_Si) then
             _GET_(self%id_s,phytos)
+
+            _GET_(self%id_size_up_c,size_up_c)
+!           _GET_(self%id_parent_n,parent_n)
+!           _GET_(self%id_parent_p,parent_p)
+!           _GET_(self%id_parent_chl,parent_chl)
+!           _GET_(self%id_parent_s,parent_s)
+
+            _GET_(self%id_size_down_c,size_down_c)
+!           _GET_(self%id_child_n,child_n)
+!           _GET_(self%id_child_p,child_p)
+!           _GET_(self%id_child_chl,child_chl)
+!           _GET_(self%id_child_s,child_s)
+            _GET_(self%id_size_max_c,size_max_c)
          endif
 
          ! Retrieve ambient nutrient concentrations
@@ -764,6 +798,16 @@ end select
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
   _SET_ODE_(self%id_O2o,rugc/MW_C)
 !SEAMLESS
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ ! Effect of asexual reproduction for diatoms
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  
+  _SET_ODE_(self%id_c,-self%p_arepr_rate*phytoc)
+  _SET_ODE_(self%id_size_down_c,+self%p_arepr_rate*phytoc)
+  
+  _SET_ODE_(self%id_c,-self%p_srepr_rate*phytoc)
+  _SET_ODE_(self%id_size_max_c,+self%p_srepr_rate*phytoc)
+
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Potential-Net prim prod. (mgC /m3/d)
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
