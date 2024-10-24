@@ -501,6 +501,12 @@ contains
       real(rk) :: rums, miss, rups, runs
       real(rk) :: rho_Chl, rate_Chl, chl_opt
       real(rk) :: size_up_c,size_down_c,size_max_c
+      real(rk) :: q_bio
+      real(rk) :: arepr_c,srepr_c
+      real(rk) :: arepr_p,srepr_p
+      real(rk) :: arepr_n,srepr_n
+      real(rk) :: arepr_s,srepr_s
+      real(rk) :: arepr_l,srepr_l
 
       ! Enter spatial loops (if any)
       _LOOP_BEGIN_
@@ -817,11 +823,53 @@ end select
  ! Effect of asexual reproduction for diatoms
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if (self%use_Si) then 
-      _SET_ODE_(self%id_c,-self%p_arepr_rate*phytoc)
-      _SET_ODE_(self%id_size_down_c,+self%p_arepr_rate*phytoc)
+! quieiscence biomass
+      q_bio=max(0.0_rk,phytoc-self%p_min_biomass)/max(phytoc-self%p_min_biomass,p_small)
+
+      arepr_c=q_bio*self%p_arepr_rate*phytoc
+      srepr_c=q_bio*self%p_srepr_rate*phytoc
+
+      arepr_p=q_bio*self%p_arepr_rate*phytop
+      srepr_p=q_bio*self%p_srepr_rate*phytop
+
+      arepr_n=q_bio*self%p_arepr_rate*phyton
+      srepr_n=q_bio*self%p_srepr_rate*phyton
+
+      arepr_s=q_bio*self%p_arepr_rate*phytos
+      srepr_s=q_bio*self%p_srepr_rate*phytos
+
+      arepr_l=q_bio*self%p_arepr_rate*phytol
+      srepr_l=q_bio*self%p_srepr_rate*phytol
+
+      _SET_ODE_(self%id_c          ,-arepr_c)
+      _SET_ODE_(self%id_size_down_c,+arepr_c)
   
-      _SET_ODE_(self%id_c,-self%p_srepr_rate*phytoc)
-      _SET_ODE_(self%id_size_max_c,+self%p_srepr_rate*phytoc)
+      _SET_ODE_(self%id_c         ,-srepr_c)
+      _SET_ODE_(self%id_size_max_c,+srepr_c)
+
+      _SET_ODE_(self%id_p          ,-arepr_p)
+      _SET_ODE_(self%id_size_down_p,+arepr_p)
+  
+      _SET_ODE_(self%id_p         ,-srepr_p)
+      _SET_ODE_(self%id_size_max_p,+srepr_p)
+
+      _SET_ODE_(self%id_n          ,-arepr_n)
+      _SET_ODE_(self%id_size_down_n,+arepr_n)
+  
+      _SET_ODE_(self%id_n         ,-srepr_n)
+      _SET_ODE_(self%id_size_max_n,+srepr_n)
+
+      _SET_ODE_(self%id_s          ,-arepr_s)
+      _SET_ODE_(self%id_size_down_s,+arepr_s)
+  
+      _SET_ODE_(self%id_s         ,-srepr_s)
+      _SET_ODE_(self%id_size_max_s,+srepr_s)
+
+      _SET_ODE_(self%id_chl          ,-arepr_l)
+      _SET_ODE_(self%id_size_down_chl,+arepr_l)
+  
+      _SET_ODE_(self%id_chl         ,-srepr_l)
+      _SET_ODE_(self%id_size_max_chl,+srepr_l)
   end if
 
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
