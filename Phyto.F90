@@ -325,21 +325,41 @@ contains
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       if (self%use_Si) then
 
-!         allocate(self%id_size_up(1))
-!         allocate(self%id_size_down(1))
-!         allocate(self%id_size_max(1))
-
           call self%register_state_dependency(self%id_size_up_c,'size_up_c','mg C/m^3','Concentration of diatoms one size class grater')
+          call self%register_state_dependency(self%id_size_up_p,'size_up_p','mmol P/m^3','Concentration of diatoms one size class grater')
+          call self%register_state_dependency(self%id_size_up_n,'size_up_n','mmol N/m^3','Concentration of diatoms one size class grater')
+          call self%register_state_dependency(self%id_size_up_s,'size_up_s','mmol Si/m^3','Concentration of diatoms one size class grater')
+          call self%register_state_dependency(self%id_size_up_chl,'size_up_chl','mg Chl/m^3','Concentration of diatoms one size class grater')
           call self%register_model_dependency(self%id_size_up,'size_up')
           call self%request_coupling_to_model(self%id_size_up_c,self%id_size_up,'c')    
+          call self%request_coupling_to_model(self%id_size_up_p,self%id_size_up,'p')    
+          call self%request_coupling_to_model(self%id_size_up_n,self%id_size_up,'n')    
+          call self%request_coupling_to_model(self%id_size_up_s,self%id_size_up,'s')    
+          call self%request_coupling_to_model(self%id_size_up_chl,self%id_size_up,'Chl')    
 
           call self%register_state_dependency(self%id_size_down_c,'size_down_c','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_state_dependency(self%id_size_down_p,'size_down_p','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_state_dependency(self%id_size_down_n,'size_down_n','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_state_dependency(self%id_size_down_s,'size_down_s','mg C/m^3','Concentration of diatoms one size class smaller')
+          call self%register_state_dependency(self%id_size_down_chl,'size_down_chl','mg C/m^3','Concentration of diatoms one size class smaller')
           call self%register_model_dependency(self%id_size_down,'size_down')
           call self%request_coupling_to_model(self%id_size_down_c,self%id_size_down,'c')    
+          call self%request_coupling_to_model(self%id_size_down_p,self%id_size_down,'p')    
+          call self%request_coupling_to_model(self%id_size_down_n,self%id_size_down,'n')    
+          call self%request_coupling_to_model(self%id_size_down_s,self%id_size_down,'s')    
+          call self%request_coupling_to_model(self%id_size_down_chl,self%id_size_down,'Chl')    
 
           call self%register_state_dependency(self%id_size_max_c,'size_max_c','mg C/m^3','auxospores concentration of diatoms ')
+          call self%register_state_dependency(self%id_size_max_p,'size_max_p','mg C/m^3','auxospores concentration of diatoms ')
+          call self%register_state_dependency(self%id_size_max_n,'size_max_n','mg C/m^3','auxospores concentration of diatoms ')
+          call self%register_state_dependency(self%id_size_max_s,'size_max_s','mg C/m^3','auxospores concentration of diatoms ')
+          call self%register_state_dependency(self%id_size_max_chl,'size_max_chl','mg C/m^3','auxospores concentration of diatoms ')
           call self%register_model_dependency(self%id_size_max,'size_max')
           call self%request_coupling_to_model(self%id_size_max_c,self%id_size_max,'c')    
+          call self%request_coupling_to_model(self%id_size_max_p,self%id_size_max,'p')    
+          call self%request_coupling_to_model(self%id_size_max_n,self%id_size_max,'n')    
+          call self%request_coupling_to_model(self%id_size_max_s,self%id_size_max,'s')    
+          call self%request_coupling_to_model(self%id_size_max_chl,self%id_size_max,'Chl')    
 
       endif
       ! Register environmental dependencies (temperature, shortwave radiation)
@@ -501,6 +521,10 @@ contains
       real(rk) :: rums, miss, rups, runs
       real(rk) :: rho_Chl, rate_Chl, chl_opt
       real(rk) :: size_up_c,size_down_c,size_max_c
+      real(rk) :: size_up_p,size_down_p,size_max_p
+      real(rk) :: size_up_n,size_down_n,size_max_n
+      real(rk) :: size_up_s,size_down_s,size_max_s
+      real(rk) :: size_up_chl,size_down_chl,size_max_chl
       real(rk) :: q_bio
       real(rk) :: arepr_c,srepr_c
       real(rk) :: arepr_p,srepr_p
@@ -531,18 +555,17 @@ contains
          if (self%use_Si) then
             _GET_(self%id_s,phytos)
 
-            _GET_(self%id_size_up_c,size_up_c)
-!           _GET_(self%id_parent_n,parent_n)
-!           _GET_(self%id_parent_p,parent_p)
-!           _GET_(self%id_parent_chl,parent_chl)
-!           _GET_(self%id_parent_s,parent_s)
-
             _GET_(self%id_size_down_c,size_down_c)
-!           _GET_(self%id_child_n,child_n)
-!           _GET_(self%id_child_p,child_p)
-!           _GET_(self%id_child_chl,child_chl)
-!           _GET_(self%id_child_s,child_s)
+            _GET_(self%id_size_down_p,size_down_p)
+            _GET_(self%id_size_down_n,size_down_n)
+            _GET_(self%id_size_down_s,size_down_s)
+            _GET_(self%id_size_down_chl,size_down_chl)
+
             _GET_(self%id_size_max_c,size_max_c)
+            _GET_(self%id_size_max_p,size_max_p)
+            _GET_(self%id_size_max_n,size_max_n)
+            _GET_(self%id_size_max_s,size_max_s)
+            _GET_(self%id_size_max_chl,size_max_chl)
          endif
 
          ! Retrieve ambient nutrient concentrations
@@ -819,58 +842,6 @@ end select
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
   _SET_ODE_(self%id_O2o,rugc/MW_C)
 !SEAMLESS
- !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- ! Effect of asexual reproduction for diatoms
- !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if (self%use_Si) then 
-! quieiscence biomass
-      q_bio=max(0.0_rk,phytoc-self%p_min_biomass)/max(phytoc-self%p_min_biomass,p_small)
-
-      arepr_c=q_bio*self%p_arepr_rate*phytoc
-      srepr_c=q_bio*self%p_srepr_rate*phytoc
-
-      arepr_p=q_bio*self%p_arepr_rate*phytop
-      srepr_p=q_bio*self%p_srepr_rate*phytop
-
-      arepr_n=q_bio*self%p_arepr_rate*phyton
-      srepr_n=q_bio*self%p_srepr_rate*phyton
-
-      arepr_s=q_bio*self%p_arepr_rate*phytos
-      srepr_s=q_bio*self%p_srepr_rate*phytos
-
-      arepr_l=q_bio*self%p_arepr_rate*phytol
-      srepr_l=q_bio*self%p_srepr_rate*phytol
-
-      _SET_ODE_(self%id_c          ,-arepr_c)
-      _SET_ODE_(self%id_size_down_c,+arepr_c)
-  
-      _SET_ODE_(self%id_c         ,-srepr_c)
-      _SET_ODE_(self%id_size_max_c,+srepr_c)
-
-      _SET_ODE_(self%id_p          ,-arepr_p)
-      _SET_ODE_(self%id_size_down_p,+arepr_p)
-  
-      _SET_ODE_(self%id_p         ,-srepr_p)
-      _SET_ODE_(self%id_size_max_p,+srepr_p)
-
-      _SET_ODE_(self%id_n          ,-arepr_n)
-      _SET_ODE_(self%id_size_down_n,+arepr_n)
-  
-      _SET_ODE_(self%id_n         ,-srepr_n)
-      _SET_ODE_(self%id_size_max_n,+srepr_n)
-
-      _SET_ODE_(self%id_s          ,-arepr_s)
-      _SET_ODE_(self%id_size_down_s,+arepr_s)
-  
-      _SET_ODE_(self%id_s         ,-srepr_s)
-      _SET_ODE_(self%id_size_max_s,+srepr_s)
-
-      _SET_ODE_(self%id_chl          ,-arepr_l)
-      _SET_ODE_(self%id_size_down_chl,+arepr_l)
-  
-      _SET_ODE_(self%id_chl         ,-srepr_l)
-      _SET_ODE_(self%id_size_max_chl,+srepr_l)
-  end if
 
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Potential-Net prim prod. (mgC /m3/d)
@@ -946,6 +917,58 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   sunPPY  =   run/( p_small+ phytoc)
 
  _SET_DIAGNOSTIC_(self%id_sunPPY, sunPPY)
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ ! Effect of sexual-asexual reproduction for diatoms
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_Si) then 
+! quieiscence biomass
+      q_bio=max(0.0_rk,phytoc-self%p_min_biomass)/max(phytoc-self%p_min_biomass,p_small)
+
+      arepr_c=q_bio*self%p_arepr_rate*phytoc
+      srepr_c=q_bio*self%p_srepr_rate*phytoc
+
+      arepr_p=q_bio*self%p_arepr_rate*phytop
+      srepr_p=q_bio*self%p_srepr_rate*phytop
+
+      arepr_n=q_bio*self%p_arepr_rate*phyton
+      srepr_n=q_bio*self%p_srepr_rate*phyton
+
+      arepr_s=q_bio*self%p_arepr_rate*phytos
+      srepr_s=q_bio*self%p_srepr_rate*phytos
+
+      arepr_l=q_bio*self%p_arepr_rate*phytol
+      srepr_l=q_bio*self%p_srepr_rate*phytol
+
+      _SET_ODE_(self%id_c          ,-arepr_c)
+      _SET_ODE_(self%id_size_down_c,+arepr_c)
+  
+      _SET_ODE_(self%id_c         ,-srepr_c)
+      _SET_ODE_(self%id_size_max_c,+srepr_c)
+
+      _SET_ODE_(self%id_p          ,-arepr_p)
+      _SET_ODE_(self%id_size_down_p,+arepr_p)
+  
+      _SET_ODE_(self%id_p         ,-srepr_p)
+      _SET_ODE_(self%id_size_max_p,+srepr_p)
+
+      _SET_ODE_(self%id_n          ,-arepr_n)
+      _SET_ODE_(self%id_size_down_n,+arepr_n)
+  
+      _SET_ODE_(self%id_n         ,-srepr_n)
+      _SET_ODE_(self%id_size_max_n,+srepr_n)
+
+      _SET_ODE_(self%id_s          ,-arepr_s)
+      _SET_ODE_(self%id_size_down_s,+arepr_s)
+  
+      _SET_ODE_(self%id_s         ,-srepr_s)
+      _SET_ODE_(self%id_size_max_s,+srepr_s)
+
+      _SET_ODE_(self%id_chl          ,-arepr_l)
+      _SET_ODE_(self%id_size_down_chl,+arepr_l)
+  
+      _SET_ODE_(self%id_chl         ,-srepr_l)
+      _SET_ODE_(self%id_size_max_chl,+srepr_l)
+  end if
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
