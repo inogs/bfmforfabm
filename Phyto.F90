@@ -826,7 +826,7 @@ end select
 
 !CEA Activity excretion produces CDOM, nutrient-stress excretion dont  
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-  f2cdom = self%p_fX2p * ( (phytol/phytoc)/self%p_qlcPPY ) 
+  f2cdom = self%p_fX2p * ( qlcPPY/self%p_qlcPPY ) 
   _SET_ODE_(self%id_c, -f2cdom * flPIR2c)
   _SET_ODE_(self%id_X2c,f2cdom * flPIR2c)
 
