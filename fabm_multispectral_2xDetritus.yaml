@@ -18,7 +18,7 @@ instances:
     coupling:
        X1c: X1/c
        X2c: X2/c
-       X3c: X3/c    
+       X3c: X3/c   
   light_atm:
     model: spectral/atmosphere
     parameters:
@@ -28,7 +28,7 @@ instances:
   relhum:
     model: spectral/relhum
   ozone:
-    model: spectral/ozone
+    model: spectral/ozone 
   lightspectral:
     model: ogs/light_spectral_OASIM
     parameters:
@@ -72,7 +72,7 @@ instances:
        p_spmS: 0.012                        # slope for exponential decline of aSPM with wavelength [nm-1]
        lambda_aSPM: 440                     # wavelength where reference aSPM (c2) is given
        p_spmb: 0.7                          # specific scattering at 555nm [m2 g-1]
-       p_spmbb: 0.008                       # specific backscattering  at 555nm  [m2 g-1]
+       p_spmbb: 0.008                       # specific backscattering  at 555nm [m2 g-1]
     coupling:
        X1c  : X1/c
        X2c  : X2/c
@@ -238,11 +238,22 @@ instances:
     initialization:
       c: 480.0                                         # Dissolved Organic Carbon (mg C /m^3)
   R6: 
-    long_name: Particulate Organic carbon 
+    long_name: Small Particulate Organic carbon 
     model: ogs/bfm_pelagic_base
     parameters:
       composition: cpns                                # elemental composition
-      rm:  4.25                                       # Sinking Velocity
+      rm:  7.00                                       # Sinking Velocity
+    initialization:
+      c: 1.0                                          # POC (mg C   /m^3)
+      n: 1.260E-002                                   # PON (mmol N /m^3)
+      p: 7.8620E-004                                  # POP (mmol P /m^3)
+      s: 1.260E-002                                   # POS (mmol S /m^3)
+  R8:
+    long_name: Large Particulate Organic carbon
+    model: ogs/bfm_pelagic_base
+    parameters:
+      composition: cpns                                # elemental composition
+      rm:  15.00                                       # Sinking Velocity
     initialization:
       c: 1.0                                          # POC (mg C   /m^3)
       n: 1.260E-002                                   # PON (mmol N /m^3)
@@ -279,6 +290,7 @@ instances:
       p_temp:  0.0                          # [-]            Cut-off threshold for temperature factor
       p_sum:   2.5                          # [1/d]          maximum specific productivity at reference temperature (1/d)
       p_srs:   0.076                        # [1/d]          Respiration rate at 10 degrees C
+      p_fR6:   0.5                          # [-]            fraction of lysis to small POC (R6)
       p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
       p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
       p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
@@ -369,6 +381,10 @@ instances:
       R6n: R6/n
       R6s: R6/s
       R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8s: R8/s
+      R8p: R8/p
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
@@ -384,6 +400,7 @@ instances:
       p_temp:  0.0                          # [-]            Cut-off threshold for temperature factor
       p_sum:   2.6                          # [1/d]          maximum specific productivity at reference temperature (1/d)
       p_srs:   0.09                         # [1/d]          Respiration rate at 10 degrees C
+      p_fR6:   1.0                          # [-]            fraction of lysis to small POC (R6)
       p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
       p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
       p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
@@ -450,7 +467,10 @@ instances:
       R2c: R2/c 
       R6c: R6/c 
       R6n: R6/n 
-      R6p: R6/p 
+      R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p 
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -466,6 +486,7 @@ instances:
       p_temp:  0.75                         # [-]            Cut-off threshold for temperature factor
       p_sum:   3.5                          # [1/d]          maximum specific productivity at reference temperature (1/d)
       p_srs:   0.1                          # [1/d]          Respiration rate at 10 degrees C
+      p_fR6:   1.0                          # [-]            fraction of lysis to small POC (R6)
       p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
       p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
       p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
@@ -544,7 +565,10 @@ instances:
       R2c: R2/c 
       R6c: R6/c 
       R6n: R6/n 
-      R6p: R6/p 
+      R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p 
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -560,6 +584,7 @@ instances:
       p_temp:  0.0                          # [-]            Cut-off threshold for temperature factor
       p_sum:   1.5                          # [1/d]          maximum specific productivity at reference temperature (1/d)
       p_srs:   0.1                          # [1/d]          Respiration rate at 10 degrees C
+      p_fR6:   0.5                          # [-]            fraction of lysis to small POC (R6)
       p_sdmo:  0.0                          # [1/d]          Max.specific nutrient-stress lysis rate
       p_thdo:  0.0                          # [-]            Half saturation constant for nutrient stress lysis
       p_seo:   0.0                          # [1/d]          Extra lysis rate (biomass density-dependent)
@@ -625,7 +650,10 @@ instances:
       R2c: R2/c 
       R6c: R6/c 
       R6n: R6/n 
-      R6p: R6/p 
+      R6p: R6/p
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p 
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -651,7 +679,8 @@ instances:
       p_sulR1 : 0.0  #  [1/d]            Specific potential uptake for nutrient-poor DOM
       p_suR2 : 0.05  #  [1/d]            Specific potential uptake for semi-labile DOC
       p_suR3 : 0.0  #   [1/d]            Specific potential uptake for semi-refractory DOC
-      p_suR6 : 0.1  #   [1/d]            Specific potential uptake for POM (1/d)
+      p_suR6 : 0.012  #   [1/d]            Specific potential uptake for small POM (1/d)
+      p_suR8 : 0.03  #   [1/d]            Specific potential uptake for large POM (1/d)
       p_sum : 8.38 #    [1/d]            Potential specific growth rate
       p_pu_ra : 0.76  #  [-]              Activity respiration fraction
       p_pu_ra_o : 0.2  #  [-]              Additional respiration fraction at low O2 conc
@@ -676,6 +705,8 @@ instances:
       p_fX1b: 0.00     # [-]          fraction of colored labile DOC
       p_fX2b: 0.02     # [-]          fraction of colored semi-labile DOC
       p_fX3b: 0.018    # [-]          fraction of colored semi-refractory DOC
+#                   ---- POM split ----
+      p_fR6:  1.0      # [-]          fraction of lysis to small POC (R6) 
     initialization:
       c: 1.0                                               # carbon (mg C/m^3)
       n: 1.700000000000000E-002                            # nitrogen (mmol N/m^3)
@@ -696,6 +727,11 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R6s: R6/s 
+      R8c: R8/c
+      R8n: R8/n
+      R8p: R8/p
+      R8s: R8/s
       X1c: X1/c 
       X2c: X2/c 
       X3c: X3/c
@@ -744,6 +780,7 @@ instances:
       isP26: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP27: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
+      p_fR6:   0.5       # [-]           Fraction of lysis and sloppy predation to small POC (R6)
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
       p_pe_R1p: 0.832    # [-]           Fractional content of C in cytoplasm
@@ -761,6 +798,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c:   R8/c                        # POC  (mgC/m3)
+      R8s:   R8/s                        # POSi (mgSi/m3)
+      R8n:   R8/n                        # PON (mmolN/m3)
+      R8p:   R8/p                        # POP (mmolP/m3)
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -818,7 +859,8 @@ instances:
       isP25: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP26: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP27: 0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#-------------------------------------------------------------------- 
+#--------------------------------------------------------------------
+      p_fR6:   1.0       # [-]           Fraction of lysis and sloppy predation to small POC (R6) 
       p_pe_R1c: 0.60     # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72     # [-]           Fractional content of C in cytoplasm
       p_pe_R1p: 0.832    # [-]           Fractional content of C in cytoplasm
@@ -836,6 +878,10 @@ instances:
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
       R6p:   R6/p                        # POP (mmolP/m3)
+      R8c:   R8/c                        # POC  (mgC/m3)
+      R8s:   R8/s                        # POSi (mgSi/m3)
+      R8n:   R8/n                        # PON (mmolN/m3)
+      R8p:   R8/p                        # POP (mmolP/m3)
       X1c:   X1/c                        # labile CDOM
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
@@ -869,6 +915,7 @@ instances:
       p_qpcMEZ: 1.67e-3                 # [mmolP/mgC]     Maximum quotum P:C
       p_qncMEZ: 0.015                   # [mmolN/mgC]     Maximum quotum N:C
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
+      p_fR6:   0.5                      # [-]             Fraction of lysis and sloppy predation to small POC (R6)
 #-----------------------------------------------------------------------------
       nprey:     3                      # [-]             Number of preys
       suprey1:   1.0     # [-]           Availability of PhytoPlankton group P4
@@ -895,6 +942,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c                                            # POC
+      R8n: R8/n                                            # PON
+      R8p: R8/p                                            # POP
+      R8s: R8/s                                            # biogenic silica (mmol Si/m^3
       prey1: P4
       prey2: Z3
       prey3: Z4
@@ -921,6 +972,7 @@ instances:
       p_qpcMEZ: 1.67e-3                 # [mmolP/mgC]     Maximum quotum P:C
       p_qncMEZ: 0.015                   # [mmolN/mgC]     Maximum quotum N:C
       p_clO2o: 30.0                     # [mmolO2/m3]     Half-saturation oxygen concentration
+      p_fR6:   0.5                      # [-]             Fraction of lysis and sloppy predation to small POC (R6)
 #-------------------------------------------------------------------------------
       nprey:     5                      # [-]             Number of preys
       suprey1:   1.0     # [-]           Availability of PhytoPlankton group P1
@@ -953,6 +1005,10 @@ instances:
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
       R6s: R6/s                                            # biogenic silica (mmol Si/m^3)
+      R8c: R8/c                                            # POC
+      R8n: R8/n                                            # PON
+      R8p: R8/p                                            # POP
+      R8s: R8/s                                            # biogenic silica (mmol Si/m^3)
       prey1: P1
       prey2: P2
       prey3: P4
@@ -976,8 +1032,10 @@ instances:
       p_rPAo: 1.0          # [mmolO2/m3/d]    Reference anoxic mineralization rate
       p_qon_dentri: 1.25   # [mmolO2/mmolN]   Stoichiometric coefficient for denitrification
       p_rOS: 0.05          # [1/d]            Specific reoxidation rate of reduction equivalents
-      p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica
-      p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica
+      p_sR6N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica (small POC)
+      p_q10R6N5: 1.49      # [-]              Q10 factor for biogenic silica (small POC)
+      p_sR8N5: 0.1         # [1/d]            Specific remineralization rate of biogenic silica (large POC)
+      p_q10R8N5: 1.49      # [-]              Q10 factor for biogenic silica (large POC)
       p_bX1c: 0.167        # [1/d]            photodegradation (bleaching) rate X1c
       p_bX2c: 0.167        # [1/d]            photodegradation (bleaching) rate X2c
       p_bX3c: 0.00119      # [1/d]            photodegradation (bleaching) rate X3c
@@ -1010,7 +1068,11 @@ instances:
       R6s: R6/s                                            # POSi (mgSi/m3)
       R6c: R6/c                                            # POC  (mgC/m3)
       R6n: R6/n                                            # PON  (mmolN/m3)
-      R6p: R6/p                                            # POP (mmolP/m3)      
+      R6p: R6/p                                            # POP (mmolP/m3)     
+      R8s: R8/s                                            # POSi (mgSi/m3)
+      R8c: R8/c                                            # POC  (mgC/m3)
+      R8n: R8/n                                            # PON  (mmolN/m3)
+      R8p: R8/p                                            # POP (mmolP/m3) 
       PAR_tot: lightspectral/PAR_tot
       isBen:  Benthic_layer/isBen      
 ##  --------------------- CalciteDissolution
@@ -1029,4 +1091,33 @@ instances:
       OCalc: O3/OCalc                               # calcite saturation (-)
       O3c: O3/c                                     # total dissolved inorganic carbon (mgC/m^3)
       O3h: O3h/h                                    # alkalinity (mmol/m^3)
-      
+  Phyto_c:
+    long_name: total
+    model: weighted_sum
+    parameters:
+      n: 4
+    coupling:
+      term1: P1_c
+      term2: P2_c
+      term3: P3_c
+      term4: P4_c
+  Phyto_Chl:
+    long_name: total
+    model: weighted_sum
+    parameters:
+      n: 4
+    coupling:
+      term1: P1_Chl
+      term2: P2_Chl
+      term3: P3_Chl
+      term4: P4_Chl
+#  Phyto_NPP:
+#    long_name: total
+#    model: weighted_sum
+#    parameters:
+#      n: 4
+#    coupling:
+#      term1: P1_run_result
+#      term2: P2_run_result
+#      term3: P3_run_result
+#      term4: P4_run_result
