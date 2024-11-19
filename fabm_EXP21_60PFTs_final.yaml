@@ -257,6 +257,7 @@ instances:
       p_ruep : 1.0    #  [1/d]            Relaxation timescale for P uptake/remin.
       p_pu_ea_R3 : 0.0   #  [-]              Excretion of semi-refractory DOC
       p_qro : 0.5   #  [mmolHS-/mmolO2]  Stoichiometric coefficient for anaerobic reactions
+      p_pe_R1c: 0.60  # [-]           Fractional content of C in cytoplasm
       p_pe_R1n: 0.72  # [-]           Fractional content of N in cytoplasm
       p_pe_R1p: 0.832 # [-]           Fractional content of P in cytoplasm
 #                   ---- CDOM production ----
@@ -422,10 +423,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 0.4                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -483,9 +480,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_12
-      size_down: P1_20
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_12:
@@ -540,10 +534,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 0.52                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -601,9 +591,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_13
-      size_down: P1_11
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_13:
@@ -658,10 +645,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 0.67                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -719,9 +702,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_14
-      size_down: P1_12
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_14:
@@ -776,10 +756,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                   # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                 # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 0.87                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -837,9 +813,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_15
-      size_down: P1_13
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_15:
@@ -894,10 +867,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                   # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                 # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 1.12                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -955,9 +924,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_16
-      size_down: P1_14
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_16:
@@ -1012,10 +978,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 1.45                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -1073,9 +1035,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_17
-      size_down: P1_15
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_17:
@@ -1130,10 +1089,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 1.88                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -1191,9 +1146,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_18
-      size_down: P1_16
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_18:
@@ -1248,10 +1200,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 2.43                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -1309,9 +1257,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_19
-      size_down: P1_17
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_19:
@@ -1366,10 +1311,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 3.14                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -1427,9 +1368,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_20
-      size_down: P1_18
-      size_max: P1_20
 #
 #-------------------------------------------------------------
   P1_20:
@@ -1484,10 +1422,6 @@ instances:
       p_qslc: 0.0086                        # [mmolSi/mgC]   minimum silicate to carbon ratio (mmol Si/mg C)
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
-#                   ---- Diatoms reproduction  ----
-      p_arepr_rate: 0.001                     # [1/d]  asexual reproduction rate for diatoms
-      p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
-      p_min_biomass: 0.0001                    # [mgC/m3]  quiescent biomass threshold
 #                   ---- nutrient stressed sinking ----
       p_esNI: 0.7                           # [-]            Nutrient stress threshold for sinking
       p_res: 4.05                            # [m/d]          Maximum Sinking vel city (m/d)
@@ -1545,9 +1479,6 @@ instances:
       O3h: O3h/h
       O5c: O5/c
       PAR: lightspectral/PAR_P1
-      size_up: P1_20
-      size_down: P1_19
-      size_max: P1_20
 #
 #------------------------------------------------------------------
   P4_11:
