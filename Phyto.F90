@@ -156,7 +156,8 @@
       real(rk) :: p_fR6
       real(rk) :: p_arepr_rate,p_srepr_rate,p_min_biomass
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
-      logical :: use_Si,p_netgrowth
+      logical :: use_Si,use_repr
+      logical :: p_netgrowth
       logical :: use_CaCO3
       integer :: p_OT
 
@@ -238,6 +239,7 @@ contains
       call self%get_parameter(self%p_xqp,    'p_xqp'   ,     '-',   'Multiplication factor for luxury storage')
 !                   ---- Si limitation control ----
       call self%get_parameter(self%use_Si,   'use_Si','',          'use silicate',default=.false.)
+      call self%get_parameter(self%use_repr, 'use_repr','',          'use reproductive dynamics',default=.false.)
       if (self%use_Si) then 
           call self%get_parameter(self%p_switchSi, 'p_switchSi',   '[1-2]',    'Switch for Silica limitation')
 !                             1. Si limitation is controlled by external Si
@@ -249,9 +251,11 @@ contains
           call self%get_parameter(self%p_qus,      'p_qus',  'm3/mgC/d', 'membrane affinity for Si')
           call self%get_parameter(self%p_qslc,     'p_qslc', 'mmolSi/mgC','minimum quotum for Si:C')
           call self%get_parameter(self%p_qscPPY,   'p_qscPPY','mmolSi/mgC',  'reference quontum Si:C')
-          call self%get_parameter(self%p_arepr_rate,   'p_arepr_rate','1/d',  'asexual reproduction rate for diatoms',default=0.0_rk)
-          call self%get_parameter(self%p_srepr_rate,   'p_srepr_rate','1/d',  'sexual reproduction rate for diatoms',default=0.0_rk)
-          call self%get_parameter(self%p_min_biomass,   'p_min_biomass','mgC/m3',  'quiescent biomass threshold',default=0.0_rk)
+          if (self%use_repr) then 
+              call self%get_parameter(self%p_arepr_rate,   'p_arepr_rate','1/d',  'asexual reproduction rate for diatoms',default=0.0_rk)
+              call self%get_parameter(self%p_srepr_rate,   'p_srepr_rate','1/d',  'sexual reproduction rate for diatoms',default=0.0_rk)
+              call self%get_parameter(self%p_min_biomass,   'p_min_biomass','mgC/m3',  'quiescent biomass threshold',default=0.0_rk)
+          endif
       endif
 !                   ---- nutrient stressed sinking ----
       call self%get_parameter(self%p_esNI,  'p_esNI',       '-', 'Nutrient stress threshold for sinking')
@@ -323,7 +327,7 @@ contains
       if (self%use_Si) call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large POS')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
-      if (self%use_Si) then
+      if (self%use_Si .AND. self%use_repr) then
 
           call self%register_state_dependency(self%id_size_up_c,'size_up_c','mg C/m^3','Concentration of diatoms one size class grater')
           call self%register_state_dependency(self%id_size_up_p,'size_up_p','mmol P/m^3','Concentration of diatoms one size class grater')
@@ -552,7 +556,7 @@ contains
          _GET_(self%id_p,phytop)
          _GET_(self%id_n,phyton)
          _GET_(self%id_chl,phytol)
-         if (self%use_Si) then
+         if (self%use_Si .AND. self%use_repr) then
             _GET_(self%id_s,phytos)
 
             _GET_(self%id_size_down_c,size_down_c)
@@ -920,7 +924,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Effect of sexual-asexual reproduction for diatoms
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if (self%use_Si) then 
+  if (self%use_Si .AND. self%use_repr) then 
 ! quieiscence biomass
       q_bio=max(0.0_rk,phytoc-self%p_min_biomass)/max(phytoc-self%p_min_biomass,p_small)
 
