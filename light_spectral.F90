@@ -13,7 +13,7 @@ module ogs_bfm_light_spectral
    type,extends(type_base_model),public :: type_ogs_bfm_light_spectral
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
-      type (type_diagnostic_variable_id)   :: id_PAR_tot
+      type (type_diagnostic_variable_id)   :: id_PAR_tot, id_PAR_W_tot, id_SWR_tot
       type (type_diagnostic_variable_id)   :: id_anap450, id_aph450, id_acdom450
 !      type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425
 !      type (type_diagnostic_variable_id)   :: id_Scdom350_500, id_Scdom250_325       
@@ -349,6 +349,8 @@ contains
       if (self%npft .GT. 7) call self%register_diagnostic_variable(self%id_par_P8, 'PAR_P8', 'uE mgChl-1 d-1', 'PAR_green2', source=source_do_column)
       if (self%npft .GT. 8) call self%register_diagnostic_variable(self%id_par_P9, 'PAR_P9', 'uE mgChl-1 d-1', 'PAR_synechococcus', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_PAR_W_tot, 'PAR_W_tot',  'W m-2 [400-700]','PAR_W_total', source=source_do_column)
+      call self%register_diagnostic_variable(self%id_SWR_tot, 'SWR_tot',  'W m-2 ','SWR_total', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_Scdom350_500, 'Scdom350_500', 'nm-1','visible spectral slope acdom', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_Scdom250_325, 'Scdom250_325', 'nm-1','UV spectral slope acdom', source=source_do_column)
 !      call self%register_diagnostic_variable(self%id_acdom250, 'acdom250', 'm-1', 'acdom in 250 nm band', source=source_do_column)
@@ -527,6 +529,8 @@ contains
       real(rk) :: PAR_P8_array(cache%n)
       real(rk) :: PAR_P9_array(cache%n)
       real(rk) :: PAR_scalar_array(cache%n)
+      real(rk) :: PAR_scalar_array_W(cache%n)
+      real(rk) :: SWR_downward_array(cache%n)
       real(rk) :: PAR_P1,PAR_P4
       real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
       real(rk) :: PAR_P3,PAR_P6,PAR_P9
@@ -793,6 +797,8 @@ contains
      if (self%npft .GT. 8) PAR_P9_array(:) = 0.0_rk
 
      PAR_scalar_array(:)   = 0.0_rk
+     PAR_scalar_array_W(:) = 0.0_rk
+     SWR_downward_array(:)   = 0.0_rk
 
 !     do l=1,self%nlt
      do l=5,17     
@@ -809,6 +815,11 @@ contains
 
      do l=5,17
          PAR_scalar_array(:)      = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY
+         PAR_scalar_array_W(:)    = PAR_scalar_array_W(:) + E_scalar(:,l)
+     enddo
+     do l=1,self%nlt
+         SWR_downward_array(:)      = SWR_downward_array(:) + E_ave(1,:,l) + E_ave(2,:,l) ! not scalar, downward! 
+!        SWR_scalar_array(:)      = SWR_scalar_array(:) + E_scalar(:,l)
      enddo
 
 ! AOPs observed for diagnostics     
@@ -870,6 +881,9 @@ contains
           endif
 
          _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
+         _SET_DIAGNOSTIC_(self%id_PAR_W_tot, max(p_small,PAR_scalar_array_W(kk)))
+         _SET_DIAGNOSTIC_(self%id_SWR_tot, max(p_small,SWR_downward_array(kk)))
+
 
          _SET_DIAGNOSTIC_(self%id_Ed400, max(p_small, (E(1,kk,5)+E(2,kk,5)) ))                 
          _SET_DIAGNOSTIC_(self%id_Ed425, max(p_small, (E(1,kk,6)+E(2,kk,6)) ))           
