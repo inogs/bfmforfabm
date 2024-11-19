@@ -556,8 +556,11 @@ contains
          _GET_(self%id_p,phytop)
          _GET_(self%id_n,phyton)
          _GET_(self%id_chl,phytol)
-         if (self%use_Si .AND. self%use_repr) then
+         if (self%use_Si) then
             _GET_(self%id_s,phytos)
+         endif
+
+         if (self%use_Si .AND. self%use_repr) then
 
             _GET_(self%id_size_down_c,size_down_c)
             _GET_(self%id_size_down_p,size_down_p)
