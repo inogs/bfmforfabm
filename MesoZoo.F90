@@ -1,4 +1,4 @@
-#include "fabm_driver.h"
+ #include "fabm_driver.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -113,7 +113,7 @@
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyp
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyl
       type (type_state_variable_id), allocatable,dimension(:) :: id_preys
-      ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preyf
+      type (type_state_variable_id),    allocatable,dimension(:) :: id_preyf !IRON
       type (type_model_id),      allocatable,dimension(:) :: id_prey
 
       type (type_state_variable_id)      :: id_O2o, id_O3c                  !  disolved oxygen, dissolved inorganic carbon
@@ -122,6 +122,7 @@
       type (type_state_variable_id)      :: id_R6s                          !  biogenic silica
       type (type_state_variable_id)      :: id_R8c,id_R8p,id_R8n            !  particulate organic carbon
       type (type_state_variable_id)      :: id_R8s                          !  biogenic silica
+      type (type_state_variable_id)      :: id_R6f,id_R8f                   ! iron 
       type (type_state_variable_id)      :: id_O3h                          !  alkalinity
       type (type_state_variable_id)      :: id_O5c                          !  calcite
   
@@ -180,6 +181,7 @@
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
       real(rk) :: p_fR6
+      logical :: use_Fe !iron
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
 !      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
@@ -236,6 +238,8 @@ contains
       call self%get_parameter(self%p_qpcMEZ, 'p_qpcMEZ',  'mmolP/mgC',  'maximum quotum P:C')
       call self%get_parameter(self%p_qncMEZ, 'p_qncMEZ',  'mmolN/mgC',  'maximum quotum N:C')
       call self%get_parameter(self%p_clO2o,  'p_clO2o',   'mmolO2/m3',  'half-saturation oxygen concentration')
+!              --------- Iron limitation              --------------
+        call self%get_parameter(self%use_Fe,   'use_Fe','',          'use iron',default=.false.)
 
 ! Register state variables (handled by type_bfm_pelagic_base)
 !     call self%initialize_ogs_bfm_base(sedimentation=.true.)
@@ -243,7 +247,7 @@ contains
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
-!      call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
+!     call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.  IRON
 
 ! Register links to external preys
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
@@ -258,6 +262,7 @@ contains
       allocate(self%id_preyp(self%nprey))
       allocate(self%id_preyl(self%nprey))
       allocate(self%id_preys(self%nprey))
+      allocate(self%id_preyf(self%nprey))  !iron
 
       allocate(self%id_preyld(self%nprey))
       allocate(self%id_ruPPYc(self%nprey))
@@ -291,10 +296,8 @@ contains
         call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
         call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
 
-!#ifdef INCLUDE_PELFE
-!        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
-!        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
-!#endif
+        call self%register_state_dependency(self%id_preyf(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron') !IRON
+        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),standard_variables%total_iron) !IRON
      enddo
 
 
@@ -313,10 +316,12 @@ contains
       call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3' ,'small POP')
       call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3' ,'small PON')
       call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small biogenic silica')
+      call self%register_state_dependency(self%id_R6f,'R6f','mmol Fe/m^3','small iron')
       call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3'   ,'large POC')
       call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3' ,'large POP')
       call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3' ,'large PON')
       call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large biogenic silica')
+      call self%register_state_dependency(self%id_R8f,'R8f','mmol Fe/m^3','large iron')
 
 ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_qncMEZ,'qncMEZ', 'mmolN/mgC', 'N:C quontum',output=output_none)
@@ -394,7 +399,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     integer  :: iprey
-    real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP   !, preyfP
+    real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP,preyfP !IRON
     real(rk), dimension(self%nprey) :: rupreyc, PPYc
     real(rk) :: preyP
     real(rk) :: zooc, zoop, zoon
@@ -478,9 +483,7 @@ contains
       _GET_(self%id_preyp(iprey), preypP(iprey))
       _GET_(self%id_preyl(iprey), preylP(iprey))
       _GET_(self%id_preys(iprey), preysP(iprey))
-!#ifdef INCLUDE_PELFE
-      ! _GET_(self%id_preyf(iprey), preyfP(iprey))
-!#endif
+      _GET_(self%id_preyf(iprey), preyfP(iprey))  !IRON
     enddo
 
 
@@ -592,9 +595,15 @@ contains
 !    end if
 
 !#ifdef INCLUDE_PELFE
-!    ! Fe constituent is transferred to particulate iron
-!    if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
-!       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
+   ! Fe constituent is transferred to particulate iron   !IRON
+   if (self%use_Fe) then
+        ! Fe constituent is transferred to particulate iron
+        _SET_ODE_(self%id_R6f, self%p_fR6 * ruPPYc*(preyfP(iprey)/(preycP(iprey)+p_small)))
+        _SET_ODE_(self%id_R8f, (ONE - self%p_fR6) * ruPPYc*(preyfP(iprey)/(preycP(iprey)+p_small)) )
+        _SET_ODE_(self%id_preyf(iprey), - ruPPYc*(preyfP(iprey)/(preycP(iprey)+p_small)) )
+   endif
+!  if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
+!     call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
 !#endif
 
 !#if defined INCLUDE_PELCO2

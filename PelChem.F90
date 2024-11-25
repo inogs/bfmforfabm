@@ -68,10 +68,10 @@
       
       ! Identifiers for state variables of other models
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h,id_O4n          !  dissolved inorganic carbon, oxygen, total alkalinity, N2
-      type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s,id_N6r   !  nutrients: phosphate, nitrate, ammonium, silicate, iron
-      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile, R3: semi-refractory)
-      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
-      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
+      type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s,id_N7f,id_N6r   !  nutrients: phosphate, nitrate, ammonium, silicate, iron
+      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R1f,id_R2c,id_R3c   !  dissolved organic carbon (R1: labile, R2: semi-labile, R3: semi-refractory)
+      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s,id_R6f          !  small particulate organic carbon
+      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s,id_R8f          !  large particulate organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       type (type_state_variable_id) :: id_X1c, id_X2c, id_X3c               !  CDOM
       type (type_dependency_id)     :: id_dz
@@ -103,6 +103,8 @@
       real(rk) :: p_TauC,p_TauP,p_TauN
       real(rk) :: p_Amm_rem
       integer :: p_Esource,p_use_benthic
+      real(rk) :: p_sR1N7,p_sR6N7,p_q10R6N7,p_scavIng,p_scavOrg,p_N7fLigand !iron
+      logical :: use_Fe !iron
   
     contains     
 
@@ -170,7 +172,15 @@ contains
       call self%get_parameter(self%p_TauN,        'p_TauN',       '[d]',  'remineralization of Nitrogen in detritus', default=365.0_rk)
       call self%get_parameter(self%p_TauP,        'p_TauP',       '[d]',  'remineralization of Phosphorus in detritus', default=365.0_rk)
       call self%get_parameter(self%p_Amm_rem,     'p_Amm_rem',    '[0-1]','Fraction of remineralization to NH4', default=0.0_rk)
-
+!          -------- iron   ----------
+      call self%get_parameter(self%use_Fe,        'use_Fe','',          'use iron',default=.false.)
+      call self%get_parameter(self%p_sR1N7,       'p_sR1N7',     '[1/d]',           'Specific remineralization rate of biogenic iron',default=0.1_rk)
+      call self%get_parameter(self%p_sR6N7,       'p_sR6N7',     '[1/d]',           'Specific remineralization rate of biogenic iron',default=0.01_rk)
+      call self%get_parameter(self%p_q10R6N7,     'p_q10R6N7',   '[-]',             'Q10 factor for biogenic iron', default=1.50_rk)
+      call self%get_parameter(self%p_scavIng,     'p_scavIng',   '[-]',             'iron', default=0.01_rk)
+      call self%get_parameter(self%p_scavOrg,     'p_scavOrg',   '[-]',             'iron', default=1.58e-5_rk)
+      call self%get_parameter(self%p_N7fLigand,   'p_N7fLigand', '[-]',             'iron', default=0.6_rk)
+!         ----------   -----------
       ! Register links to external nutrient pools.
       call self%register_state_dependency(self%id_O3c,'O3c','mgC /m^3','dissolved organic carbon')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
@@ -179,6 +189,7 @@ contains
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
       call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
+      call self%register_state_dependency(self%id_N7f,'N7f','mmol Fe/m^3','iron')
       call self%register_state_dependency(self%id_N6r,'N6r','mmol HS/m^3','reduction equivalent')
       call self%register_state_dependency(self%id_R3c,'R3c','mgC /m^3','semi-refractory DOC')
       call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small biogenic silicate')
@@ -233,10 +244,11 @@ contains
       real(rk) :: R8c,R8n,R8p      
       real(rk) :: X1c, X2c, X3c
       real(rk) :: eo, er
-      real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo, fR6N5s, fR8N5s
+      real(rk) :: flN4N3n, flN4N3n_o2, flN3O4n, flN3O4n_N6r, fN6O2r, rPAo, fR6N5s, fR8N5s, fR1N7f, fR6N7f,fscavN7f
       real(rk) :: degX1c, degX2c, degX3c
       real(rk) :: remX3c, remR3c
       real(rk) :: isBen      
+      real(rk) :: N7f,R1f,R6f,R8f !iron      
 
 
      ! Enter spatial loops (if any)
@@ -262,6 +274,12 @@ contains
          _GET_(self%id_R8c,R8c)
          _GET_(self%id_R8p,R8p)
          _GET_(self%id_R8n,R8n)
+         if (self%use_Fe) then
+            _GET_(self%id_N7f,N7f) !iron
+            _GET_(self%id_R6f,R6f) !iron
+            _GET_(self%id_R8f,R8f) !iron
+            _GET_(self%id_R1f,R1f) !iron
+         endif
 
          _GET_(self%id_O2o,O2o)
          _GET_(self%id_O3h,O3h)
@@ -362,26 +380,34 @@ contains
  _SET_ODE_(self%id_N5s,fR6N5s + fR8N5s)
  _SET_ODE_(self%id_R6s,-fR6N5s - fR8N5s)
 
-!GP #ifdef INCLUDE_PELFE
-!GP   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!GP   !  Dissolved Iron Chemistry (dissolution and scavenging)
-!GP   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!GP   ! Linear regeneration of bioavailable iron
-!GP   fR1N7f(:)  =  p_sR1N7* eTq(  ETW(:),  p_q10R6N7)* R1f(:)
-!GP   call flux_vector( iiPel, ppR1f, ppN7f, fR1N7f(:) )
-!GP 
-!GP  fR6N7f(:)  =  p_sR6N7* eTq(  ETW(:),  p_q10R6N7)* R6f(:)
-!GP  call flux_vector( iiPel, ppR6f, ppN7f, fR6N7f(:) )
-!GP
-!GP  ! Scavenging of free dissolved Iron
-!GP  ! Adsorption onto Particulate Organic Matter (Eq.11 in Parekh et al.,2015 - GBC )
-!GP  fscavN7f(:) = max ( ZERO, p_scavOrg * N7f * (R6c(:)**0.58_RLEN) )
-!GP  
-!GP  ! Inorganic component ( Linear relaxation to the Iron Ligand concentration )
-!GP  fscavN7f(:) = fscavN7f(:) + max(ZERO,p_scavIng*(N7f-p_N7fLigand))
-!GP call flux_vector( iiPel, ppN7f, ppN7f, -fscavN7f(:) )
-!GP
-!GP#endif
+!#ifdef INCLUDE_PELFE   
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   !  Dissolved Iron Chemistry (dissolution and scavenging)
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   ! Linear regeneration of bioavailable iron
+   if (self%use_Fe) then
+   !  fR1N7f(:)  =  p_sR1N7* eTq(  ETW(:),  p_q10R6N7)* R1f(:)
+      fR1N7f  =  self%p_sR1N7* eTq(  ETW,  self%p_q10R6N7)* R1f
+   !  call flux_vector( iiPel, ppR1f, ppN7f, fR1N7f(:) )
+      _SET_ODE_(self%id_N7f,   fR1N7f)
+      _SET_ODE_(self%id_R1f, - fR1N7f)
+    
+      fR6N7f  =  self%p_sR6N7* eTq(  ETW,  self%p_q10R6N7)* R6f
+      _SET_ODE_(self%id_N7f,   fR6N7f)
+      _SET_ODE_(self%id_R6f, - fR6N7f)
+   !  call flux_vector( iiPel, ppR6f, ppN7f, fR6N7f(:) )
+   
+      ! Scavenging of free dissolved Iron
+      ! Adsorption onto Particulate Organic Matter (Eq.11 in Parekh et al.,2015 - GBC )
+   !  fscavN7f = max ( ZERO, p_scavOrg * N7f * (R6c**0.58_RLEN) )
+      fscavN7f = max ( ZERO, self%p_scavOrg * N7f * (R6c**0.58_rk) )
+     
+      ! Inorganic component ( Linear relaxation to the Iron Ligand concentration )
+      fscavN7f = fscavN7f + max(ZERO,self%p_scavIng*(N7f-self%p_N7fLigand))
+   !  call flux_vector( iiPel, ppN7f, ppN7f, -fscavN7f(:) )
+      _SET_ODE_(self%id_N7f, - fscavN7f)
+   endif
+!#endif
 
 !GP TO BE MOVED IN A NEW FILE 
 !GP #ifdef INCLUDE_PELCO2

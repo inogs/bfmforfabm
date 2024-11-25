@@ -48,6 +48,7 @@ module ogs_bfm_shared
    type (type_bulk_standard_variable),parameter :: alkalinity = type_bulk_standard_variable(name='alkalinity',units='mmolEq/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_calcite_in_biota = type_bulk_standard_variable(name='total_calcite_in_biota',units='mg C/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: total_silicate = type_bulk_standard_variable(name='total_silicate',units='mmolSi/m^3',aggregate_variable=.true.)
+   type (type_bulk_standard_variable),parameter :: total_iron = type_bulk_standard_variable(name='total_iron',units='mmolFe/m^3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: secchi_depth = type_bulk_standard_variable(name='secchi_depth',units='m')
 
    ! Aggregate variables for benthic bioturbation and bioirrigation (summed over all fauna).

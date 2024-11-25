@@ -64,10 +64,10 @@
 
       ! Identifiers for state variables of other models
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                 !  dissolved inorganic carbon, oxygen, total alkalinity
-      type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
-      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
-      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
-      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
+      type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s,id_N7f         !  nutrients: phosphate, nitrate, ammonium, silicate, iron
+      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R1f,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
+      type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s,id_R6f          !  small particulate organic carbon
+      type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s,id_R8f          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
       type (type_model_id)          :: id_size_up, id_size_down, id_size_max
@@ -142,6 +142,8 @@
       type (type_diagnostic_variable_id) :: id_O3hconume_for_CaCO3prec !consume of alk for caco3 precipitation
       type (type_diagnostic_variable_id) :: id_Putil_O3h !  variation of O3h due to net utilization of P (uptake-release)
       type (type_diagnostic_variable_id) :: id_Nutil_O3h !  variation of O3h due to net utilization of N (uptake-release)
+      type (type_diagnostic_variable_id) :: id_iN7f  ! internal quota iron limitation 
+      type (type_diagnostic_variable_id) :: id_misf      !  Intracellular missing amount of Fe
  
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
@@ -157,9 +159,12 @@
       real(rk) :: p_arepr_rate,p_srepr_rate,p_min_biomass
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,use_repr
+      logical :: use_Fe
+      real(rk) :: p_qflc, p_qfcPPY, p_xqf, p_quf !iron
       logical :: p_netgrowth
       logical :: use_CaCO3
       integer :: p_OT
+ 
 
    contains
 
@@ -288,6 +293,12 @@ contains
       call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
+!              --------- Iron limitation control ----------
+      call self%get_parameter(self%use_Fe,   'use_Fe','',          'use iron',default=.false.)
+      call self%get_parameter(self%p_qflc,   'p_qflc'  ,'mmolFe/mgC','Minimum quotum Fe:C ', default=0.25e-3_rk)
+      call self%get_parameter(self%p_qfcPPY, 'p_qfcPPY','mmolFe/mgC','reference quotum Fe:C',default=0.5e-3_rk)
+      call self%get_parameter(self%p_xqf,    'p_xqf'   ,'-', 'Multiplication factor for luxury storage',default=1.5_rk)
+      call self%get_parameter(self%p_quf,    'p_quf'   ,'m3/mgC/d', 'Membrane affinity for Fe',default=2.0e-4_rk)
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -295,9 +306,10 @@ contains
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
-      call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
+!     call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
       call self%add_constituent('chl',3.e-6_rk)
       if (self%use_Si) call self%add_constituent('s',1.e-6_rk)
+      if (self%use_Fe) call self%add_constituent('f',1.e-6_rk)
 !     call self%add_constituent('c',1.e-4_rk,   c0)
 !     call self%add_constituent('n',1.26e-6_rk, c0*qnrpicX)
 !     call self%add_constituent('p',4.288e-8_rk,c0*qprpicX)
@@ -313,18 +325,22 @@ contains
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
       if (self%use_Si) call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
+      if (self%use_Fe) call self%register_state_dependency(self%id_N7f,'N7f','mmol Fe/m^3','iron')
       call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3','labile DOC')
       call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3','labile DOP')
       call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
+      if (self%use_Fe) call self%register_state_dependency(self%id_R1f,'R1f','mmol Fe/m^3','labile DON')
       call self%register_state_dependency(self%id_R2c,'R2c','mg C/m^3','semi labile DOC')
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','small POC')
       call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','small POP')
       call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','small PON')
       if (self%use_Si) call self%register_state_dependency(self%id_R6s,'R6s','mmol Si/m^3','small POS')
+      if (self%use_Fe) call self%register_state_dependency(self%id_R6f,'R6f','mmol Fe/m^3','small POS')
       call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3','large POC')
       call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3','large POP')
       call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3','large PON')
       if (self%use_Si) call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large POS')
+      if (self%use_Fe) call self%register_state_dependency(self%id_R8f,'R8f','mmol Fe/m^3','large POS')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3','labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3','semilabile CDOM')
       if (self%use_Si .AND. self%use_repr) then
@@ -455,6 +471,11 @@ contains
       endif
          call self%register_diagnostic_variable(self%id_Nutil_O3h,'varO3h_for_Nutil','mmol/m3/d','variation of O3h due to N uptake/release',output=output_none)
          call self%register_diagnostic_variable(self%id_Putil_O3h,'varO3h_for_Putil','mmol/m3/d','variation of O3h due to P uptake/release',output=output_none)
+      if (self%use_Fe) then
+         call self%register_diagnostic_variable(self%id_iN7f, 'iN7f', '-','internal quota iron limitation',output=output_none)
+         call self%register_diagnostic_variable(self%id_misf,  'misf', '?',' Intracellular missing amount of Fe',output=output_none)
+      endif
+         
 
          ! Register aggregated chlorophyll and carbon per optical type
          ! This quantities can be used by other models (e.g., light_spectral) to determine how much light is attenuated by all primary producers of the same optical type.         
@@ -497,32 +518,32 @@ contains
 
    ! !LOCAL VARIABLES:
       real(rk) :: ETW,et, parEIR
-      real(rk) :: phytoc, phytop, phyton, phytol, phytos
-      real(rk) :: N5s,N1p,N3n,N4n,O2o
-      real(rk) :: R1c,R1n,R1p
+      real(rk) :: phytoc, phytop, phyton, phytol, phytos,phytof
+      real(rk) :: N5s,N1p,N3n,N4n,O2o,N7f
+      real(rk) :: R1c,R1n,R1p,R1f
       real(rk) :: R2c
-      real(rk) :: R6c,R6p,R6n,R6s
-      real(rk) :: R8c,R8p,R8n,R8s
+      real(rk) :: R6c,R6p,R6n,R6s,R6f
+      real(rk) :: R8c,R8p,R8n,R8s,R8f
       real(rk) :: X1c,X2c
-      real(rk) :: iNIn,iN1p,eN5s,iN5s,iNf,iNI
+      real(rk) :: iNIn,iN1p,eN5s,iN5s,iNf,iNI,iN7f
       real(rk) :: iN,tN
-      real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY
+      real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY,qfcPPY
       real(rk) :: fpplim
       real(rk) :: r
       real(rk) :: eiPPY,photochem
       real(rk) :: sum
       real(rk) :: sdo, sea, seo
-      real(rk) :: pe_R6, rr1c, rr6c, rr8c
+      real(rk) :: pe_R6, rr1c, rr6c, rr8c, rr1f, rr6f
       real(rk) :: sra, srs, srt, rrc
       real(rk) :: rugc, slc, flPIR2c, flPIR2c_tot, f2cdom
       real(rk) :: run, sadap 
-      real(rk) :: cqun3, rumn3, rumn4, rumn, rump
+      real(rk) :: cqun3, rumn3, rumn4, rumn, rump, rumf
       real(rk) :: netgrowth, sunPPY  
       real(rk) :: tmp
-      real(rk) :: misn, rupn, runn,  runn3, runn4, fR1n
+      real(rk) :: misn, rupn, runn,  runn3, runn4, fR1n, runf,rupf
       real(rk) :: misp, rupp, runp,  fR1p  
       real(rk) :: rr6n, rr1n, rr6p, rr1p
-      real(rk) :: rums, miss, rups, runs
+      real(rk) :: rums, miss, rups, runs, misf
       real(rk) :: rho_Chl, rate_Chl, chl_opt
       real(rk) :: size_up_c,size_down_c,size_max_c
       real(rk) :: size_up_p,size_down_p,size_max_p
@@ -559,6 +580,9 @@ contains
          if (self%use_Si) then
             _GET_(self%id_s,phytos)
          endif
+         if (self%use_Fe) then
+            _GET_(self%id_f,phytof)
+         endif
 
          if (self%use_Si .AND. self%use_repr) then
 
@@ -578,6 +602,7 @@ contains
          ! Retrieve ambient nutrient concentrations
          _GET_(self%id_N1p,N1p)
          _GET_(self%id_N3n,N3n)
+         _GET_(self%id_N4n,N4n)
          _GET_(self%id_N4n,N4n)
 
          ! Retrieve ambient oxygen concentrations
@@ -610,6 +635,9 @@ contains
          qlcPPY = phytol/(phytoc+p_small)
          if (self%use_Si) then
             qscPPY=phytos/(phytoc+p_small)
+         endif
+         if (self%use_Fe) then
+            qfcPPY=phytof/(phytoc+p_small)
          endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -663,14 +691,15 @@ contains
       _SET_DIAGNOSTIC_(self%id_iN1p,iN1p)
       _SET_DIAGNOSTIC_(self%id_iNIn,iNIn)
 !SEAMLESS#ifdef INCLUDE_PELFE
-!SEAMLESS  if (ppphytof > 0) then
-!SEAMLESS     iN7f = min( ONE, max( p_small, ( qfcPPY(phyto,:) &
-!SEAMLESS            - p_qflc(phyto))/( p_qfcPPY(phyto)- p_qflc(phyto))))
-!SEAMLESS     fpplim = fpplim*iN7f
-!SEAMLESS  else 
-!SEAMLESS     iN7f   = ONE  
-!SEAMLESS  end if
-!SEAMLESS#endif
+  if (self%use_Fe) then
+     _GET_(self%id_N7f,N7f)
+     iN7f = min( ONE, max( p_small, ( qfcPPY &
+            - self%p_qflc)/( self%p_qfcPPY - self%p_qflc)))
+     fpplim = fpplim*iN7f
+  else 
+     iN7f   = ONE  
+  end if
+!#endif
 !SEAMLESS
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! Multiple nutrient limitation
@@ -1107,33 +1136,42 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   endif
 !SEAMLESS
 !SEAMLESS#ifdef INCLUDE_PELFE
-!SEAMLESS  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS  ! Nutrient dynamics: IRON
-!SEAMLESS  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS
-!SEAMLESS  if (ppphytof > 0) then
-!SEAMLESS     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS     ! Net uptake
-!SEAMLESS     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS     rumf  =   p_quf(phyto)* N7f(:)* phytoc  ! max potential uptake
-!SEAMLESS     ! intracellular missing amount of Fe
-!SEAMLESS     misf  =   sadap*max(ZERO,p_xqf(phyto)*p_qfcPPY(phyto)*phytoc - phytof)  
-!SEAMLESS     rupf  =   p_xqf(phyto)* run* p_qfcPPY(phyto)  ! Fe uptake based on C uptake
-!SEAMLESS     runf  =   min(  rumf,  rupf+ misf)  ! actual uptake
-!SEAMLESS     r  =   insw(runf)
-!SEAMLESS     ! uptake from inorganic if shortage
-!SEAMLESS     call flux_vector( iiPel, ppN7f,ppphytof, runf* r )
-!SEAMLESS     ! release to dissolved organic to keep the balance if excess
-!SEAMLESS     call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))
-!SEAMLESS   
-!SEAMLESS     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS     ! Losses of Fe
-!SEAMLESS     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!SEAMLESS     rr6f  =   rr6c* p_qflc(phyto)
-!SEAMLESS     rr1f  =   sdo* phytof- rr6f
-!SEAMLESS     call flux_vector( iiPel, ppphytof,ppR1f, rr1f )
-!SEAMLESS     call flux_vector( iiPel, ppphytof,ppR6f, rr6f )
-!SEAMLESS  end if
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Nutrient dynamics: IRON
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  if (self%use_Fe) then
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     ! Net uptake
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     rumf  =   self%p_quf* N7f* phytoc  ! max potential uptake
+     ! intracellular missing amount of Fe
+     misf  =   sadap*max(ZERO,self%p_xqf*self%p_qfcPPY*phytoc - phytof)  
+     rupf  =   self%p_xqf* run* self%p_qfcPPY  ! Fe uptake based on C uptake
+     runf  =   min(  rumf,  rupf+ misf)  ! actual uptake
+     r  =   insw(runf)
+     ! uptake from inorganic if shortage
+!    call flux_vector( iiPel, ppN7f,ppphytof, runf* r )
+     _SET_ODE_(self%id_f,runf* r)
+     _SET_ODE_(self%id_N7f,-runf* r)
+     ! release to dissolved organic to keep the balance if excess
+!    call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))
+     _SET_ODE_(self%id_f, runf*( ONE- r))
+     _SET_ODE_(self%id_R1f,- runf*( ONE- r))
+   
+   
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     ! Losses of Fe
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     rr6f  =   rr6c* self%p_qflc
+     rr1f  =   sdo* phytof- rr6f
+     _SET_ODE_(self%id_f,-rr1f)
+     _SET_ODE_(self%id_R1f,rr1f)
+     _SET_ODE_(self%id_f,-rr6f)
+     _SET_ODE_(self%id_R6f,rr6f)
+!    call flux_vector( iiPel, ppphytof,ppR1f, rr1f )
+!    call flux_vector( iiPel, ppphytof,ppR6f, rr6f )
+  end if
 !SEAMLESS#endif
 !SEAMLESS
 !SEAMLESS if ( self%ChlDynamicsFlag== 2) then
@@ -1230,7 +1268,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
       real(rk) :: qpcPPY,qncPPY,qscPPY
       real(rk) :: N5s
       real(rk) :: sediPPY
-      real(rk) :: iN1p, iNIn, eN5s, fpplim, iN5s, iN, tN  
+      real(rk) :: iN1p, iNIn, eN5s, fpplim, iN5s, iN, tN , iN7f 
 
        _GET_(self%id_c,phytoc)
        _GET_(self%id_p,phytop)

@@ -137,7 +137,7 @@ contains
       case ('s')
          call register(self%id_s,'s','mmol Si','silicate',standard_variables%total_silicate,self%qxs,self%id_sdep,self%id_targets)
       case ('f')
-!        if (use_iron) call register(self%id_f,'f','umol Fe','iron',standard_variables%total_iron,self%qxf,self%id_fdep,self%id_targetf)
+         call register(self%id_f,'f','umol Fe','iron',standard_variables%total_iron,self%qxf,self%id_fdep,self%id_targetf)
       case ('o')
          call register(self%id_o,'o','mmol O2','Oxygen',total_oxygen)
 !        call register(self%id_o,'o','mmol O2','Oxygen',standard_variables%total_oxygen,self%qxo,self%id_odep,self%id_targeto)
