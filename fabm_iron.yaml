@@ -275,7 +275,7 @@ instances:
       R8n: R8/n
       R8s: R8/s
       R8p: R8/p
-      R8f: R8/f
+#     R8f: R8/f
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
@@ -368,7 +368,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-      R8f: R8/f
+#     R8f: R8/f
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -472,7 +472,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-      R8f: R8/f
+#     R8f: R8/f
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -564,7 +564,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-      R8f: R8/f
+#     R8f: R8/f
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -724,9 +724,6 @@ instances:
       R1c:   R1/c                        # labile DOC
       R1n:   R1/n                        # labile DON
       R1p:   R1/p                        # labile DOP
-      R1p:   R1/f                        # labile DOP
-      R6s:   R6/f                        # POSi (mgSi/m3)
-      R6s:   R8/f                        # POSi (mgSi/m3)
       prey1: B1
       prey2: P1
       prey3: P2
