@@ -119,7 +119,7 @@
       type (type_state_variable_id)      :: id_R6c,id_R6s,id_R6n,id_R6p,id_R6f   ! particulate organic carbon, silicon, nitrogen, phosphorous
       type (type_state_variable_id)      :: id_R8c,id_R8s,id_R8n,id_R8p,id_R8f   ! particulate organic carbon, silicon, nitrogen, phosphorous
       type (type_state_variable_id)      :: id_X1c   ! colored dissolved organic carbon
-      type (type_state_variable_id)      :: id_R1c,id_R1n,id_R1p,id_R1f   ! dissolved organic carbon, nitrogen, phosphorous (R1: labile)
+      type (type_state_variable_id)      :: id_R1c,id_R1n,id_R1p   ! dissolved organic carbon, nitrogen, phosphorous (R1: labile)
 
       ! Environmental dependencies
       type (type_dependency_id)          :: id_ETW   ! temperature
@@ -317,7 +317,6 @@
         call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3',   'labile DOC')
         call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3', 'labile DON')
         call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3', 'labile DOP')
-        call self%register_state_dependency(self%id_R1f,'R1f','mmol Fe/m^3', 'labile DOP')
         
         ! Register environmental dependencies (temperature, shortwave radiation)
         call self%register_dependency(self%id_ETW,standard_variables%temperature)
