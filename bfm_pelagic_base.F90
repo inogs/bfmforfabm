@@ -44,7 +44,7 @@ contains
       integer,                           intent(in)            :: configunit
 
       character(len=10) :: composition
-      real(rk)          :: c0,s0,rRPmX,EPS,iopABS,iopBBS
+      real(rk)          :: c0,s0,rRPmX,EPS,iopABS,iopBBS,f0
       real(rk)          :: qn, qp
 
 

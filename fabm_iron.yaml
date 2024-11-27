@@ -1,5 +1,5 @@
 check_conservation: false
-require_initialization: true
+require_initialization: false
 log: true
 instances:
   Benthic_layer:
@@ -275,7 +275,7 @@ instances:
       R8n: R8/n
       R8s: R8/s
       R8p: R8/p
-#     R8f: R8/f
+      R8f: R8/f
       X1c: X1/c
       X2c: X2/c
       O3h: O3h/h
@@ -368,7 +368,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-#     R8f: R8/f
+      R8f: R8/f
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -464,6 +464,7 @@ instances:
       R1c: R1/c 
       R1n: R1/n 
       R1p: R1/p 
+      R1f: R1/f 
       R2c: R2/c 
       R6c: R6/c 
       R6n: R6/n 
@@ -472,7 +473,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-#     R8f: R8/f
+      R8f: R8/f
       X1c: X1/c 
       X2c: X2/c
       O3h: O3h/h
@@ -564,7 +565,7 @@ instances:
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
-#     R8f: R8/f
+      R8f: R8/f
       X1c: X1/c 
       X2c: X2/c 
       O3h: O3h/h
@@ -709,7 +710,7 @@ instances:
       O3c:   O3/c                        # dissolved inorganic carbon (mg C/m^3)
       N4n:   N4/n                        # ammonium (mmol N/m^3)
       N1p:   N1/p                        # phosphate (mmol P/m^3)
-      N7f:   N7/f                        # phosphate (mmol P/m^3)
+#     N7f:   N7/f                        # phosphate (mmol P/m^3)
       R6c:   R6/c                        # POC  (mgC/m3)
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
@@ -795,7 +796,7 @@ instances:
       O3c:   O3/c                        # dissolved inorganic carbon (mg C/m^3)
       N4n:   N4/n                        # ammonium (mmol N/m^3)
       N1p:   N1/p                        # phosphate (mmol P/m^3)
-      N7f:   N7/f                        # phosphate (mmol P/m^3)
+#     N7f:   N7/f                        # phosphate (mmol P/m^3)
       R6c:   R6/c                        # POC  (mgC/m3)
       R6s:   R6/s                        # POSi (mgSi/m3)
       R6n:   R6/n                        # PON (mmolN/m3)
@@ -865,7 +866,7 @@ instances:
       O3c: O3/c                                            # DIC
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
-      N7f: N7/f                                            # ammonium (mmol N/m^3)
+#     N7f: N7/f                                            # ammonium (mmol N/m^3)
       R6c: R6/c                                            # POC
       R6f: R6/f                                            # POC
       R6n: R6/n                                            # PON
@@ -934,7 +935,7 @@ instances:
       O3c: O3/c                                            # DIC
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
-      N7f: N7/f                                            # ammonium (mmol N/m^3)
+#     N7f: N7/f                                            # ammonium (mmol N/m^3)
       R6c: R6/c                                            # POC
       R6n: R6/n                                            # PON
       R6p: R6/p                                            # POP
@@ -1008,12 +1009,12 @@ instances:
       R6c: R6/c                                            # POC  (mgC/m3)
       R6n: R6/n                                            # PON  (mmolN/m3)
       R6p: R6/p                                            # POP (mmolP/m3)
-      R6f: R6/f                                            # POP (mmolP/m3)
+#     R6f: R6/f                                            # POP (mmolP/m3)
       R8s: R8/s                                            # POSi (mgSi/m3)
       R8c: R8/c                                            # POC  (mgC/m3)
       R8n: R8/n                                            # PON  (mmolN/m3)
       R8p: R8/p                                            # POP (mmolP/m3)
-      R8f: R8/f                                            # POP (mmolP/m3)
+#     R8f: R8/f                                            # POP (mmolP/m3)
       PAR_tot: light/parEIR
       isBen:  Benthic_layer/isBen
 ##  --------------------- CalciteDissolution
