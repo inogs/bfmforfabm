@@ -295,8 +295,8 @@ contains
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
 !              --------- Iron limitation control ----------
       call self%get_parameter(self%use_Fe,   'use_Fe','',          'use iron',default=.false.)
-      call self%get_parameter(self%p_qflc,   'p_qflc'  ,'mmolFe/mgC','Minimum quotum Fe:C ', default=0.25e-3_rk)
-      call self%get_parameter(self%p_qfcPPY, 'p_qfcPPY','mmolFe/mgC','reference quotum Fe:C',default=0.5e-3_rk)
+      call self%get_parameter(self%p_qflc,   'p_qflc'  ,'umolFe/mgC','Minimum quotum Fe:C ', default=0.25e-3_rk)
+      call self%get_parameter(self%p_qfcPPY, 'p_qfcPPY','umolFe/mgC','reference quotum Fe:C',default=0.5e-3_rk)
       call self%get_parameter(self%p_xqf,    'p_xqf'   ,'-', 'Multiplication factor for luxury storage',default=1.5_rk)
       call self%get_parameter(self%p_quf,    'p_quf'   ,'m3/mgC/d', 'Membrane affinity for Fe',default=2.0e-4_rk)
 
