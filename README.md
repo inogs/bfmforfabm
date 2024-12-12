@@ -5,7 +5,8 @@
 bfmforfabm allows to couple [BFM model](https://bfm-community.github.io/www.bfm-community.eu/) to The Framework for Aquatic Biogeochemical Models ([FABM](https://github.com/fabm-model/fabm/wiki)).
 It is currently maintained in the [fabm-plus](https://github.com/fabm-model/fabm-plus) distribution as an external module.
 
-The application was developed within the [Seamless H2020 project](https://zenodo.org/records/6401395).
+The application was developed within the [Seamless H2020 project](https://zenodo.org/records/6401395), and [NECCTON project](https://neccton.eu/). The plankton biodiversity implementation is developed within
+the [National Biodiversity Future Center](https://www.nbfc.it/en).
 
 
 ## Scripts for downloading BFM in FABM
