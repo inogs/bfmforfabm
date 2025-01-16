@@ -2,7 +2,7 @@ import os
 import numpy as np
 import re
 
-nombrito = "fabm_"
+nombrito = "fabm_prova"
 
 # Set input and output directories
 indir = os.getcwd() + "/"
@@ -94,14 +94,15 @@ c_init_phyto = 0.1
 c_init_zoo = 0.08
 
 # Choose one
-equal_initialization = False
-separate_phytozoo = True
+equal_initialization = True
+separate_phytozoo = False
 
 ###############################################
 
 ## Read the fabm.yaml template that contains the 9PFTs and 4Zoo
 ## Several text tags have been included to locate the different "lego bricks"
-template_file = os.path.join(indir, "fabm_multispectral_9PFTs_template.yaml")
+#template_file = os.path.join(indir, "fabm_multispectral_9PFTs_template.yaml")
+template_file = os.path.join(indir, "fabm_iron_monospectral_template.yaml")
 
 # Read the lines from the template file
 with open(template_file, 'r') as file:
@@ -232,9 +233,11 @@ for iPFT, old_name in enumerate(old_names):
         if equal_initialization:
             carbon_value = c_init_phyto
         elif separate_phytozoo:
-            carbon_value = c_init_phyto / counts_init_phyto[np.where(clases_init == clasesP[j])[0][0]]
+#           carbon_value = c_init_phyto / counts_init_phyto[np.where(clases_init == clasesP[j])[0][0]]
+            carbon_value = c_init_phyto / len(clasesP)
         else:
-            carbon_value = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+#           carbon_value = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+            carbon_value = c_init / len(clasesP)
 
         nitro = carbon_value * (0.1008 / 8)
         phosp = carbon_value * (0.006288 / 8)
@@ -329,8 +332,14 @@ for j in range(len(clasesP)):
     modulo_modificado[nprey_fila_idx] = re.sub(str(old_nprey), str(len(names_preys[prefs != 0])), modulo_modificado[nprey_fila_idx])
     
     # Block of preferences
-    pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z6_{clasesP[j]}"
-                  for idx, pref in enumerate(prefs) if pref != 0]
+    pref_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         pref_lines.append(f"      suprey{id_pref_seq}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z6_{clasesP[j]}")
+#   pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z6_{clasesP[j]}"
+#                 for idx, pref in enumerate(prefs) if pref != 0]
     modulo_modificado[nprey_fila_idx+1:nprey_fila_idx+1+len(pref_lines)] = pref_lines
     
     # Block of calcifier
@@ -342,7 +351,13 @@ for j in range(len(clasesP)):
     modulo_modificado[calcifier_fila_idx:calcifier_fila_idx+len(calcifier_lines)] = calcifier_lines
     
     # Block of coupling
-    coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
+    coupling_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         coupling_lines.append(f"      prey{id_pref_seq}:   {names_preys[idx]}")
+#   coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
     prey_fila_idx = next(i for i in range(inicio[0], final[0]) if re.search("      prey1:", modulo_modificado[i]))
     modulo_modificado[prey_fila_idx:prey_fila_idx+len(coupling_lines)] = coupling_lines
     
@@ -350,9 +365,14 @@ for j in range(len(clasesP)):
     if equal_initialization:
         carbon = c_init_zoo
     elif separate_phytozoo:
-        carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+#       carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init_zoo / len(clasesP)
     else:
-        carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init / len(clasesP)
+#       carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+
+    print(carbon,counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]] )
+    print(counts_init_zoo)
         
     nitro = carbon * (0.0167 / 1.0)
     phosp = carbon * (0.00185 / 1.0)
@@ -439,8 +459,14 @@ for j in range(len(clasesP)):
     modulo_modificado[nprey_fila_idx] = re.sub(str(old_nprey), str(len(names_preys[prefs != 0])), modulo_modificado[nprey_fila_idx])
     
     # Block of preferences
-    pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z5_{clasesP[j]}"
-                  for idx, pref in enumerate(prefs) if pref != 0]
+    pref_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         pref_lines.append(f"      suprey{id_pref_seq}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z5_{clasesP[j]}")
+#   pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z5_{clasesP[j]}"
+#                 for idx, pref in enumerate(prefs) if pref != 0]
     modulo_modificado[nprey_fila_idx+1:nprey_fila_idx+1+len(pref_lines)] = pref_lines
 
 
@@ -454,7 +480,13 @@ for j in range(len(clasesP)):
     modulo_modificado[calcifier_fila_idx:calcifier_fila_idx+len(calcifier_lines)] = calcifier_lines
 
     # Block of coupling
-    coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
+    coupling_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         coupling_lines.append(f"      prey{id_pref_seq}:   {names_preys[idx]}")
+#   coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
     prey_fila_idx = next(i for i in range(inicio[0], final[0]) if re.search("      prey1:", modulo_modificado[i]))
     modulo_modificado[prey_fila_idx:prey_fila_idx+len(coupling_lines)] = coupling_lines
 
@@ -463,9 +495,11 @@ for j in range(len(clasesP)):
     if equal_initialization:
         carbon = c_init_zoo
     elif separate_phytozoo:
-        carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+#       carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init_zoo / len(clasesP)
     else:
-        carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init / len(clasesP)
+#       carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
     
     nitro = carbon * (0.0167 / 1.0)
     phosp = carbon * (0.00185 / 1.0)
@@ -551,8 +585,14 @@ for j in range(len(clasesP)):
     modulo_modificado[nprey_fila_idx] = re.sub(str(old_nprey), str(len(names_preys[prefs != 0])), modulo_modificado[nprey_fila_idx])
     
     # Block of preferences
-    pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z4_{clasesP[j]}"
-                  for idx, pref in enumerate(prefs) if pref != 0]
+    pref_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         pref_lines.append(f"      suprey{id_pref_seq}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z4_{clasesP[j]}")
+#   pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z4_{clasesP[j]}"
+#                 for idx, pref in enumerate(prefs) if pref != 0]
     modulo_modificado[nprey_fila_idx+1:nprey_fila_idx+1+len(pref_lines)] = pref_lines
 
     # Block of calcifier
@@ -565,7 +605,13 @@ for j in range(len(clasesP)):
     modulo_modificado[calcifier_fila_idx:calcifier_fila_idx+len(calcifier_lines)] = calcifier_lines
 
     # Block of coupling
-    coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
+    coupling_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         coupling_lines.append(f"      prey{id_pref_seq}:   {names_preys[idx]}")
+#   coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
     prey_fila_idx = next(i for i in range(inicio[0], final[0]) if re.search("      prey1:", modulo_modificado[i]))
     modulo_modificado[prey_fila_idx:prey_fila_idx+len(coupling_lines)] = coupling_lines
 
@@ -573,9 +619,11 @@ for j in range(len(clasesP)):
     if equal_initialization:
         carbon = c_init_zoo
     elif separate_phytozoo:
-        carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+#       carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init_zoo / len(clasesP)
     else:
-        carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init / len(clasesP)
+#       carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
 
     nitro = carbon * (0.0167 / 1.0)
     phosp = carbon * (0.00185 / 1.0)
@@ -657,8 +705,14 @@ for j in range(len(clasesP)):
     modulo_modificado[nprey_fila_idx] = re.sub(str(old_nprey), str(len(names_preys[prefs != 0])), modulo_modificado[nprey_fila_idx])
     
     # Block of preferences
-    pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z3_{clasesP[j]}"
-                  for idx, pref in enumerate(prefs) if pref != 0]
+    pref_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         pref_lines.append(f"      suprey{id_pref_seq}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z3_{clasesP[j]}")
+#   pref_lines = [f"      suprey{idx+1}:   {round(pref, 2)}     # [-] Availability of {names_preys[idx]} to Z3_{clasesP[j]}"
+#                 for idx, pref in enumerate(prefs) if pref != 0]
     modulo_modificado[nprey_fila_idx+1:nprey_fila_idx+1+len(pref_lines)] = pref_lines
 
     # Block of calcifier
@@ -672,7 +726,13 @@ for j in range(len(clasesP)):
     modulo_modificado[calcifier_fila_idx:calcifier_fila_idx+len(calcifier_lines)] = calcifier_lines
 
     # Block of coupling
-    coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
+    coupling_lines = []
+    id_pref_seq = 0
+    for idx,pref in enumerate(prefs):
+      if pref != 0:
+         id_pref_seq += 1
+         coupling_lines.append(f"      prey{id_pref_seq}:   {names_preys[idx]}")
+#   coupling_lines = [f"      prey{idx+1}:   {names_preys[idx]}" for idx, pref in enumerate(prefs) if pref != 0]
     prey_fila_idx = next(i for i in range(inicio[0], final[0]) if re.search("      prey1:", modulo_modificado[i]))
     modulo_modificado[prey_fila_idx:prey_fila_idx+len(coupling_lines)] = coupling_lines
 
@@ -680,9 +740,11 @@ for j in range(len(clasesP)):
     if equal_initialization:
         carbon = c_init_zoo
     elif separate_phytozoo:
-        carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+#       carbon = c_init_zoo / counts_init_zoo[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init_zoo / len(clasesP)
     else:
-        carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
+        carbon = c_init / len(clasesP)
+#       carbon = c_init / counts_init[np.where(clases_init == clasesP[j])[0][0]]
 
     nitro = carbon * (0.0167 / 1.0)
     phosp = carbon * (0.00185 / 1.0)
