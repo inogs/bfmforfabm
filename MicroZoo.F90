@@ -566,7 +566,7 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       rrsc = self%p_srs*et*zooc
       ! the activity respiration is derived from the other constant parameters
-      rrac = rugc*(ONE - self%p_pu - self%p_pu_ea)
+      rrac = max( rugc*(ONE - self%p_pu - self%p_pu_ea), ZERO)
       rrtc = rrsc + rrac
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrtc, tfluxC)
       _SET_ODE_(self%id_c, -rrtc)
@@ -583,7 +583,7 @@
       ! and partitioning between particulate and dissolved
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       rdc  = ((ONE - eO2)*self%p_sdo + self%p_sd)*zooc
-      reac = rugc*(ONE - self%p_pu)*self%p_pu_ea
+      reac = max( rugc*(ONE - self%p_pu)*self%p_pu_ea , ZERO)
       rric = reac + rdc
       rr1c = rric*self%p_pe_R1c
       rr6c = rric*(ONE - self%p_pe_R1c)
