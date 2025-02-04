@@ -17,6 +17,8 @@ add_library(fabm_models_ogs OBJECT
             CalciteDissolution.F90
             PelagicCSYS.F90
 	    BenthicLayer.F90	    
+	    random_generator.F90
+	    gaussian_generator.F90
            )
 
 target_link_libraries(fabm_models_ogs PRIVATE fabm_base)

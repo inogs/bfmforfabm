@@ -17,7 +17,7 @@
    use fabm_types
    use ogs_bfm_shared
    use fabm_particle
-
+   use gaussian_generator !needed for random gaussian numbers
    use ogs_bfm_pelagic_base
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -142,6 +142,9 @@
       type (type_diagnostic_variable_id) :: id_O3hconume_for_CaCO3prec !consume of alk for caco3 precipitation
       type (type_diagnostic_variable_id) :: id_Putil_O3h !  variation of O3h due to net utilization of P (uptake-release)
       type (type_diagnostic_variable_id) :: id_Nutil_O3h !  variation of O3h due to net utilization of N (uptake-release)
+
+      type (type_diagnostic_variable_id)   :: id_diaFLUC,id_diaSEED 
+      type (type_dependency_id)                       :: id_dt
  
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
@@ -160,6 +163,8 @@
       logical :: p_netgrowth
       logical :: use_CaCO3
       integer :: p_OT
+      real(rk) :: D_rnd,time_step,seed ! dem noise parameters 
+      logical :: use_noise
 
    contains
 
@@ -288,6 +293,13 @@ contains
       call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
+!              --------- Demographic Noise ------------
+      call self%get_parameter(self%use_noise, 'use_noise','',          'use demographic noise',default=.false.)
+      if (self%use_noise) then 
+        call self%get_parameter(self%D_rnd,  'D_rnd',   '2*d',  'noise source intensity', default=0.0001_rk)
+        call self%get_parameter(self%time_step,  'time_step', 's','fabm time step', default=3600.0_rk)
+        call self%get_parameter(self%seed,  'seed',   '[-]',  'initial seed of noise', default=20220610.0_rk)
+      endif
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -455,6 +467,8 @@ contains
       endif
          call self%register_diagnostic_variable(self%id_Nutil_O3h,'varO3h_for_Nutil','mmol/m3/d','variation of O3h due to N uptake/release',output=output_none)
          call self%register_diagnostic_variable(self%id_Putil_O3h,'varO3h_for_Putil','mmol/m3/d','variation of O3h due to P uptake/release',output=output_none)
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaFLUC, 'diaFLUC',  '[-]',  'Random Fluctuation')
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaSEED, 'diaSEED',  '[-]',  'Random Seed')
 
          ! Register aggregated chlorophyll and carbon per optical type
          ! This quantities can be used by other models (e.g., light_spectral) to determine how much light is attenuated by all primary producers of the same optical type.         
@@ -535,6 +549,10 @@ contains
       real(rk) :: arepr_n,srepr_n
       real(rk) :: arepr_s,srepr_s
       real(rk) :: arepr_l,srepr_l
+      real(rk) :: D_rnd !noise
+      real(rk) :: dfluc,fSEED,dSEED !noise
+      real(rk) :: NOISEdt !noise
+      integer  :: local_seed,local_seed0 !noise
 
       ! Enter spatial loops (if any)
       _LOOP_BEGIN_
@@ -976,6 +994,29 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
       _SET_ODE_(self%id_chl         ,-srepr_l)
       _SET_ODE_(self%id_size_max_chl,+srepr_l)
   end if
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Demographic Noise
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_noise) then
+    fSEED=self%seed
+    NOISEdt=self%time_step
+
+!   dSEED = 86400.0_rk/NOISEdt*REAL(int(fSEED)-int(fSEED),8)
+    local_seed=int(fSEED)
+!   local_seed=int(dSEED)
+    local_seed0=local_seed
+
+    D_rnd=self%D_rnd
+
+    dfluc = dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(phytoc) * REAL(W(local_seed,local_seed),8)
+!   dfluc =  REAL(W(local_seed,local_seed),8)
+!   dfluc = max(dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(phytoc) , ZERO)
+    dSEED=86400.0_rk/NOISEdt*REAL(local_seed-local_seed0,8)
+  
+    _SET_ODE_(self%id_c,dfluc)
+    _SET_DIAGNOSTIC_(self%id_diaFLUC,dfluc)
+    _SET_DIAGNOSTIC_(self%id_diaSEED,local_seed)
+  endif 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
