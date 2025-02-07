@@ -310,6 +310,7 @@ contains
       call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
       call self%add_constituent('chl',3.e-6_rk)
       if (self%use_Si) call self%add_constituent('s',1.e-6_rk)
+      if (self%use_noise) call self%add_constituent('seed',20220610.0_rk)
 !     call self%add_constituent('c',1.e-4_rk,   c0)
 !     call self%add_constituent('n',1.26e-6_rk, c0*qnrpicX)
 !     call self%add_constituent('p',4.288e-8_rk,c0*qprpicX)
@@ -550,7 +551,7 @@ contains
       real(rk) :: arepr_s,srepr_s
       real(rk) :: arepr_l,srepr_l
       real(rk) :: D_rnd !noise
-      real(rk) :: dfluc,fSEED,dSEED !noise
+      real(rk) :: dfluc,fSEED,dSEED,fluxC !noise
       real(rk) :: NOISEdt !noise
       integer  :: local_seed,local_seed0 !noise
 
@@ -592,6 +593,8 @@ contains
             _GET_(self%id_size_max_s,size_max_s)
             _GET_(self%id_size_max_chl,size_max_chl)
          endif
+
+         if (self%use_noise) _GET_(self%id_seed,fSEED)
 
          ! Retrieve ambient nutrient concentrations
          _GET_(self%id_N1p,N1p)
@@ -836,18 +839,22 @@ end select
  _SET_DIAGNOSTIC_(self%id_rugc,rugc)
 
 !SEAMLESS  call quota_flux( iiPel, ppphytoc ,ppO3c,ppphytoc, rugc, tfluxC )  
+  fluxC = phytoc + rugc
   _SET_ODE_(self%id_c,rugc)
   _SET_ODE_(self%id_O3c,-rugc)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1c, 0.98D0 * rr1c, tfluxC ) !  flux is partitioned to non CDOM
+  fluxC = fluxC -(1.00D0-self%p_fX1p) * rr1c
   _SET_ODE_(self%id_c,-(1.00D0-self%p_fX1p) * rr1c)
   _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1p) * rr1c)
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR1l, 0.02D0 * rr1c, tfluxC ) !  flux is partitioned to CDOM
+  fluxC = fluxC -self%p_fX1p * rr1c
   _SET_ODE_(self%id_c,-self%p_fX1p * rr1c)
   _SET_ODE_(self%id_X1c, self%p_fX1p * rr1c)
 
 !CEA Activity excretion produces CDOM, nutrient-stress excretion dont  
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
   f2cdom = self%p_fX2p * ( qlcPPY/self%p_qlcPPY ) 
+  fluxC  = fluxC -f2cdom * flPIR2c
   _SET_ODE_(self%id_c, -f2cdom * flPIR2c)
   _SET_ODE_(self%id_X2c,f2cdom * flPIR2c)
 
@@ -855,11 +862,13 @@ end select
   _SET_DIAGNOSTIC_(self%id_f2cdom, f2cdom)
   
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR6c, rr6c, tfluxC )
+  fluxC = fluxC -rr6c
   _SET_ODE_(self%id_c, -rr6c)
   _SET_ODE_(self%id_R6c, self%p_fR6 * rr6c)
   _SET_ODE_(self%id_R8c, (1.00D0-self%p_fR6) * rr6c)
 !SEAMLESS
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppO3c, rrc, tfluxC )
+  fluxC = fluxC -rrc
   _SET_ODE_(self%id_c,-rrc)
   _SET_ODE_(self%id_O3c,rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
@@ -930,6 +939,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 !  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c_tot)
 
 ! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
+  fluxC = fluxC -flPIR2c
   _SET_ODE_(self%id_c,-flPIR2c)
   _SET_ODE_(self%id_R2c,flPIR2c)
 
@@ -964,9 +974,11 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
       arepr_l=q_bio*self%p_arepr_rate*phytol
       srepr_l=q_bio*self%p_srepr_rate*phytol
 
+      fluxC = fluxC -arepr_c
       _SET_ODE_(self%id_c          ,-arepr_c)
       _SET_ODE_(self%id_size_down_c,+arepr_c)
   
+      fluxC = fluxC -srepr_c
       _SET_ODE_(self%id_c         ,-srepr_c)
       _SET_ODE_(self%id_size_max_c,+srepr_c)
 
@@ -998,24 +1010,26 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   ! Demographic Noise
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if (self%use_noise) then
-    fSEED=self%seed
+!   fSEED=self%seed
     NOISEdt=self%time_step
 
-!   dSEED = 86400.0_rk/NOISEdt*REAL(int(fSEED)-int(fSEED),8)
     local_seed=int(fSEED)
-!   local_seed=int(dSEED)
     local_seed0=local_seed
 
     D_rnd=self%D_rnd
 
     dfluc = dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(phytoc) * REAL(W(local_seed,local_seed),8)
-!   dfluc =  REAL(W(local_seed,local_seed),8)
-!   dfluc = max(dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(phytoc) , ZERO)
     dSEED=86400.0_rk/NOISEdt*REAL(local_seed-local_seed0,8)
-  
+    
+    fluxC = fluxC + dfluc
+    ! check for negative outcomes
+    if (fluxC < 0.00001_rk) then
+       dfluc = 0.0000001_rk
+    endif
     _SET_ODE_(self%id_c,dfluc)
+    _SET_ODE_(self%id_seed,dSEED)
     _SET_DIAGNOSTIC_(self%id_diaFLUC,dfluc)
-    _SET_DIAGNOSTIC_(self%id_diaSEED,local_seed)
+    _SET_DIAGNOSTIC_(self%id_diaSEED,dSEED)
   endif 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
