@@ -13,7 +13,7 @@ module ogs_bfm_pelagic_base
 
    ! type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
    type,extends(type_particle_model),public :: type_ogs_bfm_pelagic_base
-      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_h
+      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_h,id_seed
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
       type (type_dependency_id)                     :: id_dens
@@ -147,6 +147,8 @@ contains
          call register(self%id_r,'r','mmol/Eq','mmol Eq',total_reduction_equivalent)
       case ('h')
          call register(self%id_h,'h','mmol eq','mmol Eq alkalinity',alkalinity)
+      case ('seed')
+         call register(self%id_seed,'seed',' -','',seed)
       case default
          call self%fatal_error('add_constituent','Unknown constituent "'//trim(name)//'".')
       end select
