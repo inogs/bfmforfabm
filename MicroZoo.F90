@@ -15,7 +15,7 @@
 
     use fabm_types
     use fabm_particle
-
+    use gaussian_generator !needed for random gaussian numbers
     use ogs_bfm_shared
     use ogs_bfm_pelagic_base
 !
@@ -164,6 +164,9 @@
       type (type_diagnostic_variable_id) :: id_varO3h_Nutil ! variation of O3h due to NH44 utilization by Zoo
       type (type_diagnostic_variable_id) :: id_varO3h_Putil ! variation of O3h due to PO4 utilization by Zoo
 
+      type (type_diagnostic_variable_id)   :: id_diaFLUC,id_diaSEED
+      type (type_dependency_id)                       :: id_dt
+
       ! Parameters (described in subroutine initialize, below)
       integer  :: nprey
       real(rk), allocatable :: p_pa(:)
@@ -174,6 +177,8 @@
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1z
       real(rk) :: p_fR6
+      real(rk) :: D_rnd,time_step,seed ! dem noise parameters
+      logical :: use_noise
       
       ! Parameters (described in subroutine initialize, below)
   ! integer       :: i
@@ -245,12 +250,20 @@
         call self%get_parameter(self%p_fX1z,    'p_fX1z',    '-',         'colored fraction in labile DOC', default=0.02_rk)
 !              --------- Flux partition POM parameters ------------
         call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
+!             --------- Demographic Noise ------------
+        call self%get_parameter(self%use_noise, 'use_noise','',          'use demographic noise',default=.false.)
+        if (self%use_noise) then
+          call self%get_parameter(self%D_rnd,  'D_rnd',   '2*d',  'noise source intensity', default=0.0001_rk)
+          call self%get_parameter(self%time_step,  'time_step', 's','fabm time step',default=3600.0_rk)
+          call self%get_parameter(self%seed,  'seed',   '[-]',  'initial seed of noise', default=20220610.0_rk)
+        endif
         
         ! Register state variables (handled by type_bfm_pelagic_base)
         call self%initialize_bfm_base()
         call self%add_constituent('c',1.e-4_rk)
         call self%add_constituent('n',1.26e-6_rk)
         call self%add_constituent('p',4.288e-8_rk)
+        if (self%use_noise) call self%add_constituent('seed',20220610.0_rk)
         
         ! Determine number of prey types
         call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
@@ -344,6 +357,8 @@
 
        call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz',output=output_none)
        call self%register_diagnostic_variable(self%id_varO3h_Putil,'varO3h_Putil','mmol/m3/d','variazO3h due to P utiliz',output=output_none)
+       if (self%use_noise) call self%register_diagnostic_variable(self%id_diaFLUC, 'diaFLUC',  '[-]',  'Random Fluctuation')
+       if (self%use_noise) call self%register_diagnostic_variable(self%id_diaSEED, 'diaSEED',  '[-]',  'Random Seed')
       do iprey=1,self%nprey
        write (index,'(i0)') iprey
        if (self%p_isP2(iprey).eq.1) then
@@ -375,6 +390,10 @@
       real(rk) :: rrin,rr1n,rr6n
       real(rk) :: rrip,rr1p,rr6p
       real(rk) :: runc,runn,runp,ren,rep
+      real(rk) :: D_rnd !noise
+      real(rk) :: dfluc,fSEED,dSEED,fluxC !noise
+      real(rk) :: NOISEdt !noise
+      integer  :: local_seed,local_seed0 !noise
       
       ! Enter spatial loops (if any)
       _LOOP_BEGIN_
@@ -416,6 +435,8 @@
       _GET_(self%id_c,zooc)
       _GET_(self%id_n,zoon)
       _GET_(self%id_p,zoop)
+
+      if (self%use_noise) _GET_(self%id_seed,fSEED)
       
       ! Retrieve ambient nutrient concentrations
       _GET_(self%id_O2o,O2o)
@@ -496,6 +517,7 @@
         ruPPYc = sut*PPYc(iprey)
         ! All the predation flux from the prey are assigned in the istate loop below
         ! call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, ruPBAc, tfluxC)
+        fluxC = ruPPYc
         _SET_ODE_(self%id_c,            ruPPYc)
         _SET_ODE_(self%id_preyc(iprey),-ruPPYc)
         ! call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxN)
@@ -569,6 +591,7 @@
       rrac = max( rugc*(ONE - self%p_pu - self%p_pu_ea), ZERO)
       rrtc = rrsc + rrac
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrtc, tfluxC)
+      fluxC = fluxC -rrtc
       _SET_ODE_(self%id_c, -rrtc)
       _SET_ODE_(self%id_O3c,rrtc)
       ! call flux_vector(iiPel, ppO2o, ppO2o, -rrtc/MW_C)
@@ -589,9 +612,11 @@
       rr6c = rric*(ONE - self%p_pe_R1c)
 
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1c, 0.98D0*rr1c, tfluxC) ! flux to non CDOM
+      fluxC = fluxC -(1.00D0-self%p_fX1z)*rr1c
       _SET_ODE_(self%id_c, -(1.00D0-self%p_fX1z)*rr1c)
       _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1z)*rr1c)
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR1l, 0.02D0*rr1c, tfluxC) ! flux to CDOM
+      fluxC = fluxC -self%p_fX1z*rr1c
       _SET_ODE_(self%id_c, -self%p_fX1z*rr1c)
       _SET_ODE_(self%id_X1c,self%p_fX1z*rr1c)
 
@@ -603,6 +628,7 @@
 !      _SET_ODE_(self%id_X1c,self%p_fX1z*(reac*rr1c/rric))
 
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppR6c, rr6c, tfluxC)
+      fluxC = fluxC -rr6c
       _SET_ODE_(self%id_c,  -rr6c)
       _SET_ODE_(self%id_R6c, self%p_fR6 * rr6c)
       _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * rr6c)
@@ -680,7 +706,33 @@
      
       _SET_DIAGNOSTIC_(self%id_varO3h_Nutil,ren)
       _SET_DIAGNOSTIC_(self%id_varO3h_Putil,-rep)
- 
+
+ ! Demographic Noise
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_noise) then
+!   fSEED=self%seed
+    NOISEdt=self%time_step
+
+    local_seed=int(fSEED)
+    local_seed0=local_seed
+
+    D_rnd=self%D_rnd
+
+    dfluc = dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(zooc) * REAL(W(local_seed,local_seed),8)
+    dSEED=86400.0_rk/NOISEdt*REAL(local_seed-local_seed0,8)
+
+    fluxC = fluxC + dfluc
+    ! check for negative outcomes
+    if (fluxC < 0.00001_rk) then
+       dfluc = 0.0000001_rk
+    endif
+    _SET_ODE_(self%id_c,dfluc)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_DIAGNOSTIC_(self%id_diaFLUC,dfluc)
+    _SET_DIAGNOSTIC_(self%id_diaSEED,dSEED)
+  endif
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       _LOOP_END_
     end subroutine do
 end module
