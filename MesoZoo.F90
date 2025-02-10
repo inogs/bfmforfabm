@@ -15,7 +15,7 @@
 
    use fabm_types
    use fabm_particle
-
+   use gaussian_generator !needed for random gaussian numbers
    use ogs_bfm_shared
    use ogs_bfm_pelagic_base
 
@@ -169,6 +169,8 @@
       type (type_diagnostic_variable_id) :: id_pe_N4n    ! rate removal N
       type (type_diagnostic_variable_id) :: id_varO3h_Nutil ! variation of O3h due to NH44 utilization by Zoo
       type (type_diagnostic_variable_id) :: id_varO3h_Putil ! variation of O3h due to PO4 utilization by Zoo
+      type (type_diagnostic_variable_id)   :: id_diaFLUC,id_diaSEED
+      type (type_dependency_id)                       :: id_dt
  
       !! Parameters (described in subroutine initialize, below)
       integer  :: nprey
@@ -180,6 +182,8 @@
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
       real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
       real(rk) :: p_fR6
+      real(rk) :: D_rnd,time_step,seed ! dem noise parameters
+      logical :: use_noise
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
 !      integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl
@@ -236,6 +240,13 @@ contains
       call self%get_parameter(self%p_qpcMEZ, 'p_qpcMEZ',  'mmolP/mgC',  'maximum quotum P:C')
       call self%get_parameter(self%p_qncMEZ, 'p_qncMEZ',  'mmolN/mgC',  'maximum quotum N:C')
       call self%get_parameter(self%p_clO2o,  'p_clO2o',   'mmolO2/m3',  'half-saturation oxygen concentration')
+!             --------- Demographic Noise ------------
+        call self%get_parameter(self%use_noise, 'use_noise','',          'use demographic noise',default=.false.)
+        if (self%use_noise) then
+          call self%get_parameter(self%D_rnd,  'D_rnd',   '2*d',  'noise source intensity', default=0.0001_rk)
+          call self%get_parameter(self%time_step,  'time_step', 's','fabm time step',default=3600.0_rk)
+          call self%get_parameter(self%seed,  'seed',   '[-]',  'initial seed of noise', default=20220610.0_rk)
+        endif
 
 ! Register state variables (handled by type_bfm_pelagic_base)
 !     call self%initialize_ogs_bfm_base(sedimentation=.true.)
@@ -244,6 +255,7 @@ contains
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
 !      call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
+      if (self%use_noise) call self%add_constituent('seed',20220610.0_rk)
 
 ! Register links to external preys
       call self%get_parameter(self%nprey,'nprey','','number of prey types',default=0)
@@ -349,6 +361,8 @@ contains
       call self%register_diagnostic_variable(self%id_pe_R6c,  'pe_R6c',   'mgC/m3/d',    'removal of C',output=output_none)
       call self%register_diagnostic_variable(self%id_pe_N1p,  'pe_N1p',   'mmolP/m3/d',  'removal of P',output=output_none)
       call self%register_diagnostic_variable(self%id_pe_N4n,  'pe_N4n',   'mmolN/m3/d',  'removal of N',output=output_none)
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaFLUC, 'diaFLUC',  '[-]',  'Random Fluctuation')
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaSEED, 'diaSEED',  '[-]',  'Random Seed')
 
 
      do iprey=1,self%nprey
@@ -415,6 +429,10 @@ contains
     real(rk) :: pu_e_n, pu_e_p
     integer       :: limit
     real(rk) :: pe_R6c, pe_N1p, pe_N4n
+    real(rk) :: D_rnd !noise
+    real(rk) :: dfluc,fSEED,dSEED,fluxC !noise
+    real(rk) :: NOISEdt !noise
+    integer  :: local_seed,local_seed0 !noise
     
 
     ! Enter spatial loops (if any)
@@ -461,6 +479,9 @@ contains
          _GET_(self%id_c,zooc)
          _GET_(self%id_p,zoop)
          _GET_(self%id_n,zoon)
+
+         if (self%use_noise) _GET_(self%id_seed,fSEED)
+         fluxC = zooc
 
 !  zooc = D3STATE(ppzooc,:)
 !  zoon = zooc * qncMEZ(zoo,:)
@@ -559,6 +580,7 @@ contains
     do iprey = 1, self%nprey
      ruPPYc = sut*PPYc(iprey)
 !    call flux_vector(iiPel, ppPhytoPlankton(i,iiC), ppzooc, ruPPYc)
+    fluxC = fluxC +ruPPYc
     _SET_ODE_(self%id_c,             ruPPYc)
     _SET_ODE_(self%id_preyc(iprey), -ruPPYc)
 !    call flux_vector(iiPel, ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qncPPY(i,:))
@@ -668,6 +690,7 @@ contains
 !  call flux_vector(iiPel, ppO2o, ppO2o, -rrc/MW_C)
    _SET_ODE_(self%id_O2o,-(rrc/MW_C))
 !  call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrc, tfluxC)
+   fluxC = fluxC -rrc
    _SET_ODE_(self%id_c,-rrc)
    _SET_ODE_(self%id_O3c,rrc)
 
@@ -720,6 +743,7 @@ contains
   ! nutrient limitation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !  call quota_flux(iiPel, ppzooc, ppzooc,ppR6c, rq6c, tfluxC)
+   fluxC = fluxC -rq6c
    _SET_ODE_(self%id_c,  -rq6c)
    _SET_ODE_(self%id_R6c, self%p_fR6 * rq6c)
    _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * rq6c)
@@ -859,6 +883,7 @@ contains
   ! release (POC) and nutrient remineralization (PO4 and NH)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !  call flux_vector(iiPel, ppzooc, ppR6c, pe_R6c)
+   fluxC = fluxC -pe_R6c
    _SET_ODE_(self%id_c,  -pe_R6c)
    _SET_ODE_(self%id_R6c, self%p_fR6 * pe_R6c)
    _SET_ODE_(self%id_R8c, (ONE - self%p_fR6) * pe_R6c)
@@ -874,6 +899,32 @@ contains
 
    _SET_DIAGNOSTIC_(self%id_varO3h_Nutil, pe_N4n + ren )
    _SET_DIAGNOSTIC_(self%id_varO3h_Putil, -rep )
+
+ ! Demographic Noise
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_noise) then
+!   fSEED=self%seed
+    NOISEdt=self%time_step
+    local_seed=int(fSEED)
+    local_seed0=local_seed
+    D_rnd=self%D_rnd
+    dfluc = dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(zooc) * REAL(W(local_seed,local_seed),8)
+    dSEED=86400.0_rk/NOISEdt*REAL(local_seed-local_seed0,8)
+    fluxC = fluxC + dfluc
+    ! check for negative outcomes
+    if (fluxC < 0.00001_rk) then
+       dfluc = 0.0000001_rk
+    endif
+    _SET_ODE_(self%id_c,dfluc)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_DIAGNOSTIC_(self%id_diaFLUC,dfluc)
+    _SET_DIAGNOSTIC_(self%id_diaSEED,dSEED)
+  endif
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
     _LOOP_END_
   end subroutine do
 end module

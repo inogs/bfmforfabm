@@ -17,7 +17,7 @@
    use fabm_types
    use ogs_bfm_shared
 !  use fabm_particle
-
+   use gaussian_generator !needed for random gaussian numbers
    use ogs_bfm_pelagic_base
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -119,6 +119,8 @@
       type (type_diagnostic_variable_id) :: id_B_N_O3h   ! variation of alk due to net N uptake/release
       type (type_diagnostic_variable_id) :: id_B_P_O3h   ! variation of alk due to net P uptake/release
       type (type_diagnostic_variable_id) :: id_varO3h_reminNH4 ! variation of alk due to NH4 remineralization
+      type (type_diagnostic_variable_id)   :: id_diaFLUC,id_diaSEED
+      type (type_dependency_id)                       :: id_dt
 
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10, p_chdo, p_sd, p_sd2, p_suhR1, p_sulR1, p_suR2
@@ -130,6 +132,8 @@
       real(rk) :: p_fR6
       real(rk) :: p_fr_R8     
       integer :: p_version
+      real(rk) :: D_rnd,time_step,seed ! dem noise parameters
+      logical :: use_noise
 
    contains
 
@@ -201,12 +205,20 @@ contains
       call self%get_parameter(self%p_fX3b,   'p_fX3b',  '-',  'colored fraction in semi-refractory dissolved organic carbon', default=0.02_rk)
 !              --------- Flux partition POM parameters ------------
       call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
+!             --------- Demographic Noise ------------
+        call self%get_parameter(self%use_noise, 'use_noise','',          'use demographic noise',default=.false.)
+        if (self%use_noise) then
+          call self%get_parameter(self%D_rnd,  'D_rnd',   '2*d',  'noise source intensity', default=0.0001_rk)
+          call self%get_parameter(self%time_step,  'time_step', 's','fabm time step',default=3600.0_rk)
+          call self%get_parameter(self%seed,  'seed',   '[-]',  'initial seed of noise', default=20220610.0_rk)
+        endif
       
 ! Register state variables (handled by type_bfm_pelagic_base)
       call self%initialize_bfm_base()
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
+      if (self%use_noise) call self%add_constituent('seed',20220610.0_rk)
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','dissolved organic carbon')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
@@ -263,6 +275,8 @@ contains
       call self%register_diagnostic_variable(self%id_ruR8p,'ruR8p', 'mmolP/m3/d',' Organic Phosphorus uptake',output=output_none)
       call self%register_diagnostic_variable(self%id_rrc,'rrc', 'mgC/m3/d','Aerobic and anaerobic respiration',output=output_none)
       call self%register_diagnostic_variable(self%id_flN6rPBA,'flN6rPBA', '-','electron acceptor in the respiration process',output=output_none)
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaFLUC, 'diaFLUC',  '[-]',  'Random Fluctuation')
+      if (self%use_noise) call self%register_diagnostic_variable(self%id_diaSEED, 'diaSEED',  '[-]',  'Random Seed')
       select case (self%p_version)
          case ( BACT1 )
           call self%register_diagnostic_variable(self%id_renh4,'ren', 'mmolN/m3/d','Direct uptake of ammonium',output=output_none)
@@ -325,6 +339,10 @@ contains
       real(rk) :: rumn,rumn3,rumn4
       real(rk) :: r
       real(rk) :: reR2c, reR3c
+      real(rk) :: D_rnd !noise
+      real(rk) :: dfluc,fSEED,dSEED,fluxC !noise
+      real(rk) :: NOISEdt !noise
+      integer  :: local_seed,local_seed0 !noise
 
       ! Enter spatial loops (if any)
       _LOOP_BEGIN_
@@ -345,6 +363,8 @@ contains
          _GET_(self%id_c,bacc)
          _GET_(self%id_p,bacp)
          _GET_(self%id_n,bacn)
+
+         if (self%use_noise) _GET_(self%id_seed,fSEED)
 
          ! Retrieve ambient nutrient concentrations
          _GET_(self%id_O2o,O2o)
@@ -381,6 +401,9 @@ contains
          ! Retrieve environmental dependencies (water temperature,
          ! photosynthetically active radation)
          _GET_(self%id_ETW,ETW)
+
+         fluxC = bacc
+
   ! Quota collectors
          qpcPBA = bacp/(bacc+p_small) ! add some epsilon (add in shared) to avoid divide by 0
          qncPBA = bacn/(bacc+p_small)
@@ -429,6 +452,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rd  =  ( self%p_sd*et + self%p_sd2*bacc ) * bacc
 
+  fluxC = fluxC -(rd*(ONE-self%p_pe_R1c))
  _SET_DIAGNOSTIC_(self%id_rd,rd)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR6c, rd*(ONE-p_pe_R1c)              , tfluxC)
   _SET_ODE_(self%id_R6c, self%p_fR6 * rd*(ONE-self%p_pe_R1c))
@@ -443,9 +467,11 @@ contains
   _SET_ODE_(self%id_R8p, (ONE - self%p_fR6) * rd*qpcPBA*(ONE-self%p_pe_R1p))
   _SET_ODE_(self%id_p,-(rd*qpcPBA*(ONE-self%p_pe_R1p)))
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppbacc, ppR1c, 0.98D0*rd*p_pe_R1c , tfluxC) ! flux to non CDOM
+  fluxC = fluxC -(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c
   _SET_ODE_(self%id_R1c,(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c)
   _SET_ODE_(self%id_c,-(1.00D0-self%p_fX1b)*rd*self%p_pe_R1c)
 !SEAMLESS call quota_flux(iiPel, ppbacc, ppbacc, ppR1l, 0.02D0*rd*p_pe_R1c , tfluxC)  ! flux to CDOM
+  fluxC = fluxC -self%p_fX1b*rd*self%p_pe_R1c
   _SET_ODE_(self%id_X1c,self%p_fX1b*rd*self%p_pe_R1c)
   _SET_ODE_(self%id_c,-self%p_fX1b*rd*self%p_pe_R1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacn, ppbacn, ppR1n, rd*qncPBA(bac,:)*p_pe_R1n, tfluxN) 
@@ -554,27 +580,35 @@ contains
   ruX3c = rug*ruX3c/rut
 
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR1c, ppbacc, ruR1c, tfluxC)
+  fluxC = fluxC + ruR1c
   _SET_ODE_(self%id_c,ruR1c)
   _SET_ODE_(self%id_R1c,-ruR1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR2c, ppbacc, ruR2c, tfluxC)
+  fluxC = fluxC +ruR2c
   _SET_ODE_(self%id_c,ruR2c)
   _SET_ODE_(self%id_R2c,-ruR2c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR3c, ppbacc, ruR3c, tfluxC)
+  fluxC = fluxC +ruR3c
   _SET_ODE_(self%id_c,ruR3c)
   _SET_ODE_(self%id_R3c,-ruR3c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR6c, ppbacc, ruR6c, tfluxC)
+  fluxC = fluxC +ruR6c
   _SET_ODE_(self%id_c,ruR6c)
   _SET_ODE_(self%id_R6c,-ruR6c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR6c, ppbacc, ruR6c, tfluxC)
+  fluxC = fluxC + ruR8c
   _SET_ODE_(self%id_c,ruR8c)
   _SET_ODE_(self%id_R8c,-ruR8c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR1l, ppbacc, ruR1l, tfluxC)
+  fluxC = fluxC +ruX1c
   _SET_ODE_(self%id_c,ruX1c)
   _SET_ODE_(self%id_X1c,-ruX1c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR2l, ppbacc, ruR2l, tfluxC)
+  fluxC = fluxC +ruX2c
   _SET_ODE_(self%id_c,ruX2c)
   _SET_ODE_(self%id_X2c,-ruX2c)
 !SEAMLESS  call quota_flux(iiPel, ppbacc, ppR3l, ppbacc, ruR3l, tfluxC)
+  fluxC = fluxC +ruX3c
   _SET_ODE_(self%id_c,ruX3c)
   _SET_ODE_(self%id_X3c,-ruX3c)
 
@@ -636,6 +670,7 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rrc = (self%p_pu_ra+ self%p_pu_ra_o*(ONE-eO2) )*rug + self%p_srs* bacc* et
 !SEAMLESS  call quota_flux( iiPel, ppbacc, ppbacc, ppO3c, rrc, tfluxC) 
+  fluxC = fluxC -rrc
   _SET_ODE_(self%id_O3c,rrc)
   _SET_ODE_(self%id_c,-rrc)
 !SEAMLESS  call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
@@ -779,8 +814,10 @@ contains
       reR3c = max(ZERO, reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3c, 0.98D0*reR3c ,tfluxC) ! flux to non-CDOM
   _SET_ODE_(self%id_R3c, (1.00D0-self%p_fX3b)*reR3c)
+  fluxC = fluxC -(1.00D0-self%p_fX3b)*reR3c
   _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX3b)*reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc,ppR3l, 0.02D0*reR3c ,tfluxC) ! flux to CDOM
+  fluxC = fluxC -self%p_fX3b*reR3c
   _SET_ODE_(self%id_X3c, self%p_fX3b*reR3c)
   _SET_ODE_(self%id_c,  -self%p_fX3b*reR3c)
  _SET_DIAGNOSTIC_(self%id_reR3c,reR3c)
@@ -837,20 +874,47 @@ contains
       ! Excretion fluxes (only losses to R2 and R3)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2c, 0.98D0*reR2c, tfluxC) ! flux to non CDOM
+  fluxC = fluxC -(1.00D0-self%p_fX2b)*reR2c
   _SET_ODE_(self%id_R2c, (1.00D0-self%p_fX2b)*reR2c)
   _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX2b)*reR2c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR2l, 0.02D0*reR2c, tfluxC) ! flux to CDOM
+  fluxC = fluxC -self%p_fX2b*reR2c
   _SET_ODE_(self%id_X2c, self%p_fX2b*reR2c)
   _SET_ODE_(self%id_c,  -self%p_fX2b*reR2c)
 
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3c, 0.98D0*reR3c, tfluxC) ! flux to non CDOM
+  fluxC = fluxC -(1.00D0-self%p_fX3b)*reR3c
   _SET_ODE_(self%id_R3c, (1.00D0-self%p_fX3b)*reR3c)
   _SET_ODE_(self%id_c,  -(1.00D0-self%p_fX3b)*reR3c)
 !SEAMLESS      call quota_flux( iiPel, ppbacc, ppbacc, ppR3l, 0.02D0*reR3c, tfluxC) ! flux to CDOM
+  fluxC = fluxC -self%p_fX3b*reR3c
   _SET_ODE_(self%id_X3c, self%p_fX3b*reR3c)
   _SET_ODE_(self%id_c,  -self%p_fX3b*reR3c)
   
   end select
+
+! Demographic Noise
+ !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (self%use_noise) then
+!   fSEED=self%seed
+    NOISEdt=self%time_step
+    local_seed=int(fSEED)
+    local_seed0=local_seed
+    D_rnd=self%D_rnd
+    dfluc = dsqrt(86400.0_rk/NOISEdt) * D_rnd * dsqrt(bacc) * REAL(W(local_seed,local_seed),8)
+    dSEED=86400.0_rk/NOISEdt*REAL(local_seed-local_seed0,8)
+    fluxC = fluxC + dfluc
+    ! check for negative outcomes
+    if (fluxC < 0.00001_rk) then
+       dfluc = 0.0000001_rk
+    endif
+    _SET_ODE_(self%id_c,dfluc)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_ODE_(self%id_seed,dSEED)
+    _SET_DIAGNOSTIC_(self%id_diaFLUC,dfluc)
+    _SET_DIAGNOSTIC_(self%id_diaSEED,dSEED)
+  endif
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       _LOOP_END_
 

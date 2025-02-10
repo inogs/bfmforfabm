@@ -1,4 +1,4 @@
-#include "fabm_driver.h"
+MicroZoo.F90#include "fabm_driver.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -437,6 +437,7 @@
       _GET_(self%id_p,zoop)
 
       if (self%use_noise) _GET_(self%id_seed,fSEED)
+      fluxC = zooc
       
       ! Retrieve ambient nutrient concentrations
       _GET_(self%id_O2o,O2o)
@@ -517,7 +518,7 @@
         ruPPYc = sut*PPYc(iprey)
         ! All the predation flux from the prey are assigned in the istate loop below
         ! call quota_flux(iiPel, ppzooc, ppPelBacteria(i,iiC), ppzooc, ruPBAc, tfluxC)
-        fluxC = ruPPYc
+        fluxC = fluxC + ruPPYc
         _SET_ODE_(self%id_c,            ruPPYc)
         _SET_ODE_(self%id_preyc(iprey),-ruPPYc)
         ! call quota_flux(iiPel, ppzoon, ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxN)
