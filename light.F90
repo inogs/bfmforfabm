@@ -14,7 +14,7 @@ module ogs_bfm_light
       type (type_diagnostic_variable_id)   :: id_EIR, id_parEIR, id_xEPS
       ! Identifiers for dependencies
       type (type_dependency_id)            :: id_dz, id_xEPSp, id_ESS
-      type (type_horizontal_dependency_id) :: id_I_0
+      type (type_horizontal_dependency_id) :: id_I_0, id_fr_i
 !!      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_dependency_id)            :: id_chla      
       type (type_state_variable_id)        :: id_X1c, id_X2c, id_X3c
@@ -62,6 +62,7 @@ contains
 
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_I_0,standard_variables%surface_downwelling_shortwave_flux)
+      call self%register_dependency(self%id_fr_i, standard_variables%ice_area_fraction)
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)
       call self%register_dependency(self%id_xEPSp,standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux)
       ! Register biogeochemical dependencies
@@ -80,13 +81,14 @@ contains
       class (type_ogs_bfm_light),intent(in) :: self
       _DECLARE_ARGUMENTS_VERTICAL_
 
-      real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
+      real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS, ice
 !      real(rk) :: P1chl, P2chl, P3chl, P4chl
       real(rk) :: Pchla      
       real(rk) :: X1c, X2c, X3c
 
 
       _GET_HORIZONTAL_(self%id_I_0,buffer)
+      _GET_HORIZONTAL_(self%id_fr_i,ice)
 
       if (buffer.lt.0._rk) buffer=0._rk
 
@@ -110,7 +112,7 @@ contains
          EIR = buffer/xtnc*(1.0_rk-exp(-xtnc))*WtoQuanta*SEC_PER_DAY  ! [uE m-2 d-1]  Note: this computes the vertical average, not the value at the layer centre.
          buffer = buffer*exp(-xtnc)
          _SET_DIAGNOSTIC_(self%id_EIR,EIR)                     ! Local shortwave radiation
-         _SET_DIAGNOSTIC_(self%id_parEIR,EIR*self%pEIR_eowX)   ! Local photosynthetically active radiation
+         _SET_DIAGNOSTIC_(self%id_parEIR,EIR*self%pEIR_eowX*(1.0_rk-ice))   ! Local photosynthetically active radiation
          _SET_DIAGNOSTIC_(self%id_xEPS,xEPS)                   ! Vertical attenuation of shortwave radiation
       _VERTICAL_LOOP_END_
 
