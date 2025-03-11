@@ -1156,8 +1156,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
      _SET_ODE_(self%id_N7f,-runf* r)
      ! release to dissolved organic to keep the balance if excess
 !    call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))
-     _SET_ODE_(self%id_f, runf*( ONE- r))
-     _SET_ODE_(self%id_R1f,- runf*( ONE- r))
+     _SET_ODE_(self%id_f,  - runf*( ONE- r))
+     _SET_ODE_(self%id_R1f,  runf*( ONE- r))
    
    
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
