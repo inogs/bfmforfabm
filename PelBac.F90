@@ -721,7 +721,7 @@ contains
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       rumn3 = self%p_qun*N3n*bacc*(ONE-eN4n)
       rumn4 = self%p_qun*N4n*bacc
-      rumn  = rumn3 + rumn4
+      rumn  = p_small + rumn3 + rumn4 
       ren   = max(-rumn,huln)*insw(-huln)
 !SEAMLESS      call quota_flux(iiPel, ppbacn, ppN4n, ppbacn, -ren*rumn4/rumn, tfluxN)
   _SET_ODE_(self%id_n, -ren*rumn4/rumn)
