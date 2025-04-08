@@ -102,7 +102,7 @@ separate_phytozoo = False
 ## Read the fabm.yaml template that contains the 9PFTs and 4Zoo
 ## Several text tags have been included to locate the different "lego bricks"
 #template_file = os.path.join(indir, "fabm_multispectral_9PFTs_template.yaml")
-template_file = os.path.join(indir, "fabm_iron_monospectral_template.yaml")
+template_file = os.path.join(indir, "fabm_monospectral_iron_9PFTs_template.yaml")
 
 # Read the lines from the template file
 with open(template_file, 'r') as file:
@@ -156,6 +156,88 @@ old_long_names = np.array(old_long_names)[id_eva]
 old_values     = np.array(old_values)[id_eva]
 clases_names   = [clases_names[i] for i in id_eva]
 
+#arrays with parameters of allometric rules [a,b] a*size^b
+alloparam = {
+    'p_sum': [
+        [3.8, -0.17],   # diatoms (P1)
+        [2.1, -0.15],   # dinoflagellates (P4)
+        [1.2, -0.10],   # prymnesiophyta (P2)
+        [1.2, -0.10],   # coccolithophores (P5)
+        [1.1, -0.08],   # chlorophyceae (P7)
+        [1.1, -0.08],   # prasinophyceae (P8)
+        [1.0, -0.02],   # smalleukaryotes (P3)
+        [1.0, 0.06],    # synechococcus (P9)
+        [1.05, 0.08]    # prochlorococcus (P6)
+    ],
+    'p_srs': [
+        [0.063, -0.008]  # Same for all types
+    ],
+    'carbon': [
+        [10**(-0.933), 0.881],  # diatoms>3000
+        [10**(-0.353), 0.864],  # dinoflagellates
+        [10**(-0.642), 0.899],  # prymnesiophyceae
+        [10**(-0.642), 0.899],  # prymnesiophyceae (coccos)
+        [10**(-1.026), 1.088],  # chlorophyceae
+        [10**(-0.545), 0.886],  # prasinophyceae
+        [10**(-0.665), 0.939],  # overall (smalleukaryotes)
+        [10**(-0.583), 0.860],  # protists<3000 (synechococcus)
+        [10**(-0.583), 0.860]   # protists<3000 (prochlorococcus)
+    ],
+    'QPmin': [
+        [10**(-1.04), 0.714]  # Same for all types
+    ],
+    'QPmax': [
+        [10**(-0.29), 0.767]  # Same for all types
+    ],
+    'QNmin': [
+        [1.36e-9, 0.77]  # Same for all types
+    ],
+    'QNmax': [
+        [4.64e-9, 0.81]  # Same for all types
+    ],
+    'p_res': [
+        [0.024, 0.37],   # diatoms (cylinders)
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+        [0.036, 0.43],   # most other phytoplankton
+    ],
+    'aP': [
+        [10**(-8.1), 0.73]  # Same for all types
+    ],
+    'aN': [
+        [10**(-8.2), 0.75]  # Same for all types
+    ],
+    'p_qup': [
+        [1/4],  # diatoms (P1) → /4
+        [1/3],  # dinoflagellates (P4) → /3
+        [1/4],  # prymnesiophyta (P2) → /4
+        [1/4],  # coccolithophores (P5) → /4
+        [1/4],  # chlorophyceae (P7) → /4
+        [1/4],  # prasinophyceae (P8) → /4
+        [1/3],  # smalleukaryotes (P3) → /3
+        [1/2],  # synechococcus (P9) → /2
+        [1/2]   # prochlorococcus (P6) → /2
+    ],
+    'p_qun': [
+        [1],      # diatoms (P1) → *1
+        [4/3],    # dinoflagellates (P4) → *(4/3)
+        [1],      # prymnesiophyta (P2) → *1
+        [1],      # coccolithophores (P5) → *1
+        [1],      # chlorophyceae (P7) → *1
+        [1],      # prasinophyceae (P8) → *1
+        [4/3],    # smalleukaryotes (P3) → *(4/3)
+        [4/2],    # synechococcus (P9) → *(4/2)
+        [4/2]     # prochlorococcus (P6) → *(4/2)
+    ]
+}
+ 
+
+
 
 for iPFT, old_name in enumerate(old_names):
 
@@ -180,22 +262,23 @@ for iPFT, old_name in enumerate(old_names):
     low_diameter = ((lower_limit * 6) / np.pi) ** (1/3)
 
     # Define initial values
-    p_sum = 3.8 * np.power(lower_limit,(-0.17))  # Tang 1995 & Irwin 2006
-    p_srs = 0.063 - 0.008 * np.log10(lower_limit)  # Shimoda 2016
-    carbon = (10. ** (-0.933)) * np.power(lower_limit,0.881)  # Menden-Deuer and Lessard, 2000 (diatoms > 3000)
-    QPmin = (10. ** (-1.04)) * np.power(lower_limit,0.714)   # Minimum P:C quota (Grover 1989), fmol cell-1
+    p_sum = alloparam['p_sum'][iPFT][0] * np.power(lower_limit,(alloparam['p_sum'][iPFT][1]))  # Tang 1995 & Irwin 2006
+#   p_srs = alloparam['p_srs'][0][0] - alloparam['p_srs'][0][1] * np.log10(lower_limit)  # Shimoda 2016
+    p_srs = 0.063-0.008 * np.log10(lower_limit)  # Shimoda 2016
+    carbon =  (alloparam['carbon'][iPFT][0]) * np.power(lower_limit,alloparam['carbon'][iPFT][1])  # Menden-Deuer and Lessard, 2000 (diatoms > 3000)
+    QPmin =  (alloparam['QPmin'][0][0]) * np.power(lower_limit,alloparam['QPmin'][0][1])   # Minimum P:C quota (Grover 1989), fmol cell-1
     p_qplc = (QPmin / carbon) * 1e9 * 1e-12  # mmolP mgC-1
-    QPmax = (10. ** (-0.29)) * np.power(lower_limit,0.767)  # Maximum P:C quota (Grover 1989), fmol cell-1
+    QPmax =  (alloparam['QPmax'][0][0]) * np.power(lower_limit,alloparam['QPmax'][0][1])  # Maximum P:C quota (Grover 1989), fmol cell-1
     p_qpcPPY = ((QPmax / carbon) * 1e9 * 1e-12) / 2  # mmolP mgC-1
-    QNmin = (1.36e-9) * np.power(lower_limit,0.77)    # Minimum N:C quota (Lichtman et al 2007), umol cell-1
+    QNmin = (alloparam['QNmin'][0][0]) * np.power(lower_limit,alloparam['QNmin'][0][1])    # Minimum N:C quota (Lichtman et al 2007), umol cell-1
     p_qnlc = (QNmin / carbon) * 1e9 * 1e-3  # mmolN mgC-1
-    QNmax = (4.64e-9) * np.power(lower_limit, 0.81)    # Maximal N:C quota (Montagnes & Franklin 2001), umol cell-1, divided by luxury storage to get optimum quota
+    QNmax = (alloparam['QNmax'][0][0]) * np.power(lower_limit, alloparam['QNmax'][0][1])    # Maximal N:C quota (Montagnes & Franklin 2001), umol cell-1, divided by luxury storage to get optimum quota
     p_qncPPY = ((QNmax / carbon) * 1e9 * 1e-3) / 2  # mmolN mgC-1
-    p_res = 0.024 * np.power(lower_limit,0.37)  # Durante et al, 2019 (cylinders)
-    aP = (10. ** (-8.1)) * np.power(lower_limit,0.73)  # P affinity (Edwards 2012)
-    p_qup = (aP / carbon) * 1e-3 * 1e9 / 4  # m3 mgC-1 d-1
-    aN = (10. ** (-8.2)) * np.power(lower_limit, 0.75)  # N affinity (Edwards 2012)
-    p_qun = (aN / carbon) * 1e-3 * 1e9  # m3 mgC-1 d-1
+    p_res = alloparam['p_res'][iPFT][0] * np.power(lower_limit,alloparam['p_res'][iPFT][1])  # Durante et al, 2019 (cylinders)
+    aP = (alloparam['aP'][0][0]) * np.power(lower_limit,alloparam['aP'][0][1])  # P affinity (Edwards 2012)
+    p_qup = (aP / carbon) * 1e-3 * 1e9 *alloparam['p_qup'][iPFT][0]  # m3 mgC-1 d-1
+    aN = (alloparam['aN'][0][0]) * np.power(lower_limit, alloparam['aN'][0][1])  # N affinity (Edwards 2012)
+    p_qun = (aN / carbon) * 1e-3 * 1e9 *alloparam['p_qun'][iPFT][0] # m3 mgC-1 d-1
 
     # Adjust P:C and N:C quotas
     p_qplc = p_qpcPPY * 0.55

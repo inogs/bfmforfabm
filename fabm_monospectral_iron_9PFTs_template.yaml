@@ -1,6 +1,6 @@
 #start_base
 check_conservation: false
-require_initialization: false
+require_initialization: true
 log: true
 instances:
   Benthic_layer:
@@ -230,6 +230,7 @@ instances:
       R6c: R6/c 
       R6n: R6/n 
       R6p: R6/p 
+      R6s: R6/s 
       R8c: R8/c
       R8n: R8/n
       R8p: R8/p
@@ -278,6 +279,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # ammonium (mmol N/m^3)
       O2o: O2/o                                            # oxygen (mmol O_2/m^3)
       O3h: O3h/h                                           # alkalinity (mmol /m^3)
       O3c: O3/c                                            # DIC      
@@ -292,11 +294,14 @@ instances:
       R6c: R6/c                                            # POC  (mgC/m3)
       R6n: R6/n                                            # PON  (mmolN/m3)
       R6p: R6/p                                            # POP (mmolP/m3)      
+  #   R6f: R6/f                                            # POP (mmolP/m3)      
+  #   R1f: R1/f                                            # POP (mmolP/m3)      
       R8s: R8/s                                            # POSi (mgSi/m3)
       R8c: R8/c                                            # POC  (mgC/m3)
       R8n: R8/n                                            # PON  (mmolN/m3)
       R8p: R8/p                                            # POP (mmolP/m3)
-      PAR_tot: lightspectral/PAR_tot
+  #   R8f: R8/f                                            # POP (mmolP/m3)
+      PAR_tot: light/parEIR
       isBen:  Benthic_layer/isBen      
 ##  --------------------- CalciteDissolution
   O5:
@@ -410,6 +415,7 @@ instances:
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       N5s: N5/s                                            # silicate (mmol Si/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c
@@ -505,6 +511,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -599,6 +606,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -681,6 +689,8 @@ instances:
       p_addepth: 0.25                        # [m]            Adaptation depth. Meaningless with high-res models
 #              --------- Sinking parameters -----------
       p_rPIm: 0.0                          # [m/d]          Phytoplankton background sinking rate
+#              --------- Iron parameters     ----------
+      use_Fe: .TRUE.
     initialization:
       c: 2.0                                               # carbon (mg C/m^3)
       n: 0.0252                                            # nitrogen (mmol N/m^3)
@@ -689,6 +699,7 @@ instances:
       Chl: 0.04                                            # chlorophyll a (mg/m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
@@ -785,6 +796,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -879,6 +891,7 @@ instances:
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
@@ -986,6 +999,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -1079,6 +1093,7 @@ instances:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
       O2o: O2/o                                            # Oxygen (mmol O/m^3)
       R1c: R1/c 
@@ -1170,6 +1185,7 @@ instances:
       Chl: 0.053                                           # chlorophyll a (mg/m^3)
     coupling:
       N1p: N1/p                                            # phosphate (mmol P/m^3)
+      N7f: N7/f                                            # silicate (mmol Si/m^3)
       N3n: N3/n                                            # nitrate (mmol N/m^3)
       N4n: N4/n                                            # ammonium (mmol N/m^3)
       O3c: O3/c                                            # dissolved inorganic carbon (mg C/m^3)
