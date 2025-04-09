@@ -294,13 +294,13 @@ instances:
       R6c: R6/c                                            # POC  (mgC/m3)
       R6n: R6/n                                            # PON  (mmolN/m3)
       R6p: R6/p                                            # POP (mmolP/m3)      
-  #   R6f: R6/f                                            # POP (mmolP/m3)      
-  #   R1f: R1/f                                            # POP (mmolP/m3)      
+      R6f: R6/f                                            # POP (mmolP/m3)      
+      R1f: R1/f                                            # POP (mmolP/m3)      
       R8s: R8/s                                            # POSi (mgSi/m3)
       R8c: R8/c                                            # POC  (mgC/m3)
       R8n: R8/n                                            # PON  (mmolN/m3)
       R8p: R8/p                                            # POP (mmolP/m3)
-  #   R8f: R8/f                                            # POP (mmolP/m3)
+      R8f: R8/f                                            # POP (mmolP/m3)
       PAR_tot: light/parEIR
       isBen:  Benthic_layer/isBen      
 ##  --------------------- CalciteDissolution
