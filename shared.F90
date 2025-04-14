@@ -95,6 +95,11 @@ module ogs_bfm_shared
    type (type_bulk_standard_variable),parameter :: carbon_P7 = type_bulk_standard_variable(name='carbon_P7',units='mg m-3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: carbon_P8 = type_bulk_standard_variable(name='carbon_P8',units='mg m-3',aggregate_variable=.true.)
    type (type_bulk_standard_variable),parameter :: carbon_P9 = type_bulk_standard_variable(name='carbon_P9',units='mg m-3',aggregate_variable=.true.)
+
+   ! Aggregate carbon per CDOM:
+   type (type_bulk_standard_variable),parameter :: CDOM = type_bulk_standard_variable(name='CDOM',units='mg m-3',aggregate_variable=.true.)
+   ! Aggregate carbon per NAP:
+   type (type_bulk_standard_variable),parameter :: NAP  = type_bulk_standard_variable(name='NAP',units='mg m-3',aggregate_variable=.true.)
    
    ! Standard benthic variables used to make implicit based on matching standard names coupling possible.
    type (type_horizontal_standard_variable),parameter :: depth_of_sediment_column = type_horizontal_standard_variable(name='depth_of_sediment_column',units='m')

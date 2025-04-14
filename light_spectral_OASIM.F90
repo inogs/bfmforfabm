@@ -29,7 +29,7 @@ module ogs_bfm_light_spectral_OASIM
       type (type_dependency_id)            :: id_dz
       type (type_dependency_id)            :: id_aP1c, id_aP2c, id_aP3c, id_aP4c, id_aP5c, id_aP6c, id_aP7c, id_aP8c, id_aP9c
       type (type_dependency_id)            :: id_aP1chl,id_aP2chl,id_aP3chl,id_aP4chl,id_aP5chl,id_aP6chl,id_aP7chl,id_aP8chl,id_aP9chl
-      type (type_state_variable_id)        :: id_R6c, id_X1c, id_X2c, id_X3c
+      type (type_state_variable_id)        :: id_R6c, id_R8c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
       type (type_surface_dependency_id), allocatable :: id_direct_sf(:), id_diffuse_sf(:)
       type (type_surface_dependency_id) :: id_costheta_r
@@ -429,10 +429,18 @@ contains
       if (self%npft .GT. 8) call self%register_dependency(self%id_aP9chl,chlorophyll_P9)
 
       ! Register biogeochemical dependencies
-      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC')
+      call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3', 'POC-small')
+      call self%register_state_dependency(self%id_R8c,'R8c','mg C/m^3', 'POC-large')
       call self%register_state_dependency(self%id_X1c,'X1c','mg C/m^3', 'labile CDOM')
       call self%register_state_dependency(self%id_X2c,'X2c','mg C/m^3', 'semi-labile CDOM')
       call self%register_state_dependency(self%id_X3c,'X3c','mg C/m^3', 'semi-refractory CDOM')
+
+      call self%add_to_aggregate_variable(NAP,      self%id_R6c,  include_background=.true.)
+      call self%add_to_aggregate_variable(NAP,      self%id_R8c,  include_background=.true.)
+
+      call self%add_to_aggregate_variable(CDOM,     self%id_X1c,  include_background=.true.)
+      call self%add_to_aggregate_variable(CDOM,     self%id_X2c,  include_background=.true.)
+      call self%add_to_aggregate_variable(CDOM,     self%id_X3c,  include_background=.true.)
 
       ! Register environmental dependencies 
       call self%register_dependency(self%id_dz, standard_variables%cell_thickness)

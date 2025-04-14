@@ -78,6 +78,7 @@ instances:
        X2c  : X2/c
        X3c  : X3/c
        R6c  : R6/c
+       R8c  : R8/c
        direct_band1  : light_atm/dir_sf_band1
        diffuse_band1 : light_atm/dif_sf_band1
        direct_band2  : light_atm/dir_sf_band2
