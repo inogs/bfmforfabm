@@ -486,8 +486,9 @@ digito = [2, 0]
 
 old_nprey = 12
 # Define all potential prey choices
-preys = np.concatenate([clasesB1, clasesP2, clasesP3, clasesP4, clasesP5, clasesP6, clasesP7, clasesP8, clasesP9, clasesZ6, clasesZ5])
-names_preys = ["B1"] + [f"P2_{str(cl).replace('-', 'm')}" for cl in clasesP2] + \
+preys = np.concatenate([clasesB1, clasesP1, clasesP2, clasesP3, clasesP4, clasesP5, clasesP6, clasesP7, clasesP8, clasesP9, clasesZ6, clasesZ5])
+names_preys = ["B1"] + [f"P1_{str(cl).replace('-', 'm')}" for cl in clasesP1] + \
+              [f"P2_{str(cl).replace('-', 'm')}" for cl in clasesP2] + \
               [f"P3_{str(cl).replace('-', 'm')}" for cl in clasesP3] + \
               [f"P4_{str(cl).replace('-', 'm')}" for cl in clasesP4] + \
               [f"P5_{str(cl).replace('-', 'm')}" for cl in clasesP5] + \
@@ -737,9 +738,9 @@ digito = [2]
 
 old_nprey = 3
 # Define all potential prey choices
-preys = np.concatenate([clasesP1, clasesP3, clasesZ5, clasesZ4, clasesZ3])
+preys = np.concatenate([clasesP1, clasesP4, clasesZ5, clasesZ4, clasesZ3])
 names_preys = [f"P1_{str(cl).replace('-', 'm')}" for cl in clasesP1] + \
-              [f"P3_{str(cl).replace('-', 'm')}" for cl in clasesP3] + \
+              [f"P4_{str(cl).replace('-', 'm')}" for cl in clasesP4] + \
               [f"Z5_{str(cl).replace('-', 'm')}" for cl in clasesZ5] + \
               [f"Z4_{str(cl).replace('-', 'm')}" for cl in clasesZ4] + \
               [f"Z3_{str(cl).replace('-', 'm')}" for cl in clasesZ3]

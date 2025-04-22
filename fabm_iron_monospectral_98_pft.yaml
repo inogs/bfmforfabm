@@ -11360,45 +11360,44 @@ instances:
 
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
 
-      nprey:     35      # [-]           Number of preys
+      nprey:     36      # [-]           Number of preys
 
-      suprey1:   0.1     # [-] Availability of P2_4 to Z5_17
-      suprey2:   0.35     # [-] Availability of P2_5 to Z5_17
-      suprey3:   0.76     # [-] Availability of P2_6 to Z5_17
-      suprey4:   1.0     # [-] Availability of P2_7 to Z5_17
-      suprey5:   0.79     # [-] Availability of P2_8 to Z5_17
-      suprey6:   0.38     # [-] Availability of P2_9 to Z5_17
-      suprey7:   0.11     # [-] Availability of P2_10 to Z5_17
-      suprey8:   0.02     # [-] Availability of P2_11 to Z5_17
-      suprey9:   0.02     # [-] Availability of P4_11 to Z5_17
-      suprey10:   0.76     # [-] Availability of P5_6 to Z5_17
-      suprey11:   1.0     # [-] Availability of P5_7 to Z5_17
-      suprey12:   0.79     # [-] Availability of P5_8 to Z5_17
-      suprey13:   0.38     # [-] Availability of P5_9 to Z5_17
-      suprey14:   0.11     # [-] Availability of P5_10 to Z5_17
-      suprey15:   0.02     # [-] Availability of P5_11 to Z5_17
-      suprey16:   0.02     # [-] Availability of P7_3 to Z5_17
-      suprey17:   0.1     # [-] Availability of P7_4 to Z5_17
-      suprey18:   0.35     # [-] Availability of P7_5 to Z5_17
-      suprey19:   0.76     # [-] Availability of P7_6 to Z5_17
-      suprey20:   1.0     # [-] Availability of P7_7 to Z5_17
-      suprey21:   0.02     # [-] Availability of P8_3 to Z5_17
-      suprey22:   0.1     # [-] Availability of P8_4 to Z5_17
-      suprey23:   0.35     # [-] Availability of P8_5 to Z5_17
-      suprey24:   0.76     # [-] Availability of P8_6 to Z5_17
-      suprey25:   1.0     # [-] Availability of P8_7 to Z5_17
-      suprey26:   0.35     # [-] Availability of Z6_5 to Z5_17
-      suprey27:   0.76     # [-] Availability of Z6_6 to Z5_17
-      suprey28:   1.0     # [-] Availability of Z6_7 to Z5_17
-      suprey29:   0.79     # [-] Availability of Z6_8 to Z5_17
-      suprey30:   0.38     # [-] Availability of Z6_9 to Z5_17
-      suprey31:   0.11     # [-] Availability of Z6_10 to Z5_17
-      suprey32:   0.02     # [-] Availability of Z6_11 to Z5_17
-      suprey33:   0.38     # [-] Availability of Z5_9 to Z5_17
-      suprey34:   0.11     # [-] Availability of Z5_10 to Z5_17
-      suprey35:   0.02     # [-] Availability of Z5_11 to Z5_17
-#--------------------------------------------------------------------
-
+      suprey1:   0.02     # [-] Availability of P1_11 to Z5_17
+      suprey2:   0.1     # [-] Availability of P2_4 to Z5_17
+      suprey3:   0.35     # [-] Availability of P2_5 to Z5_17
+      suprey4:   0.76     # [-] Availability of P2_6 to Z5_17
+      suprey5:   1.0     # [-] Availability of P2_7 to Z5_17
+      suprey6:   0.79     # [-] Availability of P2_8 to Z5_17
+      suprey7:   0.38     # [-] Availability of P2_9 to Z5_17
+      suprey8:   0.11     # [-] Availability of P2_10 to Z5_17
+      suprey9:   0.02     # [-] Availability of P2_11 to Z5_17
+      suprey10:   0.02     # [-] Availability of P4_11 to Z5_17
+      suprey11:   0.76     # [-] Availability of P5_6 to Z5_17
+      suprey12:   1.0     # [-] Availability of P5_7 to Z5_17
+      suprey13:   0.79     # [-] Availability of P5_8 to Z5_17
+      suprey14:   0.38     # [-] Availability of P5_9 to Z5_17
+      suprey15:   0.11     # [-] Availability of P5_10 to Z5_17
+      suprey16:   0.02     # [-] Availability of P5_11 to Z5_17
+      suprey17:   0.02     # [-] Availability of P7_3 to Z5_17
+      suprey18:   0.1     # [-] Availability of P7_4 to Z5_17
+      suprey19:   0.35     # [-] Availability of P7_5 to Z5_17
+      suprey20:   0.76     # [-] Availability of P7_6 to Z5_17
+      suprey21:   1.0     # [-] Availability of P7_7 to Z5_17
+      suprey22:   0.02     # [-] Availability of P8_3 to Z5_17
+      suprey23:   0.1     # [-] Availability of P8_4 to Z5_17
+      suprey24:   0.35     # [-] Availability of P8_5 to Z5_17
+      suprey25:   0.76     # [-] Availability of P8_6 to Z5_17
+      suprey26:   1.0     # [-] Availability of P8_7 to Z5_17
+      suprey27:   0.35     # [-] Availability of Z6_5 to Z5_17
+      suprey28:   0.76     # [-] Availability of Z6_6 to Z5_17
+      suprey29:   1.0     # [-] Availability of Z6_7 to Z5_17
+      suprey30:   0.79     # [-] Availability of Z6_8 to Z5_17
+      suprey31:   0.38     # [-] Availability of Z6_9 to Z5_17
+      suprey32:   0.11     # [-] Availability of Z6_10 to Z5_17
+      suprey33:   0.02     # [-] Availability of Z6_11 to Z5_17
+      suprey34:   0.38     # [-] Availability of Z5_9 to Z5_17
+      suprey35:   0.11     # [-] Availability of Z5_10 to Z5_17
+      suprey36:   0.02     # [-] Availability of Z5_11 to Z5_17
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -11434,13 +11433,13 @@ instances:
       isP27:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP28:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP29:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP210:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP210:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP211:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP212:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP213:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP214:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP215:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP216:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP216:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP217:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP218:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
@@ -11460,8 +11459,7 @@ instances:
       isP233:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP234:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP235:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
+      isP236:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -11546,43 +11544,42 @@ instances:
 
       R1p:   R1/p                        # labile DOP
 
-      prey1:   P2_4
-      prey2:   P2_5
-      prey3:   P2_6
-      prey4:   P2_7
-      prey5:   P2_8
-      prey6:   P2_9
-      prey7:   P2_10
-      prey8:   P2_11
-      prey9:   P4_11
-      prey10:   P5_6
-      prey11:   P5_7
-      prey12:   P5_8
-      prey13:   P5_9
-      prey14:   P5_10
-      prey15:   P5_11
-      prey16:   P7_3
-      prey17:   P7_4
-      prey18:   P7_5
-      prey19:   P7_6
-      prey20:   P7_7
-      prey21:   P8_3
-      prey22:   P8_4
-      prey23:   P8_5
-      prey24:   P8_6
-      prey25:   P8_7
-      prey26:   Z6_5
-      prey27:   Z6_6
-      prey28:   Z6_7
-      prey29:   Z6_8
-      prey30:   Z6_9
-      prey31:   Z6_10
-      prey32:   Z6_11
-      prey33:   Z5_9
-      prey34:   Z5_10
-      prey35:   Z5_11
-#--------------------------------------------------------------------
-
+      prey1:   P1_11
+      prey2:   P2_4
+      prey3:   P2_5
+      prey4:   P2_6
+      prey5:   P2_7
+      prey6:   P2_8
+      prey7:   P2_9
+      prey8:   P2_10
+      prey9:   P2_11
+      prey10:   P4_11
+      prey11:   P5_6
+      prey12:   P5_7
+      prey13:   P5_8
+      prey14:   P5_9
+      prey15:   P5_10
+      prey16:   P5_11
+      prey17:   P7_3
+      prey18:   P7_4
+      prey19:   P7_5
+      prey20:   P7_6
+      prey21:   P7_7
+      prey22:   P8_3
+      prey23:   P8_4
+      prey24:   P8_5
+      prey25:   P8_6
+      prey26:   P8_7
+      prey27:   Z6_5
+      prey28:   Z6_6
+      prey29:   Z6_7
+      prey30:   Z6_8
+      prey31:   Z6_9
+      prey32:   Z6_10
+      prey33:   Z6_11
+      prey34:   Z5_9
+      prey35:   Z5_10
+      prey36:   Z5_11
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -11651,49 +11648,47 @@ instances:
 
       p_qncMIZ:  1.67e-2 # [mmolN/mgC]   Maximum quotum N:C
 
-      nprey:     37      # [-]           Number of preys
+      nprey:     39      # [-]           Number of preys
 
-      suprey1:   0.02     # [-] Availability of P2_4 to Z5_18
-      suprey2:   0.1     # [-] Availability of P2_5 to Z5_18
-      suprey3:   0.35     # [-] Availability of P2_6 to Z5_18
-      suprey4:   0.76     # [-] Availability of P2_7 to Z5_18
-      suprey5:   1.0     # [-] Availability of P2_8 to Z5_18
-      suprey6:   0.79     # [-] Availability of P2_9 to Z5_18
-      suprey7:   0.38     # [-] Availability of P2_10 to Z5_18
-      suprey8:   0.11     # [-] Availability of P2_11 to Z5_18
-      suprey9:   0.02     # [-] Availability of P2_12 to Z5_18
-      suprey10:   0.11     # [-] Availability of P4_11 to Z5_18
-      suprey11:   0.02     # [-] Availability of P4_12 to Z5_18
-      suprey12:   0.35     # [-] Availability of P5_6 to Z5_18
-      suprey13:   0.76     # [-] Availability of P5_7 to Z5_18
-      suprey14:   1.0     # [-] Availability of P5_8 to Z5_18
-      suprey15:   0.79     # [-] Availability of P5_9 to Z5_18
-      suprey16:   0.38     # [-] Availability of P5_10 to Z5_18
-      suprey17:   0.11     # [-] Availability of P5_11 to Z5_18
-      suprey18:   0.02     # [-] Availability of P5_12 to Z5_18
-      suprey19:   0.02     # [-] Availability of P7_4 to Z5_18
-      suprey20:   0.1     # [-] Availability of P7_5 to Z5_18
-      suprey21:   0.35     # [-] Availability of P7_6 to Z5_18
-      suprey22:   0.76     # [-] Availability of P7_7 to Z5_18
-      suprey23:   0.02     # [-] Availability of P8_4 to Z5_18
-      suprey24:   0.1     # [-] Availability of P8_5 to Z5_18
-      suprey25:   0.35     # [-] Availability of P8_6 to Z5_18
-      suprey26:   0.76     # [-] Availability of P8_7 to Z5_18
-      suprey27:   0.1     # [-] Availability of Z6_5 to Z5_18
-      suprey28:   0.35     # [-] Availability of Z6_6 to Z5_18
-      suprey29:   0.76     # [-] Availability of Z6_7 to Z5_18
-      suprey30:   1.0     # [-] Availability of Z6_8 to Z5_18
-      suprey31:   0.79     # [-] Availability of Z6_9 to Z5_18
-      suprey32:   0.38     # [-] Availability of Z6_10 to Z5_18
-      suprey33:   0.11     # [-] Availability of Z6_11 to Z5_18
-      suprey34:   0.79     # [-] Availability of Z5_9 to Z5_18
-      suprey35:   0.38     # [-] Availability of Z5_10 to Z5_18
-      suprey36:   0.11     # [-] Availability of Z5_11 to Z5_18
-      suprey37:   0.02     # [-] Availability of Z5_12 to Z5_18
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey1:   0.11     # [-] Availability of P1_11 to Z5_18
+      suprey2:   0.02     # [-] Availability of P1_12 to Z5_18
+      suprey3:   0.02     # [-] Availability of P2_4 to Z5_18
+      suprey4:   0.1     # [-] Availability of P2_5 to Z5_18
+      suprey5:   0.35     # [-] Availability of P2_6 to Z5_18
+      suprey6:   0.76     # [-] Availability of P2_7 to Z5_18
+      suprey7:   1.0     # [-] Availability of P2_8 to Z5_18
+      suprey8:   0.79     # [-] Availability of P2_9 to Z5_18
+      suprey9:   0.38     # [-] Availability of P2_10 to Z5_18
+      suprey10:   0.11     # [-] Availability of P2_11 to Z5_18
+      suprey11:   0.02     # [-] Availability of P2_12 to Z5_18
+      suprey12:   0.11     # [-] Availability of P4_11 to Z5_18
+      suprey13:   0.02     # [-] Availability of P4_12 to Z5_18
+      suprey14:   0.35     # [-] Availability of P5_6 to Z5_18
+      suprey15:   0.76     # [-] Availability of P5_7 to Z5_18
+      suprey16:   1.0     # [-] Availability of P5_8 to Z5_18
+      suprey17:   0.79     # [-] Availability of P5_9 to Z5_18
+      suprey18:   0.38     # [-] Availability of P5_10 to Z5_18
+      suprey19:   0.11     # [-] Availability of P5_11 to Z5_18
+      suprey20:   0.02     # [-] Availability of P5_12 to Z5_18
+      suprey21:   0.02     # [-] Availability of P7_4 to Z5_18
+      suprey22:   0.1     # [-] Availability of P7_5 to Z5_18
+      suprey23:   0.35     # [-] Availability of P7_6 to Z5_18
+      suprey24:   0.76     # [-] Availability of P7_7 to Z5_18
+      suprey25:   0.02     # [-] Availability of P8_4 to Z5_18
+      suprey26:   0.1     # [-] Availability of P8_5 to Z5_18
+      suprey27:   0.35     # [-] Availability of P8_6 to Z5_18
+      suprey28:   0.76     # [-] Availability of P8_7 to Z5_18
+      suprey29:   0.1     # [-] Availability of Z6_5 to Z5_18
+      suprey30:   0.35     # [-] Availability of Z6_6 to Z5_18
+      suprey31:   0.76     # [-] Availability of Z6_7 to Z5_18
+      suprey32:   1.0     # [-] Availability of Z6_8 to Z5_18
+      suprey33:   0.79     # [-] Availability of Z6_9 to Z5_18
+      suprey34:   0.38     # [-] Availability of Z6_10 to Z5_18
+      suprey35:   0.11     # [-] Availability of Z6_11 to Z5_18
+      suprey36:   0.79     # [-] Availability of Z5_9 to Z5_18
+      suprey37:   0.38     # [-] Availability of Z5_10 to Z5_18
+      suprey38:   0.11     # [-] Availability of Z5_11 to Z5_18
+      suprey39:   0.02     # [-] Availability of Z5_12 to Z5_18
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -11725,15 +11720,15 @@ instances:
       isP29:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP210:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP211:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP212:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP213:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP212:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP213:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP214:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP215:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP216:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP217:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP218:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-      isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP219:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP220:   1           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
@@ -11751,10 +11746,8 @@ instances:
       isP235:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP236:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP237:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP238:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP239:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -11833,47 +11826,45 @@ instances:
 
       R1p:   R1/p                        # labile DOP
 
-      prey1:   P2_4
-      prey2:   P2_5
-      prey3:   P2_6
-      prey4:   P2_7
-      prey5:   P2_8
-      prey6:   P2_9
-      prey7:   P2_10
-      prey8:   P2_11
-      prey9:   P2_12
-      prey10:   P4_11
-      prey11:   P4_12
-      prey12:   P5_6
-      prey13:   P5_7
-      prey14:   P5_8
-      prey15:   P5_9
-      prey16:   P5_10
-      prey17:   P5_11
-      prey18:   P5_12
-      prey19:   P7_4
-      prey20:   P7_5
-      prey21:   P7_6
-      prey22:   P7_7
-      prey23:   P8_4
-      prey24:   P8_5
-      prey25:   P8_6
-      prey26:   P8_7
-      prey27:   Z6_5
-      prey28:   Z6_6
-      prey29:   Z6_7
-      prey30:   Z6_8
-      prey31:   Z6_9
-      prey32:   Z6_10
-      prey33:   Z6_11
-      prey34:   Z5_9
-      prey35:   Z5_10
-      prey36:   Z5_11
-      prey37:   Z5_12
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey1:   P1_11
+      prey2:   P1_12
+      prey3:   P2_4
+      prey4:   P2_5
+      prey5:   P2_6
+      prey6:   P2_7
+      prey7:   P2_8
+      prey8:   P2_9
+      prey9:   P2_10
+      prey10:   P2_11
+      prey11:   P2_12
+      prey12:   P4_11
+      prey13:   P4_12
+      prey14:   P5_6
+      prey15:   P5_7
+      prey16:   P5_8
+      prey17:   P5_9
+      prey18:   P5_10
+      prey19:   P5_11
+      prey20:   P5_12
+      prey21:   P7_4
+      prey22:   P7_5
+      prey23:   P7_6
+      prey24:   P7_7
+      prey25:   P8_4
+      prey26:   P8_5
+      prey27:   P8_6
+      prey28:   P8_7
+      prey29:   Z6_5
+      prey30:   Z6_6
+      prey31:   Z6_7
+      prey32:   Z6_8
+      prey33:   Z6_9
+      prey34:   Z6_10
+      prey35:   Z6_11
+      prey36:   Z5_9
+      prey37:   Z5_10
+      prey38:   Z5_11
+      prey39:   Z5_12
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -14618,7 +14609,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     16                      # [-]             Number of preys
+      nprey:     22                      # [-]             Number of preys
 
       suprey1:   0.76     # [-] Availability of P1_11 to Z3_22
       suprey2:   1.0     # [-] Availability of P1_12 to Z3_22
@@ -14626,28 +14617,22 @@ instances:
       suprey4:   0.38     # [-] Availability of P1_14 to Z3_22
       suprey5:   0.11     # [-] Availability of P1_15 to Z3_22
       suprey6:   0.02     # [-] Availability of P1_16 to Z3_22
-      suprey7:   0.1     # [-] Availability of Z5_9 to Z3_22
-      suprey8:   0.35     # [-] Availability of Z5_10 to Z3_22
-      suprey9:   0.76     # [-] Availability of Z5_11 to Z3_22
-      suprey10:   1.0     # [-] Availability of Z5_12 to Z3_22
-      suprey11:   0.79     # [-] Availability of Z5_13 to Z3_22
-      suprey12:   0.38     # [-] Availability of Z5_14 to Z3_22
-      suprey13:   0.11     # [-] Availability of Z5_15 to Z3_22
-      suprey14:   0.02     # [-] Availability of Z5_16 to Z3_22
-      suprey15:   0.11     # [-] Availability of Z4_15 to Z3_22
-      suprey16:   0.02     # [-] Availability of Z4_16 to Z3_22
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey7:   0.76     # [-] Availability of P4_11 to Z3_22
+      suprey8:   1.0     # [-] Availability of P4_12 to Z3_22
+      suprey9:   0.79     # [-] Availability of P4_13 to Z3_22
+      suprey10:   0.38     # [-] Availability of P4_14 to Z3_22
+      suprey11:   0.11     # [-] Availability of P4_15 to Z3_22
+      suprey12:   0.02     # [-] Availability of P4_16 to Z3_22
+      suprey13:   0.1     # [-] Availability of Z5_9 to Z3_22
+      suprey14:   0.35     # [-] Availability of Z5_10 to Z3_22
+      suprey15:   0.76     # [-] Availability of Z5_11 to Z3_22
+      suprey16:   1.0     # [-] Availability of Z5_12 to Z3_22
+      suprey17:   0.79     # [-] Availability of Z5_13 to Z3_22
+      suprey18:   0.38     # [-] Availability of Z5_14 to Z3_22
+      suprey19:   0.11     # [-] Availability of Z5_15 to Z3_22
+      suprey20:   0.02     # [-] Availability of Z5_16 to Z3_22
+      suprey21:   0.11     # [-] Availability of Z4_15 to Z3_22
+      suprey22:   0.02     # [-] Availability of Z4_16 to Z3_22
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -14718,18 +14703,12 @@ instances:
       isP214:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP215:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP216:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP217:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP218:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -14832,28 +14811,22 @@ instances:
       prey4:   P1_14
       prey5:   P1_15
       prey6:   P1_16
-      prey7:   Z5_9
-      prey8:   Z5_10
-      prey9:   Z5_11
-      prey10:   Z5_12
-      prey11:   Z5_13
-      prey12:   Z5_14
-      prey13:   Z5_15
-      prey14:   Z5_16
-      prey15:   Z4_15
-      prey16:   Z4_16
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey7:   P4_11
+      prey8:   P4_12
+      prey9:   P4_13
+      prey10:   P4_14
+      prey11:   P4_15
+      prey12:   P4_16
+      prey13:   Z5_9
+      prey14:   Z5_10
+      prey15:   Z5_11
+      prey16:   Z5_12
+      prey17:   Z5_13
+      prey18:   Z5_14
+      prey19:   Z5_15
+      prey20:   Z5_16
+      prey21:   Z4_15
+      prey22:   Z4_16
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -14952,7 +14925,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     19                      # [-]             Number of preys
+      nprey:     26                      # [-]             Number of preys
 
       suprey1:   0.35     # [-] Availability of P1_11 to Z3_23
       suprey2:   0.76     # [-] Availability of P1_12 to Z3_23
@@ -14961,32 +14934,25 @@ instances:
       suprey5:   0.38     # [-] Availability of P1_15 to Z3_23
       suprey6:   0.11     # [-] Availability of P1_16 to Z3_23
       suprey7:   0.02     # [-] Availability of P1_17 to Z3_23
-      suprey8:   0.02     # [-] Availability of Z5_9 to Z3_23
-      suprey9:   0.1     # [-] Availability of Z5_10 to Z3_23
-      suprey10:   0.35     # [-] Availability of Z5_11 to Z3_23
-      suprey11:   0.76     # [-] Availability of Z5_12 to Z3_23
-      suprey12:   1.0     # [-] Availability of Z5_13 to Z3_23
-      suprey13:   0.79     # [-] Availability of Z5_14 to Z3_23
-      suprey14:   0.38     # [-] Availability of Z5_15 to Z3_23
-      suprey15:   0.11     # [-] Availability of Z5_16 to Z3_23
-      suprey16:   0.02     # [-] Availability of Z5_17 to Z3_23
-      suprey17:   0.38     # [-] Availability of Z4_15 to Z3_23
-      suprey18:   0.11     # [-] Availability of Z4_16 to Z3_23
-      suprey19:   0.02     # [-] Availability of Z4_17 to Z3_23
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey8:   0.35     # [-] Availability of P4_11 to Z3_23
+      suprey9:   0.76     # [-] Availability of P4_12 to Z3_23
+      suprey10:   1.0     # [-] Availability of P4_13 to Z3_23
+      suprey11:   0.79     # [-] Availability of P4_14 to Z3_23
+      suprey12:   0.38     # [-] Availability of P4_15 to Z3_23
+      suprey13:   0.11     # [-] Availability of P4_16 to Z3_23
+      suprey14:   0.02     # [-] Availability of P4_17 to Z3_23
+      suprey15:   0.02     # [-] Availability of Z5_9 to Z3_23
+      suprey16:   0.1     # [-] Availability of Z5_10 to Z3_23
+      suprey17:   0.35     # [-] Availability of Z5_11 to Z3_23
+      suprey18:   0.76     # [-] Availability of Z5_12 to Z3_23
+      suprey19:   1.0     # [-] Availability of Z5_13 to Z3_23
+      suprey20:   0.79     # [-] Availability of Z5_14 to Z3_23
+      suprey21:   0.38     # [-] Availability of Z5_15 to Z3_23
+      suprey22:   0.11     # [-] Availability of Z5_16 to Z3_23
+      suprey23:   0.02     # [-] Availability of Z5_17 to Z3_23
+      suprey24:   0.38     # [-] Availability of Z4_15 to Z3_23
+      suprey25:   0.11     # [-] Availability of Z4_16 to Z3_23
+      suprey26:   0.02     # [-] Availability of Z4_17 to Z3_23
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15052,20 +15018,13 @@ instances:
       isP217:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP218:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15161,32 +15120,25 @@ instances:
       prey5:   P1_15
       prey6:   P1_16
       prey7:   P1_17
-      prey8:   Z5_9
-      prey9:   Z5_10
-      prey10:   Z5_11
-      prey11:   Z5_12
-      prey12:   Z5_13
-      prey13:   Z5_14
-      prey14:   Z5_15
-      prey15:   Z5_16
-      prey16:   Z5_17
-      prey17:   Z4_15
-      prey18:   Z4_16
-      prey19:   Z4_17
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey8:   P4_11
+      prey9:   P4_12
+      prey10:   P4_13
+      prey11:   P4_14
+      prey12:   P4_15
+      prey13:   P4_16
+      prey14:   P4_17
+      prey15:   Z5_9
+      prey16:   Z5_10
+      prey17:   Z5_11
+      prey18:   Z5_12
+      prey19:   Z5_13
+      prey20:   Z5_14
+      prey21:   Z5_15
+      prey22:   Z5_16
+      prey23:   Z5_17
+      prey24:   Z4_15
+      prey25:   Z4_16
+      prey26:   Z4_17
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15277,7 +15229,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     21                      # [-]             Number of preys
+      nprey:     29                      # [-]             Number of preys
 
       suprey1:   0.1     # [-] Availability of P1_11 to Z3_24
       suprey2:   0.35     # [-] Availability of P1_12 to Z3_24
@@ -15287,35 +15239,27 @@ instances:
       suprey6:   0.38     # [-] Availability of P1_16 to Z3_24
       suprey7:   0.11     # [-] Availability of P1_17 to Z3_24
       suprey8:   0.02     # [-] Availability of P1_18 to Z3_24
-      suprey9:   0.02     # [-] Availability of Z5_10 to Z3_24
-      suprey10:   0.1     # [-] Availability of Z5_11 to Z3_24
-      suprey11:   0.35     # [-] Availability of Z5_12 to Z3_24
-      suprey12:   0.76     # [-] Availability of Z5_13 to Z3_24
-      suprey13:   1.0     # [-] Availability of Z5_14 to Z3_24
-      suprey14:   0.79     # [-] Availability of Z5_15 to Z3_24
-      suprey15:   0.38     # [-] Availability of Z5_16 to Z3_24
-      suprey16:   0.11     # [-] Availability of Z5_17 to Z3_24
-      suprey17:   0.02     # [-] Availability of Z5_18 to Z3_24
-      suprey18:   0.79     # [-] Availability of Z4_15 to Z3_24
-      suprey19:   0.38     # [-] Availability of Z4_16 to Z3_24
-      suprey20:   0.11     # [-] Availability of Z4_17 to Z3_24
-      suprey21:   0.02     # [-] Availability of Z4_18 to Z3_24
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      suprey9:   0.1     # [-] Availability of P4_11 to Z3_24
+      suprey10:   0.35     # [-] Availability of P4_12 to Z3_24
+      suprey11:   0.76     # [-] Availability of P4_13 to Z3_24
+      suprey12:   1.0     # [-] Availability of P4_14 to Z3_24
+      suprey13:   0.79     # [-] Availability of P4_15 to Z3_24
+      suprey14:   0.38     # [-] Availability of P4_16 to Z3_24
+      suprey15:   0.11     # [-] Availability of P4_17 to Z3_24
+      suprey16:   0.02     # [-] Availability of P4_18 to Z3_24
+      suprey17:   0.02     # [-] Availability of Z5_10 to Z3_24
+      suprey18:   0.1     # [-] Availability of Z5_11 to Z3_24
+      suprey19:   0.35     # [-] Availability of Z5_12 to Z3_24
+      suprey20:   0.76     # [-] Availability of Z5_13 to Z3_24
+      suprey21:   1.0     # [-] Availability of Z5_14 to Z3_24
+      suprey22:   0.79     # [-] Availability of Z5_15 to Z3_24
+      suprey23:   0.38     # [-] Availability of Z5_16 to Z3_24
+      suprey24:   0.11     # [-] Availability of Z5_17 to Z3_24
+      suprey25:   0.02     # [-] Availability of Z5_18 to Z3_24
+      suprey26:   0.79     # [-] Availability of Z4_15 to Z3_24
+      suprey27:   0.38     # [-] Availability of Z4_16 to Z3_24
+      suprey28:   0.11     # [-] Availability of Z4_17 to Z3_24
+      suprey29:   0.02     # [-] Availability of Z4_18 to Z3_24
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15377,22 +15321,14 @@ instances:
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP228:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP229:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15483,35 +15419,27 @@ instances:
       prey6:   P1_16
       prey7:   P1_17
       prey8:   P1_18
-      prey9:   Z5_10
-      prey10:   Z5_11
-      prey11:   Z5_12
-      prey12:   Z5_13
-      prey13:   Z5_14
-      prey14:   Z5_15
-      prey15:   Z5_16
-      prey16:   Z5_17
-      prey17:   Z5_18
-      prey18:   Z4_15
-      prey19:   Z4_16
-      prey20:   Z4_17
-      prey21:   Z4_18
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      prey9:   P4_11
+      prey10:   P4_12
+      prey11:   P4_13
+      prey12:   P4_14
+      prey13:   P4_15
+      prey14:   P4_16
+      prey15:   P4_17
+      prey16:   P4_18
+      prey17:   Z5_10
+      prey18:   Z5_11
+      prey19:   Z5_12
+      prey20:   Z5_13
+      prey21:   Z5_14
+      prey22:   Z5_15
+      prey23:   Z5_16
+      prey24:   Z5_17
+      prey25:   Z5_18
+      prey26:   Z4_15
+      prey27:   Z4_16
+      prey28:   Z4_17
+      prey29:   Z4_18
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -15596,7 +15524,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     22                      # [-]             Number of preys
+      nprey:     31                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_11 to Z3_25
       suprey2:   0.1     # [-] Availability of P1_12 to Z3_25
@@ -15607,37 +15535,28 @@ instances:
       suprey7:   0.38     # [-] Availability of P1_17 to Z3_25
       suprey8:   0.11     # [-] Availability of P1_18 to Z3_25
       suprey9:   0.02     # [-] Availability of P1_19 to Z3_25
-      suprey10:   0.02     # [-] Availability of Z5_11 to Z3_25
-      suprey11:   0.1     # [-] Availability of Z5_12 to Z3_25
-      suprey12:   0.35     # [-] Availability of Z5_13 to Z3_25
-      suprey13:   0.76     # [-] Availability of Z5_14 to Z3_25
-      suprey14:   1.0     # [-] Availability of Z5_15 to Z3_25
-      suprey15:   0.79     # [-] Availability of Z5_16 to Z3_25
-      suprey16:   0.38     # [-] Availability of Z5_17 to Z3_25
-      suprey17:   0.11     # [-] Availability of Z5_18 to Z3_25
-      suprey18:   1.0     # [-] Availability of Z4_15 to Z3_25
-      suprey19:   0.79     # [-] Availability of Z4_16 to Z3_25
-      suprey20:   0.38     # [-] Availability of Z4_17 to Z3_25
-      suprey21:   0.11     # [-] Availability of Z4_18 to Z3_25
-      suprey22:   0.02     # [-] Availability of Z4_19 to Z3_25
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey10:   0.02     # [-] Availability of P4_11 to Z3_25
+      suprey11:   0.1     # [-] Availability of P4_12 to Z3_25
+      suprey12:   0.35     # [-] Availability of P4_13 to Z3_25
+      suprey13:   0.76     # [-] Availability of P4_14 to Z3_25
+      suprey14:   1.0     # [-] Availability of P4_15 to Z3_25
+      suprey15:   0.79     # [-] Availability of P4_16 to Z3_25
+      suprey16:   0.38     # [-] Availability of P4_17 to Z3_25
+      suprey17:   0.11     # [-] Availability of P4_18 to Z3_25
+      suprey18:   0.02     # [-] Availability of P4_19 to Z3_25
+      suprey19:   0.02     # [-] Availability of Z5_11 to Z3_25
+      suprey20:   0.1     # [-] Availability of Z5_12 to Z3_25
+      suprey21:   0.35     # [-] Availability of Z5_13 to Z3_25
+      suprey22:   0.76     # [-] Availability of Z5_14 to Z3_25
+      suprey23:   1.0     # [-] Availability of Z5_15 to Z3_25
+      suprey24:   0.79     # [-] Availability of Z5_16 to Z3_25
+      suprey25:   0.38     # [-] Availability of Z5_17 to Z3_25
+      suprey26:   0.11     # [-] Availability of Z5_18 to Z3_25
+      suprey27:   1.0     # [-] Availability of Z4_15 to Z3_25
+      suprey28:   0.79     # [-] Availability of Z4_16 to Z3_25
+      suprey29:   0.38     # [-] Availability of Z4_17 to Z3_25
+      suprey30:   0.11     # [-] Availability of Z4_18 to Z3_25
+      suprey31:   0.02     # [-] Availability of Z4_19 to Z3_25
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -15696,24 +15615,15 @@ instances:
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP228:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP229:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP230:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP231:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -15801,37 +15711,28 @@ instances:
       prey7:   P1_17
       prey8:   P1_18
       prey9:   P1_19
-      prey10:   Z5_11
-      prey11:   Z5_12
-      prey12:   Z5_13
-      prey13:   Z5_14
-      prey14:   Z5_15
-      prey15:   Z5_16
-      prey16:   Z5_17
-      prey17:   Z5_18
-      prey18:   Z4_15
-      prey19:   Z4_16
-      prey20:   Z4_17
-      prey21:   Z4_18
-      prey22:   Z4_19
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey10:   P4_11
+      prey11:   P4_12
+      prey12:   P4_13
+      prey13:   P4_14
+      prey14:   P4_15
+      prey15:   P4_16
+      prey16:   P4_17
+      prey17:   P4_18
+      prey18:   P4_19
+      prey19:   Z5_11
+      prey20:   Z5_12
+      prey21:   Z5_13
+      prey22:   Z5_14
+      prey23:   Z5_15
+      prey24:   Z5_16
+      prey25:   Z5_17
+      prey26:   Z5_18
+      prey27:   Z4_15
+      prey28:   Z4_16
+      prey29:   Z4_17
+      prey30:   Z4_18
+      prey31:   Z4_19
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -15912,7 +15813,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     22                      # [-]             Number of preys
+      nprey:     31                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_12 to Z3_26
       suprey2:   0.1     # [-] Availability of P1_13 to Z3_26
@@ -15923,37 +15824,28 @@ instances:
       suprey7:   0.38     # [-] Availability of P1_18 to Z3_26
       suprey8:   0.11     # [-] Availability of P1_19 to Z3_26
       suprey9:   0.02     # [-] Availability of P1_20 to Z3_26
-      suprey10:   0.02     # [-] Availability of Z5_12 to Z3_26
-      suprey11:   0.1     # [-] Availability of Z5_13 to Z3_26
-      suprey12:   0.35     # [-] Availability of Z5_14 to Z3_26
-      suprey13:   0.76     # [-] Availability of Z5_15 to Z3_26
-      suprey14:   1.0     # [-] Availability of Z5_16 to Z3_26
-      suprey15:   0.79     # [-] Availability of Z5_17 to Z3_26
-      suprey16:   0.38     # [-] Availability of Z5_18 to Z3_26
-      suprey17:   0.76     # [-] Availability of Z4_15 to Z3_26
-      suprey18:   1.0     # [-] Availability of Z4_16 to Z3_26
-      suprey19:   0.79     # [-] Availability of Z4_17 to Z3_26
-      suprey20:   0.38     # [-] Availability of Z4_18 to Z3_26
-      suprey21:   0.11     # [-] Availability of Z4_19 to Z3_26
-      suprey22:   0.02     # [-] Availability of Z4_20 to Z3_26
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey10:   0.02     # [-] Availability of P4_12 to Z3_26
+      suprey11:   0.1     # [-] Availability of P4_13 to Z3_26
+      suprey12:   0.35     # [-] Availability of P4_14 to Z3_26
+      suprey13:   0.76     # [-] Availability of P4_15 to Z3_26
+      suprey14:   1.0     # [-] Availability of P4_16 to Z3_26
+      suprey15:   0.79     # [-] Availability of P4_17 to Z3_26
+      suprey16:   0.38     # [-] Availability of P4_18 to Z3_26
+      suprey17:   0.11     # [-] Availability of P4_19 to Z3_26
+      suprey18:   0.02     # [-] Availability of P4_20 to Z3_26
+      suprey19:   0.02     # [-] Availability of Z5_12 to Z3_26
+      suprey20:   0.1     # [-] Availability of Z5_13 to Z3_26
+      suprey21:   0.35     # [-] Availability of Z5_14 to Z3_26
+      suprey22:   0.76     # [-] Availability of Z5_15 to Z3_26
+      suprey23:   1.0     # [-] Availability of Z5_16 to Z3_26
+      suprey24:   0.79     # [-] Availability of Z5_17 to Z3_26
+      suprey25:   0.38     # [-] Availability of Z5_18 to Z3_26
+      suprey26:   0.76     # [-] Availability of Z4_15 to Z3_26
+      suprey27:   1.0     # [-] Availability of Z4_16 to Z3_26
+      suprey28:   0.79     # [-] Availability of Z4_17 to Z3_26
+      suprey29:   0.38     # [-] Availability of Z4_18 to Z3_26
+      suprey30:   0.11     # [-] Availability of Z4_19 to Z3_26
+      suprey31:   0.02     # [-] Availability of Z4_20 to Z3_26
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16012,24 +15904,15 @@ instances:
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP228:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP229:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP230:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP231:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16117,37 +16000,28 @@ instances:
       prey7:   P1_18
       prey8:   P1_19
       prey9:   P1_20
-      prey10:   Z5_12
-      prey11:   Z5_13
-      prey12:   Z5_14
-      prey13:   Z5_15
-      prey14:   Z5_16
-      prey15:   Z5_17
-      prey16:   Z5_18
-      prey17:   Z4_15
-      prey18:   Z4_16
-      prey19:   Z4_17
-      prey20:   Z4_18
-      prey21:   Z4_19
-      prey22:   Z4_20
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey10:   P4_12
+      prey11:   P4_13
+      prey12:   P4_14
+      prey13:   P4_15
+      prey14:   P4_16
+      prey15:   P4_17
+      prey16:   P4_18
+      prey17:   P4_19
+      prey18:   P4_20
+      prey19:   Z5_12
+      prey20:   Z5_13
+      prey21:   Z5_14
+      prey22:   Z5_15
+      prey23:   Z5_16
+      prey24:   Z5_17
+      prey25:   Z5_18
+      prey26:   Z4_15
+      prey27:   Z4_16
+      prey28:   Z4_17
+      prey29:   Z4_18
+      prey30:   Z4_19
+      prey31:   Z4_20
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16228,7 +16102,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     21                      # [-]             Number of preys
+      nprey:     29                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_13 to Z3_27
       suprey2:   0.1     # [-] Availability of P1_14 to Z3_27
@@ -16238,35 +16112,27 @@ instances:
       suprey6:   0.79     # [-] Availability of P1_18 to Z3_27
       suprey7:   0.38     # [-] Availability of P1_19 to Z3_27
       suprey8:   0.11     # [-] Availability of P1_20 to Z3_27
-      suprey9:   0.02     # [-] Availability of Z5_13 to Z3_27
-      suprey10:   0.1     # [-] Availability of Z5_14 to Z3_27
-      suprey11:   0.35     # [-] Availability of Z5_15 to Z3_27
-      suprey12:   0.76     # [-] Availability of Z5_16 to Z3_27
-      suprey13:   1.0     # [-] Availability of Z5_17 to Z3_27
-      suprey14:   0.79     # [-] Availability of Z5_18 to Z3_27
-      suprey15:   0.35     # [-] Availability of Z4_15 to Z3_27
-      suprey16:   0.76     # [-] Availability of Z4_16 to Z3_27
-      suprey17:   1.0     # [-] Availability of Z4_17 to Z3_27
-      suprey18:   0.79     # [-] Availability of Z4_18 to Z3_27
-      suprey19:   0.38     # [-] Availability of Z4_19 to Z3_27
-      suprey20:   0.11     # [-] Availability of Z4_20 to Z3_27
-      suprey21:   0.02     # [-] Availability of Z4_21 to Z3_27
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      suprey9:   0.02     # [-] Availability of P4_13 to Z3_27
+      suprey10:   0.1     # [-] Availability of P4_14 to Z3_27
+      suprey11:   0.35     # [-] Availability of P4_15 to Z3_27
+      suprey12:   0.76     # [-] Availability of P4_16 to Z3_27
+      suprey13:   1.0     # [-] Availability of P4_17 to Z3_27
+      suprey14:   0.79     # [-] Availability of P4_18 to Z3_27
+      suprey15:   0.38     # [-] Availability of P4_19 to Z3_27
+      suprey16:   0.11     # [-] Availability of P4_20 to Z3_27
+      suprey17:   0.02     # [-] Availability of Z5_13 to Z3_27
+      suprey18:   0.1     # [-] Availability of Z5_14 to Z3_27
+      suprey19:   0.35     # [-] Availability of Z5_15 to Z3_27
+      suprey20:   0.76     # [-] Availability of Z5_16 to Z3_27
+      suprey21:   1.0     # [-] Availability of Z5_17 to Z3_27
+      suprey22:   0.79     # [-] Availability of Z5_18 to Z3_27
+      suprey23:   0.35     # [-] Availability of Z4_15 to Z3_27
+      suprey24:   0.76     # [-] Availability of Z4_16 to Z3_27
+      suprey25:   1.0     # [-] Availability of Z4_17 to Z3_27
+      suprey26:   0.79     # [-] Availability of Z4_18 to Z3_27
+      suprey27:   0.38     # [-] Availability of Z4_19 to Z3_27
+      suprey28:   0.11     # [-] Availability of Z4_20 to Z3_27
+      suprey29:   0.02     # [-] Availability of Z4_21 to Z3_27
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -16328,22 +16194,14 @@ instances:
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP228:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP229:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -16434,35 +16292,27 @@ instances:
       prey6:   P1_18
       prey7:   P1_19
       prey8:   P1_20
-      prey9:   Z5_13
-      prey10:   Z5_14
-      prey11:   Z5_15
-      prey12:   Z5_16
-      prey13:   Z5_17
-      prey14:   Z5_18
-      prey15:   Z4_15
-      prey16:   Z4_16
-      prey17:   Z4_17
-      prey18:   Z4_18
-      prey19:   Z4_19
-      prey20:   Z4_20
-      prey21:   Z4_21
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
+      prey9:   P4_13
+      prey10:   P4_14
+      prey11:   P4_15
+      prey12:   P4_16
+      prey13:   P4_17
+      prey14:   P4_18
+      prey15:   P4_19
+      prey16:   P4_20
+      prey17:   Z5_13
+      prey18:   Z5_14
+      prey19:   Z5_15
+      prey20:   Z5_16
+      prey21:   Z5_17
+      prey22:   Z5_18
+      prey23:   Z4_15
+      prey24:   Z4_16
+      prey25:   Z4_17
+      prey26:   Z4_18
+      prey27:   Z4_19
+      prey28:   Z4_20
+      prey29:   Z4_21
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -16547,7 +16397,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     21                      # [-]             Number of preys
+      nprey:     28                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_14 to Z3_28
       suprey2:   0.1     # [-] Availability of P1_15 to Z3_28
@@ -16556,34 +16406,27 @@ instances:
       suprey5:   1.0     # [-] Availability of P1_18 to Z3_28
       suprey6:   0.79     # [-] Availability of P1_19 to Z3_28
       suprey7:   0.38     # [-] Availability of P1_20 to Z3_28
-      suprey8:   0.02     # [-] Availability of Z5_14 to Z3_28
-      suprey9:   0.1     # [-] Availability of Z5_15 to Z3_28
-      suprey10:   0.35     # [-] Availability of Z5_16 to Z3_28
-      suprey11:   0.76     # [-] Availability of Z5_17 to Z3_28
-      suprey12:   1.0     # [-] Availability of Z5_18 to Z3_28
-      suprey13:   0.1     # [-] Availability of Z4_15 to Z3_28
-      suprey14:   0.35     # [-] Availability of Z4_16 to Z3_28
-      suprey15:   0.76     # [-] Availability of Z4_17 to Z3_28
-      suprey16:   1.0     # [-] Availability of Z4_18 to Z3_28
-      suprey17:   0.79     # [-] Availability of Z4_19 to Z3_28
-      suprey18:   0.38     # [-] Availability of Z4_20 to Z3_28
-      suprey19:   0.11     # [-] Availability of Z4_21 to Z3_28
-      suprey20:   0.02     # [-] Availability of Z4_22 to Z3_28
-      suprey21:   0.02     # [-] Availability of Z3_22 to Z3_28
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey8:   0.02     # [-] Availability of P4_14 to Z3_28
+      suprey9:   0.1     # [-] Availability of P4_15 to Z3_28
+      suprey10:   0.35     # [-] Availability of P4_16 to Z3_28
+      suprey11:   0.76     # [-] Availability of P4_17 to Z3_28
+      suprey12:   1.0     # [-] Availability of P4_18 to Z3_28
+      suprey13:   0.79     # [-] Availability of P4_19 to Z3_28
+      suprey14:   0.38     # [-] Availability of P4_20 to Z3_28
+      suprey15:   0.02     # [-] Availability of Z5_14 to Z3_28
+      suprey16:   0.1     # [-] Availability of Z5_15 to Z3_28
+      suprey17:   0.35     # [-] Availability of Z5_16 to Z3_28
+      suprey18:   0.76     # [-] Availability of Z5_17 to Z3_28
+      suprey19:   1.0     # [-] Availability of Z5_18 to Z3_28
+      suprey20:   0.1     # [-] Availability of Z4_15 to Z3_28
+      suprey21:   0.35     # [-] Availability of Z4_16 to Z3_28
+      suprey22:   0.76     # [-] Availability of Z4_17 to Z3_28
+      suprey23:   1.0     # [-] Availability of Z4_18 to Z3_28
+      suprey24:   0.79     # [-] Availability of Z4_19 to Z3_28
+      suprey25:   0.38     # [-] Availability of Z4_20 to Z3_28
+      suprey26:   0.11     # [-] Availability of Z4_21 to Z3_28
+      suprey27:   0.02     # [-] Availability of Z4_22 to Z3_28
+      suprey28:   0.02     # [-] Availability of Z3_22 to Z3_28
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16647,20 +16490,13 @@ instances:
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP228:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16752,34 +16588,27 @@ instances:
       prey5:   P1_18
       prey6:   P1_19
       prey7:   P1_20
-      prey8:   Z5_14
-      prey9:   Z5_15
-      prey10:   Z5_16
-      prey11:   Z5_17
-      prey12:   Z5_18
-      prey13:   Z4_15
-      prey14:   Z4_16
-      prey15:   Z4_17
-      prey16:   Z4_18
-      prey17:   Z4_19
-      prey18:   Z4_20
-      prey19:   Z4_21
-      prey20:   Z4_22
-      prey21:   Z3_22
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey8:   P4_14
+      prey9:   P4_15
+      prey10:   P4_16
+      prey11:   P4_17
+      prey12:   P4_18
+      prey13:   P4_19
+      prey14:   P4_20
+      prey15:   Z5_14
+      prey16:   Z5_15
+      prey17:   Z5_16
+      prey18:   Z5_17
+      prey19:   Z5_18
+      prey20:   Z4_15
+      prey21:   Z4_16
+      prey22:   Z4_17
+      prey23:   Z4_18
+      prey24:   Z4_19
+      prey25:   Z4_20
+      prey26:   Z4_21
+      prey27:   Z4_22
+      prey28:   Z3_22
 #-------------------------------------------------------------------- 
 
 #--------------------------------------------------------------------
@@ -16866,7 +16695,7 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     21                      # [-]             Number of preys
+      nprey:     27                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_15 to Z3_29
       suprey2:   0.1     # [-] Availability of P1_16 to Z3_29
@@ -16874,33 +16703,27 @@ instances:
       suprey4:   0.76     # [-] Availability of P1_18 to Z3_29
       suprey5:   1.0     # [-] Availability of P1_19 to Z3_29
       suprey6:   0.79     # [-] Availability of P1_20 to Z3_29
-      suprey7:   0.02     # [-] Availability of Z5_15 to Z3_29
-      suprey8:   0.1     # [-] Availability of Z5_16 to Z3_29
-      suprey9:   0.35     # [-] Availability of Z5_17 to Z3_29
-      suprey10:   0.76     # [-] Availability of Z5_18 to Z3_29
-      suprey11:   0.02     # [-] Availability of Z4_15 to Z3_29
-      suprey12:   0.1     # [-] Availability of Z4_16 to Z3_29
-      suprey13:   0.35     # [-] Availability of Z4_17 to Z3_29
-      suprey14:   0.76     # [-] Availability of Z4_18 to Z3_29
-      suprey15:   1.0     # [-] Availability of Z4_19 to Z3_29
-      suprey16:   0.79     # [-] Availability of Z4_20 to Z3_29
-      suprey17:   0.38     # [-] Availability of Z4_21 to Z3_29
-      suprey18:   0.11     # [-] Availability of Z4_22 to Z3_29
-      suprey19:   0.02     # [-] Availability of Z4_23 to Z3_29
-      suprey20:   0.11     # [-] Availability of Z3_22 to Z3_29
-      suprey21:   0.02     # [-] Availability of Z3_23 to Z3_29
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey7:   0.02     # [-] Availability of P4_15 to Z3_29
+      suprey8:   0.1     # [-] Availability of P4_16 to Z3_29
+      suprey9:   0.35     # [-] Availability of P4_17 to Z3_29
+      suprey10:   0.76     # [-] Availability of P4_18 to Z3_29
+      suprey11:   1.0     # [-] Availability of P4_19 to Z3_29
+      suprey12:   0.79     # [-] Availability of P4_20 to Z3_29
+      suprey13:   0.02     # [-] Availability of Z5_15 to Z3_29
+      suprey14:   0.1     # [-] Availability of Z5_16 to Z3_29
+      suprey15:   0.35     # [-] Availability of Z5_17 to Z3_29
+      suprey16:   0.76     # [-] Availability of Z5_18 to Z3_29
+      suprey17:   0.02     # [-] Availability of Z4_15 to Z3_29
+      suprey18:   0.1     # [-] Availability of Z4_16 to Z3_29
+      suprey19:   0.35     # [-] Availability of Z4_17 to Z3_29
+      suprey20:   0.76     # [-] Availability of Z4_18 to Z3_29
+      suprey21:   1.0     # [-] Availability of Z4_19 to Z3_29
+      suprey22:   0.79     # [-] Availability of Z4_20 to Z3_29
+      suprey23:   0.38     # [-] Availability of Z4_21 to Z3_29
+      suprey24:   0.11     # [-] Availability of Z4_22 to Z3_29
+      suprey25:   0.02     # [-] Availability of Z4_23 to Z3_29
+      suprey26:   0.11     # [-] Availability of Z3_22 to Z3_29
+      suprey27:   0.02     # [-] Availability of Z3_23 to Z3_29
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -16966,18 +16789,12 @@ instances:
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP226:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP227:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -17070,33 +16887,27 @@ instances:
       prey4:   P1_18
       prey5:   P1_19
       prey6:   P1_20
-      prey7:   Z5_15
-      prey8:   Z5_16
-      prey9:   Z5_17
-      prey10:   Z5_18
-      prey11:   Z4_15
-      prey12:   Z4_16
-      prey13:   Z4_17
-      prey14:   Z4_18
-      prey15:   Z4_19
-      prey16:   Z4_20
-      prey17:   Z4_21
-      prey18:   Z4_22
-      prey19:   Z4_23
-      prey20:   Z3_22
-      prey21:   Z3_23
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey7:   P4_15
+      prey8:   P4_16
+      prey9:   P4_17
+      prey10:   P4_18
+      prey11:   P4_19
+      prey12:   P4_20
+      prey13:   Z5_15
+      prey14:   Z5_16
+      prey15:   Z5_17
+      prey16:   Z5_18
+      prey17:   Z4_15
+      prey18:   Z4_16
+      prey19:   Z4_17
+      prey20:   Z4_18
+      prey21:   Z4_19
+      prey22:   Z4_20
+      prey23:   Z4_21
+      prey24:   Z4_22
+      prey25:   Z4_23
+      prey26:   Z3_22
+      prey27:   Z3_23
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -17185,38 +16996,33 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     20                      # [-]             Number of preys
+      nprey:     25                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_16 to Z3_30
       suprey2:   0.1     # [-] Availability of P1_17 to Z3_30
       suprey3:   0.35     # [-] Availability of P1_18 to Z3_30
       suprey4:   0.76     # [-] Availability of P1_19 to Z3_30
       suprey5:   1.0     # [-] Availability of P1_20 to Z3_30
-      suprey6:   0.02     # [-] Availability of Z5_16 to Z3_30
-      suprey7:   0.1     # [-] Availability of Z5_17 to Z3_30
-      suprey8:   0.35     # [-] Availability of Z5_18 to Z3_30
-      suprey9:   0.02     # [-] Availability of Z4_16 to Z3_30
-      suprey10:   0.1     # [-] Availability of Z4_17 to Z3_30
-      suprey11:   0.35     # [-] Availability of Z4_18 to Z3_30
-      suprey12:   0.76     # [-] Availability of Z4_19 to Z3_30
-      suprey13:   1.0     # [-] Availability of Z4_20 to Z3_30
-      suprey14:   0.79     # [-] Availability of Z4_21 to Z3_30
-      suprey15:   0.38     # [-] Availability of Z4_22 to Z3_30
-      suprey16:   0.11     # [-] Availability of Z4_23 to Z3_30
-      suprey17:   0.02     # [-] Availability of Z4_24 to Z3_30
-      suprey18:   0.38     # [-] Availability of Z3_22 to Z3_30
-      suprey19:   0.11     # [-] Availability of Z3_23 to Z3_30
-      suprey20:   0.02     # [-] Availability of Z3_24 to Z3_30
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
+      suprey6:   0.02     # [-] Availability of P4_16 to Z3_30
+      suprey7:   0.1     # [-] Availability of P4_17 to Z3_30
+      suprey8:   0.35     # [-] Availability of P4_18 to Z3_30
+      suprey9:   0.76     # [-] Availability of P4_19 to Z3_30
+      suprey10:   1.0     # [-] Availability of P4_20 to Z3_30
+      suprey11:   0.02     # [-] Availability of Z5_16 to Z3_30
+      suprey12:   0.1     # [-] Availability of Z5_17 to Z3_30
+      suprey13:   0.35     # [-] Availability of Z5_18 to Z3_30
+      suprey14:   0.02     # [-] Availability of Z4_16 to Z3_30
+      suprey15:   0.1     # [-] Availability of Z4_17 to Z3_30
+      suprey16:   0.35     # [-] Availability of Z4_18 to Z3_30
+      suprey17:   0.76     # [-] Availability of Z4_19 to Z3_30
+      suprey18:   1.0     # [-] Availability of Z4_20 to Z3_30
+      suprey19:   0.79     # [-] Availability of Z4_21 to Z3_30
+      suprey20:   0.38     # [-] Availability of Z4_22 to Z3_30
+      suprey21:   0.11     # [-] Availability of Z4_23 to Z3_30
+      suprey22:   0.02     # [-] Availability of Z4_24 to Z3_30
+      suprey23:   0.38     # [-] Availability of Z3_22 to Z3_30
+      suprey24:   0.11     # [-] Availability of Z3_23 to Z3_30
+      suprey25:   0.02     # [-] Availability of Z3_24 to Z3_30
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -17285,16 +17091,11 @@ instances:
       isP218:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
+      isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP223:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP224:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP225:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -17390,31 +17191,26 @@ instances:
       prey3:   P1_18
       prey4:   P1_19
       prey5:   P1_20
-      prey6:   Z5_16
-      prey7:   Z5_17
-      prey8:   Z5_18
-      prey9:   Z4_16
-      prey10:   Z4_17
-      prey11:   Z4_18
-      prey12:   Z4_19
-      prey13:   Z4_20
-      prey14:   Z4_21
-      prey15:   Z4_22
-      prey16:   Z4_23
-      prey17:   Z4_24
-      prey18:   Z3_22
-      prey19:   Z3_23
-      prey20:   Z3_24
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#-------------------------------------------------------------------- 
-
-#--------------------------------------------------------------------
-
+      prey6:   P4_16
+      prey7:   P4_17
+      prey8:   P4_18
+      prey9:   P4_19
+      prey10:   P4_20
+      prey11:   Z5_16
+      prey12:   Z5_17
+      prey13:   Z5_18
+      prey14:   Z4_16
+      prey15:   Z4_17
+      prey16:   Z4_18
+      prey17:   Z4_19
+      prey18:   Z4_20
+      prey19:   Z4_21
+      prey20:   Z4_22
+      prey21:   Z4_23
+      prey22:   Z4_24
+      prey23:   Z3_22
+      prey24:   Z3_23
+      prey25:   Z3_24
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------
@@ -17507,34 +17303,30 @@ instances:
 
 #-----------------------------------------------------------------------------
 
-      nprey:     18                      # [-]             Number of preys
+      nprey:     22                      # [-]             Number of preys
 
       suprey1:   0.02     # [-] Availability of P1_17 to Z3_31
       suprey2:   0.1     # [-] Availability of P1_18 to Z3_31
       suprey3:   0.35     # [-] Availability of P1_19 to Z3_31
       suprey4:   0.76     # [-] Availability of P1_20 to Z3_31
-      suprey5:   0.02     # [-] Availability of Z5_17 to Z3_31
-      suprey6:   0.1     # [-] Availability of Z5_18 to Z3_31
-      suprey7:   0.02     # [-] Availability of Z4_17 to Z3_31
-      suprey8:   0.1     # [-] Availability of Z4_18 to Z3_31
-      suprey9:   0.35     # [-] Availability of Z4_19 to Z3_31
-      suprey10:   0.76     # [-] Availability of Z4_20 to Z3_31
-      suprey11:   1.0     # [-] Availability of Z4_21 to Z3_31
-      suprey12:   0.79     # [-] Availability of Z4_22 to Z3_31
-      suprey13:   0.38     # [-] Availability of Z4_23 to Z3_31
-      suprey14:   0.11     # [-] Availability of Z4_24 to Z3_31
-      suprey15:   0.79     # [-] Availability of Z3_22 to Z3_31
-      suprey16:   0.38     # [-] Availability of Z3_23 to Z3_31
-      suprey17:   0.11     # [-] Availability of Z3_24 to Z3_31
-      suprey18:   0.02     # [-] Availability of Z3_25 to Z3_31
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      suprey5:   0.02     # [-] Availability of P4_17 to Z3_31
+      suprey6:   0.1     # [-] Availability of P4_18 to Z3_31
+      suprey7:   0.35     # [-] Availability of P4_19 to Z3_31
+      suprey8:   0.76     # [-] Availability of P4_20 to Z3_31
+      suprey9:   0.02     # [-] Availability of Z5_17 to Z3_31
+      suprey10:   0.1     # [-] Availability of Z5_18 to Z3_31
+      suprey11:   0.02     # [-] Availability of Z4_17 to Z3_31
+      suprey12:   0.1     # [-] Availability of Z4_18 to Z3_31
+      suprey13:   0.35     # [-] Availability of Z4_19 to Z3_31
+      suprey14:   0.76     # [-] Availability of Z4_20 to Z3_31
+      suprey15:   1.0     # [-] Availability of Z4_21 to Z3_31
+      suprey16:   0.79     # [-] Availability of Z4_22 to Z3_31
+      suprey17:   0.38     # [-] Availability of Z4_23 to Z3_31
+      suprey18:   0.11     # [-] Availability of Z4_24 to Z3_31
+      suprey19:   0.79     # [-] Availability of Z3_22 to Z3_31
+      suprey20:   0.38     # [-] Availability of Z3_23 to Z3_31
+      suprey21:   0.11     # [-] Availability of Z3_24 to Z3_31
+      suprey22:   0.02     # [-] Availability of Z3_25 to Z3_31
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -17607,14 +17399,10 @@ instances:
       isP216:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP217:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
       isP218:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      isP219:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP220:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP221:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
+      isP222:   0           # [-] identify P2 among the preys [1 for P2 otherwise 0]
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
@@ -17715,28 +17503,24 @@ instances:
       prey2:   P1_18
       prey3:   P1_19
       prey4:   P1_20
-      prey5:   Z5_17
-      prey6:   Z5_18
-      prey7:   Z4_17
-      prey8:   Z4_18
-      prey9:   Z4_19
-      prey10:   Z4_20
-      prey11:   Z4_21
-      prey12:   Z4_22
-      prey13:   Z4_23
-      prey14:   Z4_24
-      prey15:   Z3_22
-      prey16:   Z3_23
-      prey17:   Z3_24
-      prey18:   Z3_25
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
-#--------------------------------------------------------------------
-
+      prey5:   P4_17
+      prey6:   P4_18
+      prey7:   P4_19
+      prey8:   P4_20
+      prey9:   Z5_17
+      prey10:   Z5_18
+      prey11:   Z4_17
+      prey12:   Z4_18
+      prey13:   Z4_19
+      prey14:   Z4_20
+      prey15:   Z4_21
+      prey16:   Z4_22
+      prey17:   Z4_23
+      prey18:   Z4_24
+      prey19:   Z3_22
+      prey20:   Z3_23
+      prey21:   Z3_24
+      prey22:   Z3_25
 #--------------------------------------------------------------------
 
 #-------------------------------------------------------------------- 
