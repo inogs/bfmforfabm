@@ -1184,7 +1184,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
                     photochem*( phytol+ p_small)* parEIR))
           rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
      case (2) ! OPATM-BFM
-          rho_Chl  = self%p_qlcPPY * sum/( photochem* qlcPPY * parEIR * et + p_small)
+          rho_Chl  = self%p_qlcPPY * sunPPY/( photochem* qlcPPY * parEIR * et + p_small)
           rate_Chl = iN* rho_Chl* run- max( self%p_sdchl * ( ONE - iN), sdo)* &
               phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- self%p_qlcPPY * phytoc)
      case (3) ! UNIBO
