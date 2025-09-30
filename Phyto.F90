@@ -529,7 +529,7 @@ contains
       real(rk) :: size_up_n,size_down_n,size_max_n
       real(rk) :: size_up_s,size_down_s,size_max_s
       real(rk) :: size_up_chl,size_down_chl,size_max_chl
-      real(rk) :: q_bio
+      real(rk) :: q_bio, base_rate
       real(rk) :: arepr_c,srepr_c
       real(rk) :: arepr_p,srepr_p
       real(rk) :: arepr_n,srepr_n
@@ -930,21 +930,23 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   if (self%use_Si .AND. self%use_repr) then 
 ! quieiscence biomass
       q_bio=max(0.0_rk,phytoc-self%p_min_biomass)/max(phytoc-self%p_min_biomass,p_small)
+! base rate corresponds to net growth rate it modulates splliting and sexual reproduction
+      base_rate=sunPPY
 
-      arepr_c=q_bio*self%p_arepr_rate*phytoc
-      srepr_c=q_bio*self%p_srepr_rate*phytoc
+      arepr_c=q_bio*self%p_arepr_rate*base_rate*phytoc
+      srepr_c=q_bio*self%p_srepr_rate*base_rate*phytoc
 
-      arepr_p=q_bio*self%p_arepr_rate*phytop
-      srepr_p=q_bio*self%p_srepr_rate*phytop
+      arepr_p=q_bio*self%p_arepr_rate*base_rate*phytop
+      srepr_p=q_bio*self%p_srepr_rate*base_rate*phytop
 
-      arepr_n=q_bio*self%p_arepr_rate*phyton
-      srepr_n=q_bio*self%p_srepr_rate*phyton
+      arepr_n=q_bio*self%p_arepr_rate*base_rate*phyton
+      srepr_n=q_bio*self%p_srepr_rate*base_rate*phyton
 
-      arepr_s=q_bio*self%p_arepr_rate*phytos
-      srepr_s=q_bio*self%p_srepr_rate*phytos
+      arepr_s=q_bio*self%p_arepr_rate*base_rate*phytos
+      srepr_s=q_bio*self%p_srepr_rate*base_rate*phytos
 
-      arepr_l=q_bio*self%p_arepr_rate*phytol
-      srepr_l=q_bio*self%p_srepr_rate*phytol
+      arepr_l=q_bio*self%p_arepr_rate*base_rate*phytol
+      srepr_l=q_bio*self%p_srepr_rate*base_rate*phytol
 
       _SET_ODE_(self%id_c          ,-arepr_c)
       _SET_ODE_(self%id_size_down_c,+arepr_c)
