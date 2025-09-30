@@ -424,6 +424,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -542,6 +543,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -660,6 +662,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -778,6 +781,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -896,6 +900,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -1014,6 +1019,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                       # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                       # [mgC/m3]  quiescent biomass threshold
@@ -1132,6 +1138,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                       # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                       # [mgC/m3]  quiescent biomass threshold
@@ -1250,6 +1257,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -1368,6 +1376,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
@@ -1486,6 +1495,7 @@ instances:
       use_Si: .TRUE.                        # use silicate, default = false
       p_qscPPY: 0.018                       # [mmolSi/mgC]   Reference quotum Si:C
 #                   ---- Diatoms reproduction  ----
+      use_repr: .TRUE.                      # use reproductive dynamics, default = false
       p_arepr_rate: 0.0                     # [1/d]  asexual reproduction rate for diatoms
       p_srepr_rate: 0.0                     # [1/d]  sexual reproduction rate for diatoms
       p_min_biomass: 0.0                    # [mgC/m3]  quiescent biomass threshold
