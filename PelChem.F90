@@ -360,7 +360,8 @@ contains
 
 ! call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
  _SET_ODE_(self%id_N5s,fR6N5s + fR8N5s)
- _SET_ODE_(self%id_R6s,-fR6N5s - fR8N5s)
+ _SET_ODE_(self%id_R6s,-fR6N5s)
+ _SET_ODE_(self%id_R8s,-fR8N5s)
 
 !GP #ifdef INCLUDE_PELFE
 !GP   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
