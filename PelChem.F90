@@ -195,10 +195,17 @@ contains
       call self%register_state_dependency(self%id_O4n,'O4n','mmolN/m^3','N2')
 
       ! Register environmental dependencies (temperature, shortwave radiation)
-      call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
       call self%register_dependency(self%id_ETW,standard_variables%temperature)
-      ! Dependency from multispectral model
-      call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
+
+      ! From where to get the light
+      ! Both parEIR and PAR_tot are in uE m-2 d-1, 6=parEIR from light, 5=PAR_tot from light_spectral
+       select case (self%p_Esource)
+         case (5)
+            call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
+         case (6)
+            call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
+         end select
+
       call self%register_dependency(self%id_isBen,type_bulk_standard_variable(name='isBen'))      
 
       call self%register_diagnostic_variable(self%id_eo,        'eo'  ,       '-',           'oxygen regulating factor with MichelisMenten',source=source_do_column,output=output_none)
