@@ -26,7 +26,7 @@ module ogs_bfm_light
    contains
 !     Model procedures
       procedure :: initialize
-      procedure :: get_light
+      procedure :: do_column
    end type type_ogs_bfm_light
 
 contains
@@ -78,25 +78,27 @@ contains
       call self%register_state_dependency(self%id_X3c,'X3c','mg c/m^3', 'semi-refractory CDOM')      
    end subroutine
 
-   subroutine get_light(self,_ARGUMENTS_VERTICAL_)
+   subroutine do_column(self,_ARGUMENTS_VERTICAL_)
       class (type_ogs_bfm_light),intent(in) :: self
 
 
       _DECLARE_ARGUMENTS_VERTICAL_
-
+      integer  :: kk,nlev,l,pp
       real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
 !      real(rk) :: P1chl, P2chl, P3chl, P4chl
       real(rk) :: Pchla      
       real(rk) :: X1c, X2c, X3c
-
+      real(rk) :: buffer_array(cache%n)
 
       _GET_HORIZONTAL_(self%id_I_0,buffer)
-      _SET_DIAGNOSTIC_(self%id_SWR_solar,buffer)
 
       if (buffer.lt.0._rk) buffer=0._rk
 
-      _VERTICAL_LOOP_BEGIN_
+      kk=0
 
+      _DOWNWARD_LOOP_BEGIN_
+          kk = kk + 1
+          buffer_array(kk)=buffer
 !         _GET_(self%id_P1chl,P1chl)
 !         _GET_(self%id_P2chl,P2chl)
 !         _GET_(self%id_P3chl,P3chl)
@@ -118,8 +120,10 @@ contains
          _SET_DIAGNOSTIC_(self%id_EIR,EIR)                     ! Local shortwave radiation
          _SET_DIAGNOSTIC_(self%id_parEIR,EIR*self%pEIR_eowX)   ! Local photosynthetically active radiation
          _SET_DIAGNOSTIC_(self%id_xEPS,xEPS)                   ! Vertical attenuation of shortwave radiation
-      _VERTICAL_LOOP_END_
+      _DOWNWARD_LOOP_END_
 
-   end subroutine get_light
+      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_SWR_solar,buffer_array(1))
+
+   end subroutine do_column
 
 end module
