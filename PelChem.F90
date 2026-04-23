@@ -77,7 +77,7 @@
       type (type_dependency_id)     :: id_dz
       ! Environmental dependencies
       type (type_dependency_id)    :: id_parEIR,id_ETW   ! PAR and temperature
-      type (type_dependency_id)    :: id_PAR_tot
+      type (type_dependency_id)    :: id_PAR_tot,id_PAR
       type (type_dependency_id)    :: id_isBen
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id) :: id_eo      ! Oxygen limitation factor MM
@@ -203,7 +203,8 @@ contains
          case (5)
             call self%register_dependency(self%id_PAR_tot,type_bulk_standard_variable(name='PAR_tot'))      
          case (6)
-            call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
+!           call self%register_dependency(self%id_parEIR,standard_variables%downwelling_photosynthetic_radiative_flux)
+            call self%register_dependency(self%id_PAR, 'PAR', '?????', 'effective PAR')
          end select
 
       call self%register_dependency(self%id_isBen,type_bulk_standard_variable(name='isBen'))      
@@ -289,7 +290,7 @@ contains
          case (5)
             _GET_(self%id_PAR_tot,   parEIR)   ! uE m-2 d-1
          case (6)
-            _GET_(self%id_parEIR,    parEIR)   ! uE m-2 d-1
+            _GET_(self%id_par,    parEIR)   ! uE m-2 d-1
          end select
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
