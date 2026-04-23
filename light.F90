@@ -18,6 +18,7 @@ module ogs_bfm_light
 !!      type (type_state_variable_id)        :: id_P1chl, id_P2chl, id_P3chl, id_P4chl
       type (type_dependency_id)            :: id_chla      
       type (type_state_variable_id)        :: id_X1c, id_X2c, id_X3c
+      type (type_horizontal_diagnostic_variable_id) :: id_SWR_solar
 
       ! Parameters
       real(rk) :: EPSESSX,EPS0X,pEIR_eowX
@@ -59,6 +60,7 @@ contains
               standard_variable=standard_variables%downwelling_photosynthetic_radiative_flux,source=source_do_column)
       call self%register_diagnostic_variable(self%id_xEPS,'xEPS','1/m','attenuation coefficient of shortwave flux', &
               source=source_do_column)
+      call self%register_diagnostic_variable(self%id_SWR_solar,   'SWR_solar',   'Wm-2',  'Solar Short Wave Radiation', source=source_do_column)
 
       ! Register environmental dependencies (temperature, shortwave radiation)
       call self%register_dependency(self%id_I_0,standard_variables%surface_downwelling_shortwave_flux)
@@ -78,6 +80,8 @@ contains
 
    subroutine get_light(self,_ARGUMENTS_VERTICAL_)
       class (type_ogs_bfm_light),intent(in) :: self
+
+
       _DECLARE_ARGUMENTS_VERTICAL_
 
       real(rk) :: buffer,dz,xEPS,xtnc,EIR,ESS
@@ -87,10 +91,12 @@ contains
 
 
       _GET_HORIZONTAL_(self%id_I_0,buffer)
+      _SET_DIAGNOSTIC_(self%id_SWR_solar,buffer)
 
       if (buffer.lt.0._rk) buffer=0._rk
 
       _VERTICAL_LOOP_BEGIN_
+
 !         _GET_(self%id_P1chl,P1chl)
 !         _GET_(self%id_P2chl,P2chl)
 !         _GET_(self%id_P3chl,P3chl)
