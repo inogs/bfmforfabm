@@ -149,7 +149,7 @@
       real(rk) :: p_chPs, p_Contois, p_qus, p_qslc ,p_qscPPY
       real(rk) :: p_esNI,p_res
       real(rk) :: p_caco3r
-      real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_epsChla, p_tochl_relt,p_EpEk_or
+      real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_qlcmin, p_epsChla, p_tochl_relt,p_EpEk_or
       real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
@@ -267,6 +267,7 @@ contains
       call self%get_parameter(self%p_quantum_yield, 'p_quantum_yield','mgC/uE', 'Photochemical efficiency')
       call self%get_parameter(self%p_Esource,       'p_Esource',      '1-6',    'source of light for PP')      
       call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC','reference quotum Chla:C')
+      call self%get_parameter(self%p_qlcmin,   'p_qlcmin',  'mgChla/mgC','minimum quotum Chla:C')
       call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
       call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')
       call self%get_parameter(self%p_EpEk_or,   'p_EpEk_or',  '-',    'Optimal value of E_PAR/E_K')
@@ -1148,9 +1149,10 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
                     photochem*( phytol+ p_small)* parEIR))
           rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
      case (2) ! OPATM-BFM
-          rho_Chl  = self%p_qlcPPY * sum/( photochem* qlcPPY * parEIR * et + p_small)
-          rate_Chl = iN* rho_Chl* run- max( self%p_sdchl * ( ONE - iN), sdo)* &
-              phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- self%p_qlcPPY * phytoc)
+          rho_Chl = self%p_qlcmin + ((self%p_qlcPPY - self%p_qlcmin) * sunPPY / &
+                                     (photochem * qlcPPY * parEIR * et + p_small))
+          rate_Chl = iN * rho_Chl * run - max(self%p_sdchl * (ONE - iN), sdo) * &
+                     phytol + min(ZERO, sum - slc + sdo) * max(ZERO, phytol - self%p_qlcPPY * phytoc)
      case (3) ! UNIBO
           rho_Chl = self%p_qlcPPY*min(ONE,          &
                     (sum-seo-sea-sra) *phytoc /          &
