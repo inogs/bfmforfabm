@@ -571,8 +571,8 @@
       ! call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrtc, tfluxC)
       _SET_ODE_(self%id_c, -rrtc)
       _SET_ODE_(self%id_O3c,rrtc)
-      ! call flux_vector(iiPel, ppO2o, ppO2o, -rrtc/MW_C)
-      _SET_ODE_(self%id_O2o,-(rrtc/MW_C))
+      ! call flux_vector(iiPel, ppO2o, ppO2o, -rrtc/MW_C*p_qo2cr)
+      _SET_ODE_(self%id_O2o,-(rrtc/MW_C*p_qo2cr))
       
       _SET_DIAGNOSTIC_(self%id_rrsc,rrsc)
       _SET_DIAGNOSTIC_(self%id_rrac,rrac)
