@@ -108,7 +108,7 @@
       type (type_diagnostic_variable_id) :: id_rugc  ! gross primary production
       type (type_diagnostic_variable_id) :: id_flPIR2c  ! release to semi-labile transparent DOC
       type (type_diagnostic_variable_id) :: id_flPIR2c_act  ! activity release to semi-labile DOC
-      type (type_diagnostic_variable_id) :: id_flPIR2c_tot  ! total release to semi-labile DOC      
+      type (type_diagnostic_variable_id) :: id_flPIO3c  ! extra respiration under nutrient stress
       type (type_diagnostic_variable_id) :: id_f2cdom  ! fraction to CDOM    
       type (type_diagnostic_variable_id) :: id_run   ! net primary production
       type (type_diagnostic_variable_id) :: id_sadap  ! adaptation
@@ -145,7 +145,8 @@
  
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
-      real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc,p_qpcPPY, p_xqp
+      real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc, p_qpcPPY, p_xqp
+      real(rk) :: p_pu_rn
       real(rk) :: p_chPs, p_Contois, p_qus, p_qslc ,p_qscPPY
       real(rk) :: p_esNI,p_res
       real(rk) :: p_caco3r
@@ -289,6 +290,8 @@ contains
       call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
+!              --------- nutrient stress respiration / excretion partition ------
+      call self%get_parameter(self%p_pu_rn,   'p_pu_rn',  '0.0',  'nutrient stress respiration fraction')
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -415,9 +418,9 @@ contains
       call self%register_diagnostic_variable(self%id_rr1c, 'rr1c','mgC/m3/d','lysis fraction to labile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration',output=output_none)
       call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production')
-      call self%register_diagnostic_variable(self%id_flPIR2c_tot,'flPIR2c_tot', 'mgC/m3/d', 'total flux to semilabile DOC',output=output_none)      
       call self%register_diagnostic_variable(self%id_flPIR2c_act,'flPIR2c_act', 'mgC/m3/d', 'activity flux to semilabile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_flPIR2c,    'flPIR2c',     'mgC/m3/d', 'flux to transparent semilabile DOC',output=output_none)
+      call self%register_diagnostic_variable(self%id_flPIO3c,    'flPIO3c',     'mgC/m3/d', 'extra respiration under nutrient stress',output=output_none)
       call self%register_diagnostic_variable(self%id_f2cdom,  'f2cdom', '-', 'fraction to semilabile CDOM',output=output_none)      
       call self%register_diagnostic_variable(self%id_run,   'run',   'mgC/m3/d','net primary production')
       call self%register_diagnostic_variable(self%id_sadap, 'sadap', 'mgC/m3/d',' adaptation',output=output_none)
@@ -515,7 +518,7 @@ contains
       real(rk) :: sdo, sea, seo
       real(rk) :: pe_R6, rr1c, rr6c, rr8c
       real(rk) :: sra, srs, srt, rrc
-      real(rk) :: rugc, slc, flPIR2c, flPIR2c_tot, f2cdom
+      real(rk) :: rugc, slc, flPIR2c, flPIO3c, f2cdom
       real(rk) :: run, sadap 
       real(rk) :: cqun3, rumn3, rumn4, rumn, rump
       real(rk) :: netgrowth, sunPPY  
@@ -882,6 +885,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rumn, rumn)
  _SET_DIAGNOSTIC_(self%id_rump, rump)
 
+  flPIO3c = ZERO
   if (self%p_netgrowth) then
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Check which fraction of fixed C can be used for new biomass
@@ -894,31 +898,26 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
        0.05_rk * rugc*( qpcPPY - self%p_qplc)))/ self%p_qplc)
 
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   ! Excrete C that cannot be used for growth as carbo-hydrates:
+   ! Excrete / respire C that cannot be used for growth as carbo-hydrates:
    ! Correct the net C uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth  =   max(  netgrowth,  ZERO)
-      flPIR2c_tot  =   flPIR2c+ run- netgrowth
-      flPIR2c  =  ((1.00D0-f2cdom)*flPIR2c) + run - netgrowth
+      flPIR2c  =  ((1.00D0 - f2cdom) * flPIR2c) + (1.00D0 - self%p_pu_rn) * (run - netgrowth)
+      flPIO3c = self%p_pu_rn * (run - netgrowth)
       run  =   netgrowth
   end if
 
- _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
-
-!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC ) ! flux to non CDOM
-!  _SET_ODE_(self%id_c, -(1.00D0-f2cdom) * flPIR2c_tot)
-!  _SET_ODE_(self%id_R2c,(1.00D0-f2cdom) * flPIR2c_tot)
-!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-!  _SET_ODE_(self%id_c, -f2cdom * flPIR2c_tot)
-!  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c_tot)
+  _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
+  _SET_DIAGNOSTIC_(self%id_flPIO3c, flPIO3c)
+  _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
 
 ! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
-  _SET_ODE_(self%id_c,-flPIR2c)
-  _SET_ODE_(self%id_R2c,flPIR2c)
-
- _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
- _SET_DIAGNOSTIC_(self%id_flPIR2c_tot, flPIR2c_tot)
-  
+  _SET_ODE_(self%id_c, -flPIO3c)
+  _SET_ODE_(self%id_O3c, flPIO3c)
+  _SET_ODE_(self%id_O2o, flPIO3c * (self%p_qo2cr / MW_C))
+  _SET_ODE_(self%id_c, -flPIR2c)
+  _SET_ODE_(self%id_R2c, flPIR2c)
+ 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
