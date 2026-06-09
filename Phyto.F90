@@ -291,7 +291,7 @@ contains
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
 !              --------- nutrient stress respiration / excretion partition ------
-      call self%get_parameter(self%p_pu_rn,   'p_pu_rn',  '0.0',  'nutrient stress respiration fraction')
+      call self%get_parameter(self%p_pu_rn,   'p_pu_rn',  '-',  'nutrient stress respiration fraction', default=0.0_rk)
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
