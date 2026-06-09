@@ -914,7 +914,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 ! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
   _SET_ODE_(self%id_c, -flPIO3c)
   _SET_ODE_(self%id_O3c, flPIO3c)
-  _SET_ODE_(self%id_O2o, flPIO3c * (self%p_qo2cr / MW_C))
+  _SET_ODE_(self%id_O2o, flPIO3c * (p_qo2cr / MW_C))
   _SET_ODE_(self%id_c, -flPIR2c)
   _SET_ODE_(self%id_R2c, flPIR2c)
  
