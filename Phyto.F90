@@ -885,9 +885,9 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rumn, rumn)
  _SET_DIAGNOSTIC_(self%id_rump, rump)
 
+  netgrowth = run
   flPIO3c = ZERO
   if (self%p_netgrowth) then
-   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Check which fraction of fixed C can be used for new biomass
    ! given the internal storage.
    ! N and P uptake are compared sequentially
