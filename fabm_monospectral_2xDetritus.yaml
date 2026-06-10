@@ -948,7 +948,7 @@ instances:
       R8c: R8/c                                            # POC  (mgC/m3)
       R8n: R8/n                                            # PON  (mmolN/m3)
       R8p: R8/p                                            # POP (mmolP/m3)
-      PAR_tot: light/parEIR
+      PAR: light/parEIR
       isBen:  Benthic_layer/isBen
 ##  --------------------- CalciteDissolution
   O5:
