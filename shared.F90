@@ -15,7 +15,7 @@ module ogs_bfm_shared
    real(rk),parameter :: BASETEMP      = 10._rk
    real(rk),parameter :: p_small       = 1.0E-20_rk
    real(rk),parameter :: p_qo2cr       = 1.32_rk          ! Oxygen consumed per unit of carbon respired [mol_O2/mol_C]
-   real(rk),parameter :: p_qo2cf       = 1.36_rk          ! Oxygen consumed per unit of carbon fixed [mol_O2/mol_C]
+   real(rk),parameter :: p_qo2cf       = 1.36_rk          ! Oxygen produced per unit of carbon fixed [mol_O2/mol_C]
    real(rk),parameter :: qnRPIcX       = 1.26E-02_rk
    real(rk),parameter :: qpRPIcX       = 7.86E-04_rk
    real(rk),parameter :: qsRPIcX       = 15._rk/106._rk/CMass
