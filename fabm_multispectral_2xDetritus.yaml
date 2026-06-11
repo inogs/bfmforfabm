@@ -515,7 +515,7 @@ instances:
                                             # 1. Threshold (Liebig-like)
                                             # 2. Combined
 #                   ---- N limitation control ----
-      p_qun: 0.025                           # [m3/mgC/d]     Membrane affinity for N
+      p_qun: 0.25                            # [m3/mgC/d]     Membrane affinity for N
       p_lN4: 0.1                            # [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
       p_qnlc: 0.00687                       # [mmolN/mgC]    minimum nitrogen to carbon ratio (mmol N/mg C)
       p_qncPPY: 0.0126                      # [mmolN/mgC]    Reference quotum N:C
