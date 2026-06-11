@@ -151,7 +151,6 @@
       real(rk) :: p_esNI,p_res
       real(rk) :: p_caco3r
       real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_qlcmin, p_epsChla, p_tochl_relt,p_EpEk_or
-      real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
       real(rk) :: p_fR6
@@ -272,12 +271,6 @@ contains
       call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
       call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')
       call self%get_parameter(self%p_EpEk_or,   'p_EpEk_or',  '-',    'Optimal value of E_PAR/E_K')
-!              --------- Light parameters ERSEM-II -----------
-      call self%get_parameter(self%p_iswLtyp,   'p_iswLtyp',  '0-6',    'Shape of the productivity function')
-      call self%get_parameter(self%p_chELiPPY,   'p_chELiPPY',  'W/m2', 'Maximum Iopt')
-      call self%get_parameter(self%p_clELiPPY,   'p_clELiPPY',  'W/m2', 'Minimum Iopt')
-      call self%get_parameter(self%p_ruELiPPY,   'p_ruELiPPY',  '1/d',  'Maximum daily shift in Iopt (1/d)')
-      call self%get_parameter(self%p_addepth,   'p_addepth',  'm', 'Adaptation depth. Meaningless with high-res models')
 !              --------- Sinking parameters -----------
       call self%get_parameter(self%p_rPIm,   'p_rPIm',  'm/d', 'Phytoplankton background sinking rate')
 !              --------- Calcite parameters only for P2 ------------
