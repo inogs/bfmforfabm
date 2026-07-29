@@ -409,8 +409,10 @@ contains
 !GP   PAR(:) =EIR(:)
 
 ! Check unit of measure of PAR here!   parEIR is in uE m-2 d-1, p_IXn in uE m-2 s-1                             
-  degX1c = X1c * ( self%p_bX1c * min(parEIR/(self%p_IX1*SEC_PER_DAY),1.0_rk) ) ! Eq 13
-  degX2c = X2c * ( self%p_bX2c * min(parEIR/(self%p_IX2*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+! degX1c = X1c * ( self%p_bX1c * min(parEIR/(self%p_IX1*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+! degX2c = X2c * ( self%p_bX2c * min(parEIR/(self%p_IX2*SEC_PER_DAY),1.0_rk) ) ! Eq 13
+  degX1c = X1c * ( self%p_bX1c * parEIR/(self%p_IX1*SEC_PER_DAY) )  ! Eq 13
+  degX2c = X2c * ( self%p_bX2c * parEIR/(self%p_IX2*SEC_PER_DAY) )  ! Eq 13
   degX3c = X3c * ( self%p_bX3c * min(parEIR/(self%p_IX3*SEC_PER_DAY),1.0_rk) ) ! Eq 13
   
 !EA  degR1l = R1l * ( 0.167D0 * min(PAR(:)/60.0D0,1.0D0) )
@@ -447,6 +449,8 @@ contains
 
  _SET_ODE_(self%id_O3c, remR3c)
  _SET_ODE_(self%id_R3c,-remR3c)
+
+ _SET_ODE_(self%id_O2o,-(remR3c/MW_C))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Benthic remineralization 

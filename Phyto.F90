@@ -108,7 +108,7 @@
       type (type_diagnostic_variable_id) :: id_rugc  ! gross primary production
       type (type_diagnostic_variable_id) :: id_flPIR2c  ! release to semi-labile transparent DOC
       type (type_diagnostic_variable_id) :: id_flPIR2c_act  ! activity release to semi-labile DOC
-      type (type_diagnostic_variable_id) :: id_flPIR2c_tot  ! total release to semi-labile DOC      
+      type (type_diagnostic_variable_id) :: id_flPIO3c  ! extra respiration under nutrient stress
       type (type_diagnostic_variable_id) :: id_f2cdom  ! fraction to CDOM    
       type (type_diagnostic_variable_id) :: id_run   ! net primary production
       type (type_diagnostic_variable_id) :: id_sadap  ! adaptation
@@ -145,12 +145,12 @@
  
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
-      real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc,p_qpcPPY, p_xqp
+      real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc, p_qpcPPY, p_xqp
+      real(rk) :: p_pu_rn
       real(rk) :: p_chPs, p_Contois, p_qus, p_qslc ,p_qscPPY
       real(rk) :: p_esNI,p_res
       real(rk) :: p_caco3r
-      real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_epsChla, p_tochl_relt,p_EpEk_or
-      real(rk) :: p_iswLtyp, p_chELiPPY, p_clELiPPY, p_ruELiPPY,p_addepth
+      real(rk) :: p_sdchl, p_alpha_chl, p_quantum_yield, p_qlcPPY, p_qlcmin, p_epsChla, p_tochl_relt,p_EpEk_or
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
       real(rk) :: p_fR6
@@ -267,15 +267,10 @@ contains
       call self%get_parameter(self%p_quantum_yield, 'p_quantum_yield','mgC/uE', 'Photochemical efficiency')
       call self%get_parameter(self%p_Esource,       'p_Esource',      '1-6',    'source of light for PP')      
       call self%get_parameter(self%p_qlcPPY,   'p_qlcPPY',  'mgChla/mgC','reference quotum Chla:C')
+      call self%get_parameter(self%p_qlcmin,   'p_qlcmin',  'mgChla/mgC','minimum quotum Chla:C')
       call self%get_parameter(self%p_epsChla,   'p_epsChla',  'm2/mgChla', 'Chla-specific extinction coefficient')
       call self%get_parameter(self%p_tochl_relt,   'p_tochl_relt',  '1/d', 'Relaxation rate towards maximum Chla:C')
       call self%get_parameter(self%p_EpEk_or,   'p_EpEk_or',  '-',    'Optimal value of E_PAR/E_K')
-!              --------- Light parameters ERSEM-II -----------
-      call self%get_parameter(self%p_iswLtyp,   'p_iswLtyp',  '0-6',    'Shape of the productivity function')
-      call self%get_parameter(self%p_chELiPPY,   'p_chELiPPY',  'W/m2', 'Maximum Iopt')
-      call self%get_parameter(self%p_clELiPPY,   'p_clELiPPY',  'W/m2', 'Minimum Iopt')
-      call self%get_parameter(self%p_ruELiPPY,   'p_ruELiPPY',  '1/d',  'Maximum daily shift in Iopt (1/d)')
-      call self%get_parameter(self%p_addepth,   'p_addepth',  'm', 'Adaptation depth. Meaningless with high-res models')
 !              --------- Sinking parameters -----------
       call self%get_parameter(self%p_rPIm,   'p_rPIm',  'm/d', 'Phytoplankton background sinking rate')
 !              --------- Calcite parameters only for P2 ------------
@@ -288,6 +283,8 @@ contains
       call self%get_parameter(self%p_fR6,   'p_fR6',  '-',  'fraction of lysis to R6 (small POC)', default=0.8_rk)
 !              --------- Optical type ------------
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
+!              --------- nutrient stress respiration / excretion partition ------
+      call self%get_parameter(self%p_pu_rn,   'p_pu_rn',  '-',  'nutrient stress respiration fraction', default=0.0_rk)
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -412,11 +409,11 @@ contains
       call self%register_diagnostic_variable(self%id_sea,  'sea', 'mgC/m3/d','activity excretion',output=output_none)
       call self%register_diagnostic_variable(self%id_seo,  'seo', 'mgC/m3/d','nutrient stress excretion',output=output_none)
       call self%register_diagnostic_variable(self%id_rr1c, 'rr1c','mgC/m3/d','lysis fraction to labile DOC',output=output_none)
-      call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration',output=output_none)
+      call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration')
       call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production')
-      call self%register_diagnostic_variable(self%id_flPIR2c_tot,'flPIR2c_tot', 'mgC/m3/d', 'total flux to semilabile DOC',output=output_none)      
       call self%register_diagnostic_variable(self%id_flPIR2c_act,'flPIR2c_act', 'mgC/m3/d', 'activity flux to semilabile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_flPIR2c,    'flPIR2c',     'mgC/m3/d', 'flux to transparent semilabile DOC',output=output_none)
+      call self%register_diagnostic_variable(self%id_flPIO3c,    'flPIO3c',     'mgC/m3/d', 'extra respiration under nutrient stress',output=output_none)
       call self%register_diagnostic_variable(self%id_f2cdom,  'f2cdom', '-', 'fraction to semilabile CDOM',output=output_none)      
       call self%register_diagnostic_variable(self%id_run,   'run',   'mgC/m3/d','net primary production')
       call self%register_diagnostic_variable(self%id_sadap, 'sadap', 'mgC/m3/d',' adaptation',output=output_none)
@@ -514,7 +511,7 @@ contains
       real(rk) :: sdo, sea, seo
       real(rk) :: pe_R6, rr1c, rr6c, rr8c
       real(rk) :: sra, srs, srt, rrc
-      real(rk) :: rugc, slc, flPIR2c, flPIR2c_tot, f2cdom
+      real(rk) :: rugc, slc, flPIR2c, flPIO3c, f2cdom
       real(rk) :: run, sadap 
       real(rk) :: cqun3, rumn3, rumn4, rumn, rump
       real(rk) :: netgrowth, sunPPY  
@@ -792,7 +789,6 @@ end select
  srt  =   sra+ srs                         ! total
  rrc  =   srt* phytoc                      ! total actual respiration
 
- _SET_DIAGNOSTIC_(self%id_rrc,rrc)
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Production, productivity and C flows
  ! The release of DOC is controlled by a specific switch.
@@ -844,10 +840,10 @@ end select
 !SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppO3c, rrc, tfluxC )
   _SET_ODE_(self%id_c,-rrc)
   _SET_ODE_(self%id_O3c,rrc)
-!SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
-  _SET_ODE_(self%id_O2o,-(rrc/MW_C))
-!SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
-  _SET_ODE_(self%id_O2o,rugc/MW_C)
+!SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C * p_qo2cr) )
+  _SET_ODE_(self%id_O2o,-(rrc/MW_C*p_qo2cr))
+!SEAMLESS  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C * p_qo2cf ) 
+  _SET_ODE_(self%id_O2o,rugc/MW_C*p_qo2cf)
 !SEAMLESS
 
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -881,8 +877,9 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rumn, rumn)
  _SET_DIAGNOSTIC_(self%id_rump, rump)
 
+  netgrowth = run
+  flPIO3c = ZERO
   if (self%p_netgrowth) then
-   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Check which fraction of fixed C can be used for new biomass
    ! given the internal storage.
    ! N and P uptake are compared sequentially
@@ -893,31 +890,30 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
        0.05_rk * rugc*( qpcPPY - self%p_qplc)))/ self%p_qplc)
 
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   ! Excrete C that cannot be used for growth as carbo-hydrates:
+   ! Excrete / respire C that cannot be used for growth as carbo-hydrates:
    ! Correct the net C uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth  =   max(  netgrowth,  ZERO)
-      flPIR2c_tot  =   flPIR2c+ run- netgrowth
-      flPIR2c  =  ((1.00D0-f2cdom)*flPIR2c) + run - netgrowth
+      flPIR2c  =  ((1.00D0 - f2cdom) * flPIR2c) + (1.00D0 - self%p_pu_rn) * (run - netgrowth)
+      flPIO3c = self%p_pu_rn * (run - netgrowth)
       run  =   netgrowth
   end if
+  ! update respiration term with carbon correction contribution
+  rrc=rrc+flPIO3c
 
- _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
-
-!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2c, 0.98D0 * flPIR2c, tfluxC ) ! flux to non CDOM
-!  _SET_ODE_(self%id_c, -(1.00D0-f2cdom) * flPIR2c_tot)
-!  _SET_ODE_(self%id_R2c,(1.00D0-f2cdom) * flPIR2c_tot)
-!!SEAMLESS  call quota_flux( iiPel, ppphytoc, ppphytoc,ppR2l, 0.02D0 * flPIR2c, tfluxC ) ! flux to CDOM
-!  _SET_ODE_(self%id_c, -f2cdom * flPIR2c_tot)
-!  _SET_ODE_(self%id_X2c,f2cdom * flPIR2c_tot)
+  _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
+  _SET_DIAGNOSTIC_(self%id_flPIO3c, flPIO3c)
+  _SET_DIAGNOSTIC_(self%id_netgrowth, netgrowth)
 
 ! CEA 98% of activity excretion + nutrient estress excretion produce only R2c
-  _SET_ODE_(self%id_c,-flPIR2c)
-  _SET_ODE_(self%id_R2c,flPIR2c)
+  _SET_ODE_(self%id_c, -flPIO3c)
+  _SET_ODE_(self%id_O3c, flPIO3c)
+  _SET_ODE_(self%id_O2o, -flPIO3c * (p_qo2cr / MW_C))
+  _SET_ODE_(self%id_c, -flPIR2c)
+  _SET_ODE_(self%id_R2c, flPIR2c)
 
- _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
- _SET_DIAGNOSTIC_(self%id_flPIR2c_tot, flPIR2c_tot)
-  
+  _SET_DIAGNOSTIC_(self%id_rrc,rrc)
+ 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1148,9 +1144,10 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
                     photochem*( phytol+ p_small)* parEIR))
           rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
      case (2) ! OPATM-BFM
-          rho_Chl  = self%p_qlcPPY * sum/( photochem* qlcPPY * parEIR * et + p_small)
-          rate_Chl = iN* rho_Chl* run- max( self%p_sdchl * ( ONE - iN), sdo)* &
-              phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- self%p_qlcPPY * phytoc)
+          rho_Chl = self%p_qlcmin + ((self%p_qlcPPY - self%p_qlcmin) * sunPPY / &
+                                     (photochem * qlcPPY * parEIR * et + p_small))
+          rate_Chl = iN * rho_Chl * run - max(self%p_sdchl * (ONE - iN), sdo) * &
+                     phytol + min(ZERO, sum - slc + sdo) * max(ZERO, phytol - self%p_qlcPPY * phytoc)
      case (3) ! UNIBO
           rho_Chl = self%p_qlcPPY*min(ONE,          &
                     (sum-seo-sea-sra) *phytoc /          &

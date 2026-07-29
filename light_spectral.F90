@@ -497,7 +497,8 @@ contains
       _DECLARE_ARGUMENTS_VERTICAL_
 
       integer  :: kk,nlev,l,pp
-      real(rk) :: dz,zenithA,mud
+      real(rk) :: dz
+      real(rk) :: zenithA,mud,rmudl,rmud
       real(rk) :: phy_a,phy_b,phy_bb
       real(rk) :: cdom_a
       real(rk) :: spm, spm_a, spm_b, spm_bb      
@@ -538,6 +539,9 @@ contains
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
+      rmudl = 1.0D0/cos(mud)   !avg cosine direct (1 over)
+      rmud = min(rmudl,1.5D0)
+      rmud = max(rmud,0.0D0)
 
 ! set to zero carbon concentrations in Phytoplankton
       Pc(:)=0.0_rk
@@ -709,7 +713,7 @@ contains
               enddo
 
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
-             cdom_a = MAX(cdom_a, acdom_min(l))
+!            cdom_a = MAX(cdom_a, acdom_min(l))
 
              rlamm = real(lam(l),8)
 !             rlamm1 = real(lam1(l),8)
@@ -726,7 +730,7 @@ contains
 
              a_array(kk,l)  = tot_a
              b_array(kk,l)  = tot_b
-             bb_array(kk,l) = tot_bb
+             bb_array(kk,l) = max(tot_bb,0.0002_rk) ! check
           enddo
 
 !! IOPs observed for diagnostics
@@ -776,7 +780,7 @@ contains
      rd      = self%rd
      rs      = self%rs
      ru      = self%ru
-     vd(:,:) = mud
+     vd(:,:) = 1.0_rk/rmud
      vs      = self%vs
      vu      = self%vu
 
@@ -800,8 +804,7 @@ contains
      PAR_scalar_array_W(:) = 0.0_rk
      SWR_downward_array(:)   = 0.0_rk
 
-!     do l=1,self%nlt
-     do l=5,17     
+     do l=1,self%nlt
          if (self%npft .GT. 0) PAR_P1_array(:) = PAR_P1_array(:) + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 1) PAR_P2_array(:) = PAR_P2_array(:) + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 2) PAR_P3_array(:) = PAR_P3_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY

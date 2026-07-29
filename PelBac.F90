@@ -638,8 +638,8 @@ contains
 !SEAMLESS  call quota_flux( iiPel, ppbacc, ppbacc, ppO3c, rrc, tfluxC) 
   _SET_ODE_(self%id_O3c,rrc)
   _SET_ODE_(self%id_c,-rrc)
-!SEAMLESS  call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
-  _SET_ODE_(self%id_O2o,-eO2*rrc/MW_C )
+!SEAMLESS  call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C*p_qo2cr )
+  _SET_ODE_(self%id_O2o,-eO2*rrc/MW_C*p_qo2cr )
 
   flN6rPBA = (ONE- eO2)*rrc/ MW_C* self%p_qro
 !SEAMLESS  call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )

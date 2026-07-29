@@ -665,8 +665,8 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    prI = ONE - self%p_puI - self%p_peI
    rrc = prI * rut_c + self%p_srs*et*zooc
-!  call flux_vector(iiPel, ppO2o, ppO2o, -rrc/MW_C)
-   _SET_ODE_(self%id_O2o,-(rrc/MW_C))
+!  call flux_vector(iiPel, ppO2o, ppO2o, -rrc/MW_C*p_qo2cr)
+   _SET_ODE_(self%id_O2o,-(rrc/MW_C*p_qo2cr))
 !  call quota_flux(iiPel, ppzooc, ppzooc, ppO3c, rrc, tfluxC)
    _SET_ODE_(self%id_c,-rrc)
    _SET_ODE_(self%id_O3c,rrc)
