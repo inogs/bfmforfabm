@@ -409,7 +409,7 @@ contains
       call self%register_diagnostic_variable(self%id_sea,  'sea', 'mgC/m3/d','activity excretion',output=output_none)
       call self%register_diagnostic_variable(self%id_seo,  'seo', 'mgC/m3/d','nutrient stress excretion',output=output_none)
       call self%register_diagnostic_variable(self%id_rr1c, 'rr1c','mgC/m3/d','lysis fraction to labile DOC',output=output_none)
-      call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration',output=output_none)
+      call self%register_diagnostic_variable(self%id_rrc,  'rrc', 'mgC/m3/d','total respiration')
       call self%register_diagnostic_variable(self%id_rugc, 'rugc','mgC/m3/d','Gross primary production')
       call self%register_diagnostic_variable(self%id_flPIR2c_act,'flPIR2c_act', 'mgC/m3/d', 'activity flux to semilabile DOC',output=output_none)
       call self%register_diagnostic_variable(self%id_flPIR2c,    'flPIR2c',     'mgC/m3/d', 'flux to transparent semilabile DOC',output=output_none)
@@ -789,7 +789,6 @@ end select
  srt  =   sra+ srs                         ! total
  rrc  =   srt* phytoc                      ! total actual respiration
 
- _SET_DIAGNOSTIC_(self%id_rrc,rrc)
  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  ! Production, productivity and C flows
  ! The release of DOC is controlled by a specific switch.
@@ -899,6 +898,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
       flPIO3c = self%p_pu_rn * (run - netgrowth)
       run  =   netgrowth
   end if
+  ! update respiration term with carbon correction contribution
+  rrc=rrc+flPIO3c
 
   _SET_DIAGNOSTIC_(self%id_flPIR2c, flPIR2c)
   _SET_DIAGNOSTIC_(self%id_flPIO3c, flPIO3c)
@@ -910,6 +911,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   _SET_ODE_(self%id_O2o, -flPIO3c * (p_qo2cr / MW_C))
   _SET_ODE_(self%id_c, -flPIR2c)
   _SET_ODE_(self%id_R2c, flPIR2c)
+
+  _SET_DIAGNOSTIC_(self%id_rrc,rrc)
  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Specific net growth rate (d-1)
