@@ -5,6 +5,7 @@ add_library(fabm_models_ogs OBJECT
             PelBac.F90
             PelChem.F90
             PelOxygen.F90
+	    PelMercury.F90
             MicroZoo.F90
             MesoZoo.F90
             shared.F90
@@ -16,6 +17,7 @@ add_library(fabm_models_ogs OBJECT
             zenith_angle.F90
             CalciteDissolution.F90
             PelagicCSYS.F90
+	    PelagicAirHg.F90
 	    BenthicLayer.F90	    
            )
 
