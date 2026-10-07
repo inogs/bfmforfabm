@@ -13,22 +13,22 @@ module ogs_bfm_pelagic_base
 
    ! type, extends(type_base_model), public :: type_ogs_bfm_pelagic_base
    type,extends(type_particle_model),public :: type_ogs_bfm_pelagic_base
-      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_h
+      type (type_state_variable_id)                 :: id_c,id_n,id_p,id_f,id_s,id_chl,id_o,id_r,id_m,id_h
       ! Add variable identifiers and parameters here.
       type (type_horizontal_dependency_id)          :: id_bedstress,id_wdepth
       type (type_dependency_id)                     :: id_dens
       type (type_horizontal_diagnostic_variable_id) :: id_w_bot
-      type (type_horizontal_diagnostic_variable_id),allocatable,dimension(:) :: id_cdep,id_ndep,id_pdep,id_sdep,id_fdep,id_odep
+      type (type_horizontal_diagnostic_variable_id),allocatable,dimension(:) :: id_cdep,id_ndep,id_pdep,id_sdep,id_mdep,id_fdep,id_odep
 
       ! Target variables for sedimentation
-      type (type_bottom_state_variable_id),allocatable,dimension(:) :: id_targetc,id_targetn,id_targetp,id_targets,id_targetf,id_targeto
+      type (type_bottom_state_variable_id),allocatable,dimension(:) :: id_targetc,id_targetn,id_targetp,id_targets,id_targetm,id_targetf,id_targeto
 
       real(rk) :: rm = 0.0_rk
       real(rk) :: tdep
       integer :: ndeposition
       logical :: no_river_dilution = .false.
 
-      real(rk),allocatable :: qxc(:),qxn(:),qxp(:),qxs(:),qxf(:),qxo(:)
+      real(rk),allocatable :: qxc(:),qxn(:),qxp(:),qxs(:),qxm(:),qxf(:),qxo(:)
 
    contains
       procedure :: initialize
@@ -93,6 +93,7 @@ contains
       
       if (index(composition,'n')/=0) call self%add_constituent('n',0.0_rk)
       if (index(composition,'p')/=0) call self%add_constituent('p',0.0_rk)
+      if (index(composition,'m')/=0) call self%add_constituent('m',0.0_rk)
       if (index(composition,'s')/=0) then 
          s0=0.0_rk
          call self%add_constituent('s',0.0_rk,s0)
@@ -136,6 +137,8 @@ contains
          call register(self%id_p,'p','mmol P','phosphorus',standard_variables%total_phosphorus,self%qxp,self%id_pdep,self%id_targetp)
       case ('s')
          call register(self%id_s,'s','mmol Si','silicate',standard_variables%total_silicate,self%qxs,self%id_sdep,self%id_targets)
+      case ('m')
+         call register(self%id_m,'m','nmol Hg','mercury',standard_variables%total_mercury,self%qxm,self%id_mdep,self%id_targetm)
       case ('f')
 !        if (use_iron) call register(self%id_f,'f','umol Fe','iron',standard_variables%total_iron,self%qxf,self%id_fdep,self%id_targetf)
       case ('o')
