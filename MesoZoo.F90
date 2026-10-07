@@ -113,6 +113,7 @@
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyp
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyl
       type (type_state_variable_id), allocatable,dimension(:) :: id_preys
+      type (type_state_variable_id), allocatable,dimension(:) :: id_preym
       ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preyf
       type (type_model_id),      allocatable,dimension(:) :: id_prey
 
@@ -124,13 +125,15 @@
       type (type_state_variable_id)      :: id_R8s                          !  biogenic silica
       type (type_state_variable_id)      :: id_O3h                          !  alkalinity
       type (type_state_variable_id)      :: id_O5c                          !  calcite
+      type (type_state_variable_id)      :: id_MMhg                         ! methylmercury
   
       !! Environmental dependencies
       type (type_dependency_id)          :: id_ETW                          ! temperature
 
       !! Identifiers for diagnostic variables
-      type (type_diagnostic_variable_id) :: id_qncMEZ     ! N:C quontum
-      type (type_diagnostic_variable_id) :: id_qpcMEZ     ! P:C quontum      
+      type (type_diagnostic_variable_id) :: id_qncMEZ     ! N:C quotum
+      type (type_diagnostic_variable_id) :: id_qpcMEZ     ! P:C quotum
+      type (type_diagnostic_variable_id) :: id_qmcMEZ     ! mehg:C quotum      
       type (type_diagnostic_variable_id) :: id_prey2l     ! test      
       type (type_diagnostic_variable_id) :: id_prey1x     ! test      
 
@@ -145,6 +148,7 @@
       type (type_diagnostic_variable_id) :: id_rut_c  ! carbon ingestion rate
       type (type_diagnostic_variable_id) :: id_rut_n  ! nitrogen ingestion rate
       type (type_diagnostic_variable_id) :: id_rut_p  ! phosphorus ingestion rate
+      type (type_diagnostic_variable_id) :: id_rut_m  ! methylmercury ingestion rate
       type (type_diagnostic_variable_id) :: id_rrc    ! respiration rate
 
       type (type_diagnostic_variable_id) :: id_rdo_c  ! low oxygen mortality rate
@@ -152,6 +156,7 @@
       type (type_diagnostic_variable_id) :: id_rq6c   ! carbon egestion rate
       type (type_diagnostic_variable_id) :: id_rq6n   ! nitrogen egestion rate
       type (type_diagnostic_variable_id) :: id_rq6p   ! phosphorus egestion rate
+      type (type_diagnostic_variable_id) :: id_rq6m   ! methylmercury egestion rate
 
       type (type_diagnostic_variable_id) :: id_ren    ! ammonium remineralization rate
       type (type_diagnostic_variable_id) :: id_rep    ! phosphate remineralization rate
@@ -178,7 +183,7 @@
 !      logical, allocatable :: p_ps(:)
       real(rk) :: p_q10, p_srs, p_sum, p_sd
       real(rk) :: p_vum, p_puI, p_peI, p_sdo, p_sds
-      real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_clO2o
+      real(rk) :: p_pecaco3, p_qpcMEZ, p_qncMEZ, p_qmcMEZ, p_clO2o
       real(rk) :: p_fR6
 !      Examples
 !      real(rk) :: p_paPPY, p_paMIZ, p_paMEZ   ! diet matrix
@@ -243,6 +248,7 @@ contains
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
+      call self%add_constituent('m',1.000e-10_rk)
 !      call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
 
 ! Register links to external preys
@@ -258,6 +264,7 @@ contains
       allocate(self%id_preyp(self%nprey))
       allocate(self%id_preyl(self%nprey))
       allocate(self%id_preys(self%nprey))
+      allocate(self%id_preym(self%nprey))
 
       allocate(self%id_preyld(self%nprey))
       allocate(self%id_ruPPYc(self%nprey))
@@ -291,6 +298,10 @@ contains
         call self%register_state_dependency(self%id_preys(iprey),'prey'//trim(index)//'s','mmol Si/m^3', 'prey '//trim(index)//' silica')
         call self%request_coupling_to_model(self%id_preys(iprey), self%id_prey(iprey),standard_variables%total_silicate)
 
+        call self%register_state_dependency(self%id_preym(iprey),'prey'//trim(index)//'m','nmol Hg/m^3', 'prey '//trim(index)//' methylmercury')
+        call self%request_coupling_to_model(self%id_preym(iprey),self%id_prey(iprey),'m')
+
+
 !#ifdef INCLUDE_PELFE
 !        call self%register_state_dependency(self%id_preyc(iprey),'prey'//trim(index)//'f','umol Fe/m^3',   'prey '//trim(index)//' iron')
 !        call self%request_coupling_to_model(self%id_preyf(iprey),self%id_prey(iprey),'f')
@@ -317,10 +328,13 @@ contains
       call self%register_state_dependency(self%id_R8p,'R8p','mmol P/m^3' ,'large POP')
       call self%register_state_dependency(self%id_R8n,'R8n','mmol N/m^3' ,'large PON')
       call self%register_state_dependency(self%id_R8s,'R8s','mmol Si/m^3','large biogenic silica')
+      call self%register_state_dependency(self%id_MMHg,'MMHg','nmol hg/m^3','methylmercury')
+
 
 ! Register diagnostic variables (i.e., model outputs)
       call self%register_diagnostic_variable(self%id_qncMEZ,'qncMEZ', 'mmolN/mgC', 'N:C quontum',output=output_none)
       call self%register_diagnostic_variable(self%id_qpcMEZ,'qpcMEZ', 'mmolP/mgC', 'P:C quontum',output=output_none)
+      call self%register_diagnostic_variable(self%id_qmcMEZ,'qmcMEZ', 'nmolHg/mgC', 'MMHg:C quontum',output=output_none)
       call self%register_diagnostic_variable(self%id_prey2l,'prey2l', 'Chl', 'test',output=output_none)
       call self%register_diagnostic_variable(self%id_prey1x,'prey1x', 's', 'test',output=output_none)
       call self%register_diagnostic_variable(self%id_ETWd,  'ETW',   'C',        'temperature Celsius',output=output_none)
@@ -332,12 +346,14 @@ contains
       call self%register_diagnostic_variable(self%id_rut_c, 'rut_c', 'mgC/m3/d', 'carbon ingestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rut_n, 'rut_n', 'mgC/m3/d', 'nitrogen ingestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rut_p, 'rut_p', 'mgC/m3/d', 'phosphorus ingestion rate',output=output_none)
+      call self%register_diagnostic_variable(self%id_rut_m, 'rut_m', 'nmol/m3/d', 'methylmercury ingestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rrc,   'rrc',   'mgC/m3/d', 'respiration rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rdo_c, 'rdo_c', 'mgC/m3/d', 'low oxygen mortality rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rd_c,  'rd_c',  'mgC/m3/d', 'density dependent mortality rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rq6c,  'rq6c',  'mgC/m3/d', 'carbon egestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rq6n,  'rq6n',  'mgC/m3/d', 'nitrogen egestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rq6p,  'rq6p',  'mgC/m3/d', 'phosphorus egestion rate',output=output_none)
+      call self%register_diagnostic_variable(self%id_rq6m, 'rq6m',  'nmol/m3/d', 'methylmercury egestion rate',output=output_none)
       call self%register_diagnostic_variable(self%id_ren,   'ren',   'mmolN/m3/d',  'ammonium remineralization rate',output=output_none)
       call self%register_diagnostic_variable(self%id_rep,   'rep',   'mmolP/m3/d',  'phosphate remineralization rate',output=output_none)
       call self%register_diagnostic_variable(self%id_varO3h_Nutil,'varO3h_Nutil','mmol/m3/d','variaz O3h due to N utiliz',output=output_none)
@@ -394,21 +410,21 @@ contains
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     integer  :: iprey
-    real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP   !, preyfP
+    real(rk), dimension(self%nprey) :: preycP,preypP,preynP,preylP,preysP,preymP  !, preyfP
     real(rk), dimension(self%nprey) :: rupreyc, PPYc
     real(rk) :: preyP
-    real(rk) :: zooc, zoop, zoon
+    real(rk) :: zooc, zoop, zoon, zoom
     real(rk) :: ETW,et,eo
     real(rk) :: O2o
 !    real(rk) :: O3c
 !    real(rk) :: N1p,N4n
 !    real(rk) :: R6c,R6p,R6n
     real(rk) :: rumc,rugc,sut
-    real(rk) :: rut_c,rut_n,rut_p
-    real(rk) :: qpcMEZ,qncMEZ 
+    real(rk) :: rut_c,rut_n,rut_p, rut_m
+    real(rk) :: qpcMEZ,qncMEZ,qmcMEZ
     real(rk) :: ruPPYc
     real(rk) :: prI, rrc, rdo_c, rd_c
-    real(rk) :: rq6c, rq6n, rq6p
+    real(rk) :: rq6c, rq6n, rq6p,rq6m 
     real(rk) :: rep, ren
     real(rk) :: temp_n, temp_p
     real(rk) :: ru_c, ru_p, ru_n
@@ -461,6 +477,7 @@ contains
          _GET_(self%id_c,zooc)
          _GET_(self%id_p,zoop)
          _GET_(self%id_n,zoon)
+         _GET_(self%id_m,zoom)
 
 !  zooc = D3STATE(ppzooc,:)
 !  zoon = zooc * qncMEZ(zoo,:)
@@ -478,6 +495,7 @@ contains
       _GET_(self%id_preyp(iprey), preypP(iprey))
       _GET_(self%id_preyl(iprey), preylP(iprey))
       _GET_(self%id_preys(iprey), preysP(iprey))
+       _GET_(self%id_preym(iprey), preymP(iprey))
 !#ifdef INCLUDE_PELFE
       ! _GET_(self%id_preyf(iprey), preyfP(iprey))
 !#endif
@@ -490,9 +508,11 @@ contains
 !  tfluxP = ZERO
    qpcMEZ = zoop/(zooc+p_small)      ! add some epsilon (add in shared) to avoid divide by 0
    qncMEZ = zoon/(zooc+p_small)
+   qmcMEZ = zoom/(zooc+p_small)
 
       _SET_DIAGNOSTIC_(self%id_qncMEZ,qncMEZ)
       _SET_DIAGNOSTIC_(self%id_qpcMEZ,qpcMEZ)
+      _SET_DIAGNOSTIC_(self%id_qmcMEZ,qmcMEZ)
 
       _SET_DIAGNOSTIC_(self%id_prey2l,preylP(2))
       _SET_DIAGNOSTIC_(self%id_prey1x,preysP(1))
@@ -553,6 +573,7 @@ contains
    rut_c = ZERO
    rut_n = ZERO
    rut_p = ZERO
+   rut_m = ZERO
 
   ! Phytoplankton
 !  do i = 1, iiPhytoPlankton
@@ -567,10 +588,13 @@ contains
 !    call flux_vector(iiPel, ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpcPPY(i,:))
     _SET_ODE_(self%id_p,             ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small)))
     _SET_ODE_(self%id_preyp(iprey), -ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small)))
+    _SET_ODE_(self%id_m,             ruPPYc*(preymP(iprey)/(preycP(iprey)+p_small)))
+   _SET_ODE_(self%id_preym(iprey), -ruPPYc*(preymP(iprey)/(preycP(iprey)+p_small)))
 
      rut_c = rut_c + ruPPYc
      rut_n = rut_n + ruPPYc*(preynP(iprey)/(preycP(iprey)+p_small))
      rut_p = rut_p + ruPPYc*(preypP(iprey)/(preycP(iprey)+p_small))
+     rut_m = rut_m + ruPPYc*(preymP(iprey)/(preycP(iprey)+p_small))
 
 !    if (self%p_pl(iprey)) then
     ! Chl is transferred to the infinite sink
@@ -690,6 +714,7 @@ contains
    rq6c = self%p_peI*rut_c + rdo_c + rd_c
    rq6n = self%p_peI*rut_n + qncMEZ*(rdo_c + rd_c)
    rq6p = self%p_peI*rut_p + qpcMEZ*(rdo_c + rd_c)
+   rq6m = self%p_peI*rut_m + qmcMEZ*(rdo_c + rd_c)
 
       _SET_DIAGNOSTIC_(self%id_rq6c,rq6c)
       _SET_DIAGNOSTIC_(self%id_rq6n,rq6n)
@@ -732,6 +757,8 @@ contains
    _SET_ODE_(self%id_R6p, self%p_fR6 * rq6p)
    _SET_ODE_(self%id_R8p, (ONE - self%p_fR6) * rq6p)
 
+   _SET_ODE_(self%id_m,  -rq6m)
+   _SET_ODE_(self%id_MMHg, rq6m)
 
 !  if ( zoon > 0 .and. zoop > 0 ) then
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

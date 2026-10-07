@@ -65,11 +65,12 @@
       ! Identifiers for state variables of other models
       type (type_state_variable_id) :: id_O3c,id_O2o,id_O3h                 !  dissolved inorganic carbon, oxygen, total alkalinity
       type (type_state_variable_id) :: id_N1p,id_N3n,id_N4n,id_N5s          !  nutrients: phosphate, nitrate, ammonium, silicate, iron
-      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
+      type (type_state_variable_id) :: id_R1c,id_R1p,id_R1n,id_R2c,id_R3c          !  dissolved organic carbon (R1: labile, R2: semi-labile)
       type (type_state_variable_id) :: id_R6c,id_R6p,id_R6n,id_R6s          !  small particulate organic carbon
       type (type_state_variable_id) :: id_R8c,id_R8p,id_R8n,id_R8s          !  large particulate organic carbon
       type (type_state_variable_id) :: id_X1c,id_X2c                        !  coloured dissolved organic carbon
       type (type_state_variable_id) :: id_O5c                               !  Free calcite (liths) - used by calcifiers only
+      type (type_state_variable_id) :: id_MMHg                              ! MMHg in water
       type (type_model_id)          :: id_size_up, id_size_down, id_size_max
       type (type_state_variable_id) :: id_size_up_c,id_size_down_c          !  indicator for diatoms asexual reproduction
       type (type_state_variable_id) :: id_size_up_n,id_size_down_n          !  indicator for diatoms asexual reproduction
@@ -142,7 +143,8 @@
       type (type_diagnostic_variable_id) :: id_O3hconume_for_CaCO3prec !consume of alk for caco3 precipitation
       type (type_diagnostic_variable_id) :: id_Putil_O3h !  variation of O3h due to net utilization of P (uptake-release)
       type (type_diagnostic_variable_id) :: id_Nutil_O3h !  variation of O3h due to net utilization of N (uptake-release)
- 
+      type (type_diagnostic_variable_id) :: id_uMMHg        ! MMHg uptake
+
       ! Parameters (described in subroutine initialize, below)
       real(rk) :: p_q10,p_temp,p_sum,p_srs,p_sdmo,p_thdo,p_seo,p_sheo,p_pu_ea,p_pu_ra
       real(rk) :: p_qun,p_lN4, p_qnlc, p_qncPPY, p_xqn, p_qup, p_qplc, p_qpcPPY, p_xqp
@@ -154,6 +156,7 @@
       real(rk) :: p_rPIm
       real(rk) :: p_fX1p, p_fX2p
       real(rk) :: p_fR6
+      real(rk) :: p_cww,p_sav, p_sat
       real(rk) :: p_arepr_rate,p_srepr_rate,p_min_biomass
       integer :: p_switchDOC, p_switchSi,p_limnut,p_switchChl,p_Esource
       logical :: use_Si,use_repr
@@ -285,6 +288,10 @@ contains
       call self%get_parameter(self%p_OT,   'p_OT',  '1-9',  'optical type label for absorption/scattering spectra')
 !              --------- nutrient stress respiration / excretion partition ------
       call self%get_parameter(self%p_pu_rn,   'p_pu_rn',  '-',  'nutrient stress respiration fraction', default=0.0_rk)
+!              --------- Mercury parameters ------------
+      call self%get_parameter(self%p_cww,   'p_cww',  '[-]',  'Wet weight to carbon ratio ')
+      call self%get_parameter(self%p_sav,   'p_sav',  '[um-1]',  'Surface area  to Volume ratio ')
+      call self%get_parameter(self%p_sat,   'p_sat',  '[d-1]',  'Saturation time for Hg uptake')
 
       
 ! Register state variables (handled by type_bfm_pelagic_base)
@@ -294,6 +301,7 @@ contains
       call self%add_constituent('p',4.288e-8_rk)
       call self%add_constituent('f',5.e-6_rk)  ! NB this does nothing if iron support is disabled.
       call self%add_constituent('chl',3.e-6_rk)
+      call self%add_constituent('m',1.e-6_rk)
       if (self%use_Si) call self%add_constituent('s',1.e-6_rk)
 !     call self%add_constituent('c',1.e-4_rk,   c0)
 !     call self%add_constituent('n',1.26e-6_rk, c0*qnrpicX)
@@ -309,11 +317,13 @@ contains
       call self%register_state_dependency(self%id_N1p,'N1p','mmol P/m^3','phosphate')
       call self%register_state_dependency(self%id_N3n,'N3n','mmol N/m^3','nitrate')
       call self%register_state_dependency(self%id_N4n,'N4n','mmol N/m^3','ammonium')
+      call self%register_state_dependency(self%id_MMHg, 'MMHg', 'nmol Hg/m^3', 'Monomethylmercury in water')
       if (self%use_Si) call self%register_state_dependency(self%id_N5s,'N5s','mmol Si/m^3','silicate')
       call self%register_state_dependency(self%id_R1c,'R1c','mg C/m^3','labile DOC')
       call self%register_state_dependency(self%id_R1p,'R1p','mmol P/m^3','labile DOP')
       call self%register_state_dependency(self%id_R1n,'R1n','mmol N/m^3','labile DON')
       call self%register_state_dependency(self%id_R2c,'R2c','mg C/m^3','semi labile DOC')
+      call self%register_state_dependency(self%id_R3c,'R3c','mgC /m^3','semi-refractory DOC')
       call self%register_state_dependency(self%id_R6c,'R6c','mg C/m^3','small POC')
       call self%register_state_dependency(self%id_R6p,'R6p','mmol P/m^3','small POP')
       call self%register_state_dependency(self%id_R6n,'R6n','mmol N/m^3','small PON')
@@ -447,6 +457,8 @@ contains
       endif
       call self%register_diagnostic_variable(self%id_rho_Chl,  'rho_Chl', 'mgChl/mgC','Chlorophyll production per unit of carbon ',output=output_none)
       call self%register_diagnostic_variable(self%id_rate_Chl,  'rate_Chl', 'mgChl/m3/d',' Chlorophyll production ',output=output_none)
+      call self%register_diagnostic_variable(self%id_uMMHg, 'uMMHg', 'nmolHg/m3/d', 'MMHg uptake',output=output_none)
+
       if (self%use_CaCO3) then
          call self%register_diagnostic_variable(self%id_O3hconume_for_CaCO3prec,'consO3h_caco3','mmol/m3/d','consume of O3h for CaCO3 precipitation',output=output_none)
       endif
@@ -494,16 +506,17 @@ contains
 
    ! !LOCAL VARIABLES:
       real(rk) :: ETW,et, parEIR
-      real(rk) :: phytoc, phytop, phyton, phytol, phytos
+      real(rk) :: phytoc, phytop, phyton, phytol, phytos, phytom
       real(rk) :: N5s,N1p,N3n,N4n,O2o
       real(rk) :: R1c,R1n,R1p
-      real(rk) :: R2c
+      real(rk) :: R2c,R3c
       real(rk) :: R6c,R6p,R6n,R6s
       real(rk) :: R8c,R8p,R8n,R8s
       real(rk) :: X1c,X2c
+      real(rk) :: MMHg 
       real(rk) :: iNIn,iN1p,eN5s,iN5s,iNf,iNI
       real(rk) :: iN,tN
-      real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY
+      real(rk) :: qpcPPY,qncPPY,qlcPPY,qscPPY, qmcPPY
       real(rk) :: fpplim
       real(rk) :: r
       real(rk) :: eiPPY,photochem
@@ -521,6 +534,7 @@ contains
       real(rk) :: rr6n, rr1n, rr6p, rr1p
       real(rk) :: rums, miss, rups, runs
       real(rk) :: rho_Chl, rate_Chl, chl_opt
+      real(rk) :: Uu,uMMHg
       real(rk) :: size_up_c,size_down_c,size_max_c
       real(rk) :: size_up_p,size_down_p,size_max_p
       real(rk) :: size_up_n,size_down_n,size_max_n
@@ -553,6 +567,7 @@ contains
          _GET_(self%id_p,phytop)
          _GET_(self%id_n,phyton)
          _GET_(self%id_chl,phytol)
+         _GET_(self%id_m,phytom)
          if (self%use_Si) then
             _GET_(self%id_s,phytos)
          endif
@@ -576,6 +591,10 @@ contains
          _GET_(self%id_N1p,N1p)
          _GET_(self%id_N3n,N3n)
          _GET_(self%id_N4n,N4n)
+         _GET_(self%id_R1c,R1c)
+         _GET_(self%id_R2c,R2c)
+         _GET_(self%id_R3c,R3c)
+         _GET_(self%id_MMHg,MMHg)
 
          ! Retrieve ambient oxygen concentrations
          _GET_(self%id_O2o,O2o)
@@ -1103,6 +1122,18 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
  _SET_DIAGNOSTIC_(self%id_rups, rups)
  _SET_DIAGNOSTIC_(self%id_runs, runs)
   endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Uptake of MMHg
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! WW_p=phytoc*self%p_cww
+
+  Uu = 0.1180d0*self%p_sav*exp(-0.008d0*((R1c+R2c+R3c)/12.0D0))*(phytoc*self%p_cww)
+  uMMHg       = 1.0D0/self%p_sat*(Uu*MMHg/1000.0d0 - phytom)
+  _SET_DIAGNOSTIC_(self%id_uMMHg, uMMHg)
+  _SET_ODE_(self%id_MMHg,-uMMHg)
+  _SET_ODE_(self%id_m,uMMHg)
+
 !SEAMLESS
 !SEAMLESS#ifdef INCLUDE_PELFE
 !SEAMLESS  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1225,8 +1256,8 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
    class (type_ogs_bfm_primary_producer),intent(in) :: self
       _DECLARE_ARGUMENTS_LOCAL_
 
-      real(rk) :: phytoc,phytop,phyton,phytos
-      real(rk) :: qpcPPY,qncPPY,qscPPY
+      real(rk) :: phytoc,phytop,phyton,phytos,phytom
+      real(rk) :: qpcPPY,qncPPY,qscPPY,qmcPPY
       real(rk) :: N5s
       real(rk) :: sediPPY
       real(rk) :: iN1p, iNIn, eN5s, fpplim, iN5s, iN, tN  
@@ -1234,7 +1265,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
        _GET_(self%id_c,phytoc)
        _GET_(self%id_p,phytop)
        _GET_(self%id_n,phyton)
-
+       _GET_(self%id_m,phytom)
        if (self%use_Si) then
            _GET_(self%id_s,phytos)
        endif
@@ -1242,6 +1273,7 @@ run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
   ! Quota collectors
        qpcPPY = phytop/(phytoc+p_small) ! add some epsilon (add in shared) to avoid divide by 0
        qncPPY = phyton/(phytoc+p_small)
+       qmcPPY = phytom/(phytoc+p_small)
        if (self%use_Si) then
            qscPPY=phytos/(phytoc+p_small)
        endif

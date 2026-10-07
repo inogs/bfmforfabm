@@ -124,11 +124,11 @@
       real(rk) :: p_q10, p_chdo, p_sd, p_sd2, p_suhR1, p_sulR1, p_suR2
       real(rk) :: p_suR3, p_suR6, p_suR8, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qncPBA
       real(rk) :: p_qpcPBA, p_qlnc, p_qlpc, p_qun, p_qup, p_chn, p_chp
+      real(rk) :: p_qmcPBA
       real(rk) :: p_ruen, p_ruep, p_rec, p_pu_ea_R3,p_qro
       real(rk) :: p_pe_R1c, p_pe_R1n, p_pe_R1p
       real(rk) :: p_fX1b, p_fX2b, p_fX3b 
-      real(rk) :: p_fR6
-      real(rk) :: p_fr_R8     
+      real(rk) :: p_fR6, p_fr_R8
       integer :: p_version
 
    contains
@@ -180,6 +180,7 @@ contains
       call self%get_parameter(self%p_srs,     'p_srs',     '1/d',     'Specific rest respiration')
       call self%get_parameter(self%p_qncPBA, 'p_qncPBA', 'mmolN/mgC', 'Optimal N/C ratio')
       call self%get_parameter(self%p_qpcPBA, 'p_qpcPBA', 'mmolP/mgC', 'Optimal P/C ratio')
+      call self%get_parameter(self%p_qmcPBA, 'p_qmcPBA', 'nmolHg/mgC', ' Hg/C ratio')
       call self%get_parameter(self%p_qlnc,   'p_qlnc'  , 'mmolN/mgC', 'Minimal N/C ratio')
       call self%get_parameter(self%p_qlpc,   'p_qlpc'  , 'mmolP/mgC', 'Minimal P/C ratio')
       call self%get_parameter(self%p_qun,   'p_qun'  , 'mmolN/mgC/day', ' Membrane affinity for N')
@@ -207,6 +208,7 @@ contains
       call self%add_constituent('c',1.e-4_rk)
       call self%add_constituent('n',1.26e-6_rk)
       call self%add_constituent('p',4.288e-8_rk)
+      call self%add_constituent('m',0.000e-10_rk)
       call self%register_state_dependency(self%id_O2o,'O2o','mmol O2/m^3','dissolved oxygen')
       call self%register_state_dependency(self%id_O3c,'O3c','mg C/m^3','dissolved organic carbon')
       call self%register_state_dependency(self%id_O3h,'O3h','mmol /m^3','alkalinity')
@@ -345,6 +347,7 @@ contains
          _GET_(self%id_c,bacc)
          _GET_(self%id_p,bacp)
          _GET_(self%id_n,bacn)
+         _GET_(self%id_m,bacm)
 
          ! Retrieve ambient nutrient concentrations
          _GET_(self%id_O2o,O2o)
@@ -384,6 +387,7 @@ contains
   ! Quota collectors
          qpcPBA = bacp/(bacc+p_small) ! add some epsilon (add in shared) to avoid divide by 0
          qncPBA = bacn/(bacc+p_small)
+         qmcPBA = bacm/(bacc+p_small)
 
          qpcR1  = R1p/(R1c+p_small)
          qncR1  = R1n/(R1c+p_small)
