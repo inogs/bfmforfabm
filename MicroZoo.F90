@@ -103,6 +103,7 @@
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyp
       type (type_state_variable_id), allocatable,dimension(:) :: id_preyl
       type (type_state_variable_id), allocatable,dimension(:) :: id_preys
+      type (type_state_variable_id), allocatable,dimension(:) :: id_preym
       ! type (type_state_variable_id),    allocatable,dimension(:) :: id_preyf
       type (type_model_id),      allocatable,dimension(:) :: id_prey
 

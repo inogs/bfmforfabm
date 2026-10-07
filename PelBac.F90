@@ -297,7 +297,7 @@ contains
 
    ! LOCAL VARIABLES:
       integer, parameter ::  BACT1=1,BACT2=2,BACT3=3
-      real(rk) :: bacc, bacp, bacn
+      real(rk) :: bacc, bacp, bacn, bacm
       real(rk) :: O2o,N1p,N3n,N4n
       real(rk) :: R1c,R1p,R1n
       real(rk) :: R2c
@@ -308,7 +308,7 @@ contains
       real(rk) :: N6r
       real(rk) :: ETW,et,eO2
       real(rk) :: eN4n,eN1p
-      real(rk) :: qpcPBA,qncPBA
+      real(rk) :: qpcPBA,qncPBA,qmcPBA
       real(rk) :: qpcR1,qncR1,qpcR6,qncR6,qpcR8,qncR8
       real(rk) :: rd
       real(rk) :: rum
