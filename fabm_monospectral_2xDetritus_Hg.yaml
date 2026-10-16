@@ -1044,6 +1044,14 @@ instances:
       R3c: R3/c
       R6c: R6/c
       R8c: R8/c
+  HgGasExchange:
+    long_name: Elemental mercury air-sea gas exchange
+    model: ogs/PelagicGasHg
+    parameters:
+      p_Hgin: 0.2
+    coupling:
+      Hg0: Hg0/m
+      Hg2: Hg2/m
   Hg2:
     long_name: Oxidized mercury
     model: ogs/bfm_pelagic_base

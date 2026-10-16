@@ -17,7 +17,7 @@ add_library(fabm_models_ogs OBJECT
             zenith_angle.F90
             CalciteDissolution.F90
             PelagicCSYS.F90
-	    PelagicAirHg.F90
+	    PelagicGasHg.F90
 	    BenthicLayer.F90	    
            )
 
