@@ -5,7 +5,6 @@ module ogs_bfm_light_spectral_inwater
    use fabm_types
    use ogs_bfm_shared
    use adj_3stream, only: solve_direct
-!   use fabm_spectral_shared
 
    implicit none
 
@@ -16,9 +15,7 @@ module ogs_bfm_light_spectral_inwater
       type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
       type (type_diagnostic_variable_id)   :: id_PAR_tot,id_PAR_W_tot, id_SWR_tot
       type (type_diagnostic_variable_id)   :: id_anap450, id_aph450, id_acdom450
-!      type (type_diagnostic_variable_id)   :: id_acdom250, id_acdom325, id_acdom400, id_acdom425
-!      type (type_diagnostic_variable_id)   :: id_Scdom350_500, id_Scdom250_325       
-!      type (type_diagnostic_variable_id)   :: id_bbp450, id_bbp550, id_bbp700
+
       type (type_diagnostic_variable_id)   :: id_Ed400, id_Ed425, id_Ed450, id_Ed475, id_Ed500, id_Ed525, id_Ed550, id_Ed575, id_Ed675
       type (type_diagnostic_variable_id)   :: id_E0475, id_E0500
 
@@ -35,7 +32,7 @@ module ogs_bfm_light_spectral_inwater
       type (type_surface_dependency_id) :: id_costheta_r
       integer :: nlambda
       real(rk), dimension(:), allocatable :: lambda, lambda_bounds, par_weights, par_E_weights, swr_weights, uv_weights, F, lambda_out
-! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py
+! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py ONLY used with p_useBIOPTIMOD
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
       type (type_horizontal_dependency_id) ::  id_Ed_0_0550, id_Ed_0_0575, id_Ed_0_0600, id_Ed_0_0625, id_Ed_0_0650
@@ -50,22 +47,22 @@ module ogs_bfm_light_spectral_inwater
       type (type_horizontal_dependency_id) ::  id_Es_0_0950, id_Es_0_1050, id_Es_0_1150, id_Es_0_1250, id_Es_0_1350
       type (type_horizontal_dependency_id) ::  id_Es_0_1450, id_Es_0_1550, id_Es_0_1650, id_Es_0_1750, id_Es_0_1900
       type (type_horizontal_dependency_id) ::  id_Es_0_2200, id_Es_0_2900, id_Es_0_3700
-
 ! END BLOCK 1 python generated  code
+
       type (type_horizontal_dependency_id) :: id_spm      
       
       ! Parameters
-      integer  :: nlt,npft
+      integer  :: nlt,nlt_atm,npft
       real(rk) :: rd, rs, ru, vs, vu
       real(rk) :: SdomX1, X1coeff, SdomX2, X2coeff, SdomX3, X3coeff, lambda_aCDOM, Xmincoeff
       real(rk) :: Sapar, lambda_aPart, aparcoeff
       real(rk) :: Sbpar, lambda_bPart, bparcoeff, bb_to_b
-      logical :: compute_acdom
-      logical :: compute_anap
+      logical  :: compute_acdom
+      logical  :: compute_anap
       real(rk) :: p_epsP1,p_epsP2,p_epsP3,p_epsP4,p_epsP5,p_epsP6,p_epsP7,p_epsP8,p_epsP9
       real(rk) :: p_bpsP1,p_bpsP2,p_bpsP3,p_bpsP4,p_bpsP5,p_bpsP6,p_bpsP7,p_bpsP8,p_bpsP9
       real(rk) :: p_bbrP1,p_bbrP2,p_bbrP3,p_bbrP4,p_bbrP5,p_bbrP6,p_bbrP7,p_bbrP8,p_bbrP9
-      logical :: compute_aph, compute_bph, compute_bbc, p_useSPM, p_useBIOPTIMOD
+      logical  :: compute_aph, compute_bph, compute_bbc, p_useSPM, p_useBIOPTIMOD
       real(rk) :: p_spmc1, p_spmc2, p_spmS, lambda_aSPM, p_spmb, p_spmbb
 
    contains
@@ -124,7 +121,8 @@ contains
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-      call self%get_parameter(self%nlt,    'nlt',  '-',   'number of wavelenghts', default=self%nlambda)
+      call self%get_parameter(self%nlt_atm, 'nlt_atm', '-', 'number of wavelengths for atmospheric irradiance input', default=self%nlambda)
+      call self%get_parameter(self%nlt,    'nlt',  '-',   'number of wavelengths for inwater optical model', default=self%nlt_atm)
       call self%get_parameter(self%npft,   'npft', '-',   'number of PFT', default=-1)
       call self%get_parameter(self%rd,     'rd',   '-',   ' ', default=1.0_rk)
       call self%get_parameter(self%rs,     'rs',   '-',   ' ', default=1.5_rk)
@@ -186,8 +184,8 @@ contains
       call self%get_parameter(self%p_spmb,      'p_spmb',  'm2 g-1',    'non-spectral scattering ',default=0.7_rk)
       call self%get_parameter(self%p_spmbb,     'p_spmbb', 'm2 g-1',    'non-spectral backscattering',default=0.008_rk)
       call self%get_parameter(self%p_useBIOPTIMOD,     'p_useBIOPTIMOD', '[T or F]',    'logical flag to use BIOPTIMOD',default=.False.)
-      if (self%nlt /= self%nlambda) then
-         call self%fatal_error('initialize', 'nlt must match nlambda in light_spectral_inwater.')
+      if (self%nlt_atm /= self%nlambda) then
+         call self%fatal_error('initialize', 'nlt_atm must match the atmospheric wavelength setup (nlambda).')
       end if
       
       if (self%nlt>0) then
@@ -209,8 +207,7 @@ contains
           allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
           allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
           allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
-!          allocate(equis(7));                  equis(:)=huge(equis(1))
-!          allocate(ies(7));                    ies(:)=huge(ies(1))
+
 
           
 !         load the IOP for the biogeochemical variables considered
@@ -235,9 +232,6 @@ contains
        acdom_min(nl) = self%Xmincoeff*(exp(-self%SdomX2*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX2*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX2*(rlamm2-rlamm1))
       enddo
 
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), acdom_min(nl)
-!      enddo
       
       
  !   CDOM absorption coefficients
@@ -246,7 +240,6 @@ contains
  !      rlamm = real(lam(nl),8)
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
- !      acdom(nl) = self%cdomcoeff * exp(-self%Sdom*(rlamm-self%lambda_aCDOM))
        acdom(1,nl) = self%X1coeff*(exp(-self%SdomX1*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX1*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX1*(rlamm2-rlamm1))
        acdom(2,nl) = self%X2coeff*(exp(-self%SdomX2*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX2*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX2*(rlamm2-rlamm1))
        acdom(3,nl) = self%X3coeff*(exp(-self%SdomX3*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX3*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX3*(rlamm2-rlamm1))
@@ -266,10 +259,6 @@ contains
       enddo
       endif
 
-!       write(*,*) "acdom", acdom(1,7), acdom(2,7), acdom(3,7)
-!       write(*,*) "apoc", apoc(7)
-!       write(*,*) "bpoc", bpoc(7)
-!       write(*,*) "bbpoc", bbpoc(7)
 
       do nl = 1,self%nlt
         write(*,*) real(lam(nl),8), acdom(1,nl), acdom(2,nl), acdom(3,nl)
@@ -347,33 +336,6 @@ contains
        enddo
       endif
 
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(1,nl), ac_ps(1,nl), bc(1,nl), bbc(1,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(2,nl), ac_ps(2,nl), bc(2,nl), bbc(2,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(3,nl), ac_ps(3,nl), bc(3,nl), bbc(3,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(4,nl), ac_ps(4,nl), bc(4,nl), bbc(4,nl)
-!!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(5,nl), ac_ps(5,nl), bc(5,nl), bbc(5,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(6,nl), ac_ps(6,nl), bc(6,nl), bbc(6,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(7,nl), ac_ps(7,nl), bc(7,nl), bbc(7,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(8,nl), ac_ps(8,nl), bc(8,nl), bbc(8,nl)
-!      enddo
-!      do nl = 1,self%nlt
-!        write(*,*) real(lam(nl),8), ac(9,nl), ac_ps(9,nl), bc(9,nl), bbc(9,nl)
-!      enddo
       
      ! Register diagnostic variables
       if (self%npft .GT. 0) call self%register_diagnostic_variable(self%id_par_P1, 'PAR_P1', 'uE mgChl-1 d-1', 'PAR_diatoms', source=source_do_column)
@@ -388,18 +350,10 @@ contains
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_W_tot, 'PAR_W_tot',  'W m-2 [400-700]','PAR_W_total', source=source_do_column)
       call self%register_diagnostic_variable(self%id_SWR_tot, 'SWR_tot',  'W m-2 ','SWR_total', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Scdom350_500, 'Scdom350_500', 'nm-1','visible spectral slope acdom', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_Scdom250_325, 'Scdom250_325', 'nm-1','UV spectral slope acdom', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_acdom250, 'acdom250', 'm-1', 'acdom in 250 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_acdom325, 'acdom325', 'm-1', 'acdom in 325 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_acdom400, 'acdom400', 'm-1', 'acdom in 400 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_acdom425, 'acdom425', 'm-1', 'acdom in 425 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_acdom450, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_anap450, 'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_aph450,  'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_bbp450,  'bbp450',   'm-1', 'particle backscattering in 450 nm band', source=source_do_column)
-!      call self%register_diagnostic_variable(self%id_bbp550,  'bbp550',   'm-1', 'particle backscattering in 550 nm band', source=source_do_column)      
-!      call self%register_diagnostic_variable(self%id_bbp700,  'bbp700',   'm-1', 'particle backscattering in 700 nm band', source=source_do_column)
+
       call self%register_diagnostic_variable(self%id_Rrs400,   'Rrs400',   '-',  'subsurface reflectance in 400nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Rrs425,   'Rrs425',   '-',  'subsurface reflectance in 425nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Rrs450,   'Rrs450',   '-',  'subsurface reflectance in 450nm band', source=source_do_column)
@@ -409,11 +363,7 @@ contains
       call self%register_diagnostic_variable(self%id_Rrs550,   'Rrs550',   '-',  'subsurface reflectance in 550nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Rrs575,   'Rrs575',   '-',  'subsurface reflectance in 575nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Rrs675,   'Rrs675',   '-',  'subsurface reflectance in 675nm band', source=source_do_column)
-!     call self%register_diagnostic_variable(self%id_kd375,    'kd375',  'm-1',  'extinction coefficient in 375nm band', source=source_do_column)
-!     call self%register_diagnostic_variable(self%id_kd400,    'kd400',  'm-1',  'extinction coefficient in 400nm band', source=source_do_column)
-!     call self%register_diagnostic_variable(self%id_kd425,    'kd425',  'm-1',  'extinction coefficient in 425nm band', source=source_do_column)
-!     call self%register_diagnostic_variable(self%id_kd475,    'kd475',  'm-1',  'extinction coefficient in 475nm band', source=source_do_column)
-!     call self%register_diagnostic_variable(self%id_kd500,    'kd500',  'm-1',  'extinction coefficient in 500nm band', source=source_do_column)
+
 
       call self%register_diagnostic_variable(self%id_Ed400, 'Ed400', 'W m-2', 'E downwelling', source=source_do_column)
       call self%register_diagnostic_variable(self%id_Ed425, 'Ed425', 'W m-2', 'E downwelling', source=source_do_column)
@@ -470,11 +420,7 @@ contains
       allocate(self%id_diffuse_sf(self%nlambda))
       allocate(self%id_direct_sf(self%nlambda))
       do l = 1, self%nlambda
-!        if (self%lambda(l) < 1000._rk) then
-!           write(strwavelength, '(I3.3)') self%lambda(l)
-!        else
-!           write(strwavelength, '(I4.4)') self%lambda(l)
-!        end if
+
          write(strwavelength, '(I4.4)') int(self%lambda(l))
          write(strindex, '(i0)') l
          call self%register_dependency(self%id_direct_sf(l), 'direct_band' // trim(strindex), 'W/m2/nm', 'downward direct irradiance in water @ ' // trim(strwavelength) // ' nm')
@@ -484,17 +430,17 @@ contains
       end do
       call self%register_dependency(self%id_costheta_r, 'costheta_r', '-', 'cosine of zenith angle of underwater direct irradiance')
       ! Find wavelength bounds of photosynthetically active radiation
-      allocate(self%par_weights(self%nlambda))
-      allocate(self%swr_weights(self%nlambda))
-      allocate(self%uv_weights(self%nlambda))
-      allocate(self%par_E_weights(self%nlambda))
-      call calculate_integral_weights(400._rk, 700._rk, self%nlambda, self%lambda, self%par_weights)
-      call calculate_integral_weights(300._rk, 4000._rk, self%nlambda, self%lambda, self%swr_weights)
-      call calculate_integral_weights(300._rk, 400._rk, self%nlambda, self%lambda, self%uv_weights)
+      allocate(self%par_weights(self%nlt))
+      allocate(self%swr_weights(self%nlt))
+      allocate(self%uv_weights(self%nlt))
+      allocate(self%par_E_weights(self%nlt))
+      call calculate_integral_weights(400._rk, 700._rk, self%nlt, lam, self%par_weights)
+      call calculate_integral_weights(300._rk, 4000._rk, self%nlt, lam, self%swr_weights)
+      call calculate_integral_weights(300._rk, 400._rk, self%nlt, lam, self%uv_weights)
       ! h_planck      = 6.6256E-34   !Plancks constant J sec
       ! c_light       = 2.998E8      !speed of light m/sec
       ! oavo          = 1.0D0/6.023E23   ! 1/Avogadros number
-      self%par_E_weights(:) = self%par_weights * self%lambda /(h_Planck*c_light)*oavo*1e-3_rk ! divide by 1e9 to go from nm to m, multiply by 1e6 to go from mol to umol
+      self%par_E_weights(:) = self%par_weights * lam /(h_Planck*c_light)*oavo*1e-3_rk ! divide by 1e9 to go from nm to m, multiply by 1e6 to go from mol to umol
       if (self%p_useBIOPTIMOD) then
 ! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
       call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
@@ -580,10 +526,7 @@ contains
       real(rk) :: R6c,X1c,X2c,X3c
       real(rk) :: Pchl(9), Pc(9)
       real(rk) :: aph450, anap450, acdom450
-!      real(rk) :: acdom250,acdom325,acdom400,acdom425
-!      real(rk) :: Scdom350_500, Scdom250_325
-!      real(rk) :: bbp450, bbp550, bbp700
-!      real(rk) :: equis(self%nlt),ies(self%nlt)
+
       real(rk) :: Ed_dummy,Es_dummy
       real(rk) :: rlamm
       real(rk) :: zgrid(cache%n+1)
@@ -611,7 +554,8 @@ contains
       real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
       real(rk) :: PAR_P3,PAR_P6,PAR_P9
       real(rk) :: PAR_scalar
-      real(rk), dimension(self%nlambda) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
+      real(rk), dimension(max(self%nlambda,self%nlt)) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
+      real(rk), dimension(self%nlt) :: direct_inwater, diffuse_inwater
       real(rk) :: costheta_r
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
@@ -622,88 +566,101 @@ contains
 ! set to zero chlorophyll concentrations in Phytoplankton
       Pchl(:)=0.0_rk
       if(self%p_useBIOPTIMOD) then
-      if (p_useBIOPTIMOD .and. nlt /= 33) fatal_error. "nlt must be 33 when p_useBIOPTIMOD is true"
+       if (self%nlt /= 33) call self%fatal_error('do_column', 'nlt must be 33 when p_useBIOPTIMOD is true')
       !START BLOCK3
-      _GET_SURFACE_(self%id_Ed_0_0250,Ed_0(1))
-      _GET_SURFACE_(self%id_Ed_0_0325,Ed_0(2))
-      _GET_SURFACE_(self%id_Ed_0_0350,Ed_0(3))
-      _GET_SURFACE_(self%id_Ed_0_0375,Ed_0(4))
-      _GET_SURFACE_(self%id_Ed_0_0400,Ed_0(5))
-      _GET_SURFACE_(self%id_Ed_0_0425,Ed_0(6))
-      _GET_SURFACE_(self%id_Ed_0_0450,Ed_0(7))
-      _GET_SURFACE_(self%id_Ed_0_0475,Ed_0(8))
-      _GET_SURFACE_(self%id_Ed_0_0500,Ed_0(9))
-      _GET_SURFACE_(self%id_Ed_0_0525,Ed_0(10))
-      _GET_SURFACE_(self%id_Ed_0_0550,Ed_0(11))
-      _GET_SURFACE_(self%id_Ed_0_0575,Ed_0(12))
-      _GET_SURFACE_(self%id_Ed_0_0600,Ed_0(13))
-      _GET_SURFACE_(self%id_Ed_0_0625,Ed_0(14))
-      _GET_SURFACE_(self%id_Ed_0_0650,Ed_0(15))
-      _GET_SURFACE_(self%id_Ed_0_0675,Ed_0(16))
-      _GET_SURFACE_(self%id_Ed_0_0700,Ed_0(17))
-      _GET_SURFACE_(self%id_Ed_0_0725,Ed_0(18))
-      _GET_SURFACE_(self%id_Ed_0_0775,Ed_0(19))
-      _GET_SURFACE_(self%id_Ed_0_0850,Ed_0(20))
-      _GET_SURFACE_(self%id_Ed_0_0950,Ed_0(21))
-      _GET_SURFACE_(self%id_Ed_0_1050,Ed_0(22))
-      _GET_SURFACE_(self%id_Ed_0_1150,Ed_0(23))
-      _GET_SURFACE_(self%id_Ed_0_1250,Ed_0(24))
-      _GET_SURFACE_(self%id_Ed_0_1350,Ed_0(25))
-      _GET_SURFACE_(self%id_Ed_0_1450,Ed_0(26))
-      _GET_SURFACE_(self%id_Ed_0_1550,Ed_0(27))
-      _GET_SURFACE_(self%id_Ed_0_1650,Ed_0(28))
-      _GET_SURFACE_(self%id_Ed_0_1750,Ed_0(29))
-      _GET_SURFACE_(self%id_Ed_0_1900,Ed_0(30))
-      _GET_SURFACE_(self%id_Ed_0_2200,Ed_0(31))
-      _GET_SURFACE_(self%id_Ed_0_2900,Ed_0(32))
-      _GET_SURFACE_(self%id_Ed_0_3700,Ed_0(33))
-      _GET_SURFACE_(self%id_Es_0_0250,Es_0(1))
-      _GET_SURFACE_(self%id_Es_0_0325,Es_0(2))
-      _GET_SURFACE_(self%id_Es_0_0350,Es_0(3))
-      _GET_SURFACE_(self%id_Es_0_0375,Es_0(4))
-      _GET_SURFACE_(self%id_Es_0_0400,Es_0(5))
-      _GET_SURFACE_(self%id_Es_0_0425,Es_0(6))
-      _GET_SURFACE_(self%id_Es_0_0450,Es_0(7))
-      _GET_SURFACE_(self%id_Es_0_0475,Es_0(8))
-      _GET_SURFACE_(self%id_Es_0_0500,Es_0(9))
-      _GET_SURFACE_(self%id_Es_0_0525,Es_0(10))
-      _GET_SURFACE_(self%id_Es_0_0550,Es_0(11))
-      _GET_SURFACE_(self%id_Es_0_0575,Es_0(12))
-      _GET_SURFACE_(self%id_Es_0_0600,Es_0(13))
-      _GET_SURFACE_(self%id_Es_0_0625,Es_0(14))
-      _GET_SURFACE_(self%id_Es_0_0650,Es_0(15))
-      _GET_SURFACE_(self%id_Es_0_0675,Es_0(16))
-      _GET_SURFACE_(self%id_Es_0_0700,Es_0(17))
-      _GET_SURFACE_(self%id_Es_0_0725,Es_0(18))
-      _GET_SURFACE_(self%id_Es_0_0775,Es_0(19))
-      _GET_SURFACE_(self%id_Es_0_0850,Es_0(20))
-      _GET_SURFACE_(self%id_Es_0_0950,Es_0(21))
-      _GET_SURFACE_(self%id_Es_0_1050,Es_0(22))
-      _GET_SURFACE_(self%id_Es_0_1150,Es_0(23))
-      _GET_SURFACE_(self%id_Es_0_1250,Es_0(24))
-      _GET_SURFACE_(self%id_Es_0_1350,Es_0(25))
-      _GET_SURFACE_(self%id_Es_0_1450,Es_0(26))
-      _GET_SURFACE_(self%id_Es_0_1550,Es_0(27))
-      _GET_SURFACE_(self%id_Es_0_1650,Es_0(28))
-      _GET_SURFACE_(self%id_Es_0_1750,Es_0(29))
-      _GET_SURFACE_(self%id_Es_0_1900,Es_0(30))
-      _GET_SURFACE_(self%id_Es_0_2200,Es_0(31))
-      _GET_SURFACE_(self%id_Es_0_2900,Es_0(32))
-      _GET_SURFACE_(self%id_Es_0_3700,Es_0(33))
+      _GET_SURFACE_(self%id_Ed_0_0250,direct(1))
+      _GET_SURFACE_(self%id_Ed_0_0325,direct(2))
+      _GET_SURFACE_(self%id_Ed_0_0350,direct(3))
+      _GET_SURFACE_(self%id_Ed_0_0375,direct(4))
+      _GET_SURFACE_(self%id_Ed_0_0400,direct(5))
+      _GET_SURFACE_(self%id_Ed_0_0425,direct(6))
+      _GET_SURFACE_(self%id_Ed_0_0450,direct(7))
+      _GET_SURFACE_(self%id_Ed_0_0475,direct(8))
+      _GET_SURFACE_(self%id_Ed_0_0500,direct(9))
+      _GET_SURFACE_(self%id_Ed_0_0525,direct(10))
+      _GET_SURFACE_(self%id_Ed_0_0550,direct(11))
+      _GET_SURFACE_(self%id_Ed_0_0575,direct(12))
+      _GET_SURFACE_(self%id_Ed_0_0600,direct(13))
+      _GET_SURFACE_(self%id_Ed_0_0625,direct(14))
+      _GET_SURFACE_(self%id_Ed_0_0650,direct(15))
+      _GET_SURFACE_(self%id_Ed_0_0675,direct(16))
+      _GET_SURFACE_(self%id_Ed_0_0700,direct(17))
+      _GET_SURFACE_(self%id_Ed_0_0725,direct(18))
+      _GET_SURFACE_(self%id_Ed_0_0775,direct(19))
+      _GET_SURFACE_(self%id_Ed_0_0850,direct(20))
+      _GET_SURFACE_(self%id_Ed_0_0950,direct(21))
+      _GET_SURFACE_(self%id_Ed_0_1050,direct(22))
+      _GET_SURFACE_(self%id_Ed_0_1150,direct(23))
+      _GET_SURFACE_(self%id_Ed_0_1250,direct(24))
+      _GET_SURFACE_(self%id_Ed_0_1350,direct(25))
+      _GET_SURFACE_(self%id_Ed_0_1450,direct(26))
+      _GET_SURFACE_(self%id_Ed_0_1550,direct(27))
+      _GET_SURFACE_(self%id_Ed_0_1650,direct(28))
+      _GET_SURFACE_(self%id_Ed_0_1750,direct(29))
+      _GET_SURFACE_(self%id_Ed_0_1900,direct(30))
+      _GET_SURFACE_(self%id_Ed_0_2200,direct(31))
+      _GET_SURFACE_(self%id_Ed_0_2900,direct(32))
+      _GET_SURFACE_(self%id_Ed_0_3700,direct(33))
+      _GET_SURFACE_(self%id_Es_0_0250,diffuse(1))
+      _GET_SURFACE_(self%id_Es_0_0325,diffuse(2))
+      _GET_SURFACE_(self%id_Es_0_0350,diffuse(3))
+      _GET_SURFACE_(self%id_Es_0_0375,diffuse(4))
+      _GET_SURFACE_(self%id_Es_0_0400,diffuse(5))
+      _GET_SURFACE_(self%id_Es_0_0425,diffuse(6))
+      _GET_SURFACE_(self%id_Es_0_0450,diffuse(7))
+      _GET_SURFACE_(self%id_Es_0_0475,diffuse(8))
+      _GET_SURFACE_(self%id_Es_0_0500,diffuse(9))
+      _GET_SURFACE_(self%id_Es_0_0525,diffuse(10))
+      _GET_SURFACE_(self%id_Es_0_0550,diffuse(11))
+      _GET_SURFACE_(self%id_Es_0_0575,diffuse(12))
+      _GET_SURFACE_(self%id_Es_0_0600,diffuse(13))
+      _GET_SURFACE_(self%id_Es_0_0625,diffuse(14))
+      _GET_SURFACE_(self%id_Es_0_0650,diffuse(15))
+      _GET_SURFACE_(self%id_Es_0_0675,diffuse(16))
+      _GET_SURFACE_(self%id_Es_0_0700,diffuse(17))
+      _GET_SURFACE_(self%id_Es_0_0725,diffuse(18))
+      _GET_SURFACE_(self%id_Es_0_0775,diffuse(19))
+      _GET_SURFACE_(self%id_Es_0_0850,diffuse(20))
+      _GET_SURFACE_(self%id_Es_0_0950,diffuse(21))
+      _GET_SURFACE_(self%id_Es_0_1050,diffuse(22))
+      _GET_SURFACE_(self%id_Es_0_1150,diffuse(23))
+      _GET_SURFACE_(self%id_Es_0_1250,diffuse(24))
+      _GET_SURFACE_(self%id_Es_0_1350,diffuse(25))
+      _GET_SURFACE_(self%id_Es_0_1450,diffuse(26))
+      _GET_SURFACE_(self%id_Es_0_1550,diffuse(27))
+      _GET_SURFACE_(self%id_Es_0_1650,diffuse(28))
+      _GET_SURFACE_(self%id_Es_0_1750,diffuse(29))
+      _GET_SURFACE_(self%id_Es_0_1900,diffuse(30))
+      _GET_SURFACE_(self%id_Es_0_2200,diffuse(31))
+      _GET_SURFACE_(self%id_Es_0_2900,diffuse(32))
+      _GET_SURFACE_(self%id_Es_0_3700,diffuse(33))
 !END BLOCK3 python generated code
       else
       do l = 1, self%nlambda
          _GET_SURFACE_(self%id_direct_sf(l), direct(l))
          _GET_SURFACE_(self%id_diffuse_sf(l), diffuse(l))
-         _GET_SURFACE_(self%id_direct_sf(l),  Ed_dummy)
-         _GET_SURFACE_(self%id_diffuse_sf(l), Es_dummy)
+         diffuse(l)=diffuse(l)*self%swr_weights(l)
+         direct(l)=direct(l)*self%swr_weights(l)
 !        write(*,*) ' weights', self%swr_weights(l)
 !        write(*,*) ' weights', self%swr_weights(l)
 !        write(*,*) ' dwl', self%swr_weights(l)*(4000._rk - 300._rk )
-         Ed_0(l)=Ed_dummy * self%swr_weights(l)
-         Es_0(l)=Es_dummy * self%swr_weights(l)
       end do
       endif
+      if (self%nlambda == self%nlt) then
+            do l = 1, self%nlt
+               Ed_0(l)=direct(l)
+               Es_0(l)=diffuse(l)
+            end do
+      else
+            call interpolate_spectrum(self, self%nlambda, self%lambda, direct,  self%nlt, lam, direct_inwater)
+            call interpolate_spectrum(self, self%nlambda, self%lambda, diffuse, self%nlt, lam, diffuse_inwater)
+            do l = 1, self%nlt
+               Ed_0(l)=direct_inwater(l)
+               Es_0(l)=diffuse_inwater(l)
+            end do
+      end if
+      
+
       _GET_SURFACE_(self%id_costheta_r, costheta_r)
 
       kk=0
@@ -832,20 +789,11 @@ contains
        enddo
 
        anap450  = apoc(7) * R6c
-!       bbp450 = (bc(1,7)*bbc(1,7)*P1c + bc(2,7)*bbc(2,7)*P2c + bc(3,7)*bbc(3,7)*P3c + bc(4,7)*bbc(4,7)*P4c + bc(2,7)*bbc(2,7)*P5c + bc(3,7)*bbc(3,7)*P6c + bc(2,7)*bbc(2,7)*P7c + bc(2,7)*bbc(2,7)*P8c + bc(3,7)*bbc(3,7)*P9c) + bbpoc(7)*R6c + spm_bb
-!       bbp550 = (bc(1,11)*bbc(1,11)*P1c + bc(2,11)*bbc(2,11)*P2c + bc(3,11)*bbc(3,11)*P3c + bc(4,11)*bbc(4,11)*P4c + bc(2,11)*bbc(2,11)*P5c + bc(3,11)*bbc(3,11)*P6c + bc(2,11)*bbc(2,11)*P7c + bc(2,11)*bbc(2,11)*P8c + bc(3,11)*bbc(3,11)*P9c) + bbpoc(11)*R6c + spm_bb
-!       bbp700 = (bc(1,17)*bbc(1,17)*P1c + bc(2,17)*bbc(2,17)*P2c + bc(3,17)*bbc(3,17)*P3c + bc(4,17)*bbc(4,17)*P4c + bc(2,17)*bbc(2,17)*P5c + bc(3,17)*bbc(3,17)*P6c + bc(2,17)*bbc(2,17)*P7c + bc(2,17)*bbc(2,17)*P8c + bc(3,17)*bbc(3,17)*P9c) + bbpoc(17)*R6c + spm_bb
-
-!         _SET_DIAGNOSTIC_(self%id_acdom250, max(p_small,acdom250))            
-!         _SET_DIAGNOSTIC_(self%id_acdom325, max(p_small,acdom325))            
-!         _SET_DIAGNOSTIC_(self%id_acdom400, max(p_small,acdom400))            
-!         _SET_DIAGNOSTIC_(self%id_acdom425, max(p_small,acdom425))            
+!    
          _SET_DIAGNOSTIC_(self%id_acdom450, max(p_small,acdom450))
          _SET_DIAGNOSTIC_(self%id_aph450, max(p_small,aph450))              
          _SET_DIAGNOSTIC_(self%id_anap450, max(p_small,anap450))
-!         _SET_DIAGNOSTIC_(self%id_bbp450, max(p_small,bbp450))
-!         _SET_DIAGNOSTIC_(self%id_bbp550, max(p_small,bbp550))
-!         _SET_DIAGNOSTIC_(self%id_bbp700, max(p_small,bbp700))
+
          
        ! linear fit of ln-transformed aCDOM(l) against wavelength:
        ! between 350 and 500 nm (Babin et al 2013, Organelli et al 2014) 
@@ -913,9 +861,9 @@ contains
      enddo
 
 ! AOPs observed for diagnostics     
-!    write(*,*) 'Rrs= ', E(3,1,7)/(Ed_0(7)+Es_0(7))
 
-!    _HORIZONTAL_LOOP_BEGIN_
+
+
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs400,E(3,1,5)/max(p_small,(E(1,1,5)+E(2,1,5))))
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs425,E(3,1,6)/max(p_small,(E(1,1,6)+E(2,1,6))))
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs450,E(3,1,7)/max(p_small,(E(1,1,7)+E(2,1,7)))) 
@@ -925,16 +873,6 @@ contains
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs550,E(3,1,11)/max(p_small,(E(1,1,11)+E(2,1,11)))) 
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs575,E(3,1,12)/max(p_small,(E(1,1,12)+E(2,1,12)))) 
      _SET_HORIZONTAL_DIAGNOSTIC_(self%id_Rrs675,E(3,1,16)/max(p_small,(E(1,1,16)+E(2,1,16)))) 
-
-!     write(*,*) 'Z9= ', zgrid(26)
-     
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd375,-LOG(max(p_small,(E(1,26,4)+E(2,26,4))/(max(p_small,E(1,1,4)+E(2,1,4)))))/9.05_rk)
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd400,-LOG(max(p_small,(E(1,26,5)+E(2,26,5))/(max(p_small,E(1,1,5)+E(2,1,5)))))/9.05_rk)     
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd425,-LOG(max(p_small,(E(1,26,6)+E(2,26,6))/(max(p_small,E(1,1,6)+E(2,1,6)))))/9.05_rk)
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd475,-LOG(max(p_small,(E(1,26,8)+E(2,26,8))/(max(p_small,E(1,1,8)+E(2,1,8)))))/9.05_rk)
-!    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_kd500,-LOG(max(p_small,(E(1,26,9)+E(2,26,9))/(max(p_small,E(1,1,9)+E(2,1,9)))))/9.05_rk)     
-    
-!     _HORIZONTAL_LOOP_END_
 
       kk=0
 
@@ -990,5 +928,41 @@ contains
      _DOWNWARD_LOOP_END_
 
    end subroutine do_column
+
+   subroutine interpolate_spectrum(self, nsource, source_lambda, source_values, ntarget, target_lambda, target_values)
+      class (type_ogs_bfm_light_spectral_inwater), intent(inout) :: self
+      integer, intent(in) :: nsource, ntarget
+      real(rk), intent(in) :: source_lambda(nsource), source_values(nsource), target_lambda(ntarget)
+      real(rk), intent(out) :: target_values(ntarget)
+
+      integer :: i, j, k
+      real(rk) :: frac
+      character(len=256) :: err_message
+
+      do k = 1, nsource - 1
+         if (source_lambda(k + 1) <= source_lambda(k)) then
+            write(err_message,'(a,i0,a,es12.5,a,es12.5,a)') &
+               'source_lambda must be strictly increasing; source_lambda(', k, ')=', source_lambda(k), &
+               ', source_lambda(k+1)=', source_lambda(k + 1), '.'
+            call self%fatal_error('interpolate_spectrum', trim(err_message))
+         end if
+      end do
+
+      i = 1
+      do j = 1, ntarget
+         if (target_lambda(j) < source_lambda(1) .or. target_lambda(j) > source_lambda(nsource)) then
+            write(err_message,'(a,es12.5,a,es12.5,a,es12.5,a)') &
+               'target_lambda outside source_lambda range: target=', target_lambda(j), &
+               ', min=', source_lambda(1), ', max=', source_lambda(nsource), '.'
+            call self%fatal_error('interpolate_spectrum', trim(err_message))
+         end if
+         do while (i + 1 < nsource)
+            if (source_lambda(i + 1) >= target_lambda(j)) exit
+            i = i + 1
+         end do
+         frac = (target_lambda(j) - source_lambda(i)) / (source_lambda(i + 1) - source_lambda(i))
+         target_values(j) = source_values(i) + frac * (source_values(i + 1) - source_values(i))
+      end do
+   end subroutine interpolate_spectrum
 
 end module
