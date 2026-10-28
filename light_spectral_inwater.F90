@@ -13,7 +13,7 @@ module ogs_bfm_light_spectral_inwater
    type,extends(type_base_model),public :: type_ogs_bfm_light_spectral_inwater
       ! Identifiers for diagnostic variables
       type (type_diagnostic_variable_id)   :: id_par_P1,id_par_P2,id_par_P3,id_par_P4,id_par_P5,id_par_P6,id_par_P7,id_par_P8,id_par_P9
-      type (type_diagnostic_variable_id)   :: id_PAR_tot,id_PAR_W_tot, id_SWR_tot
+      type (type_diagnostic_variable_id)   :: id_PAR_tot,id_PAR_W_tot
       type (type_diagnostic_variable_id)   :: id_anap450, id_aph450, id_acdom450
 
       type (type_diagnostic_variable_id)   :: id_Ed400, id_Ed425, id_Ed450, id_Ed475, id_Ed500, id_Ed525, id_Ed550, id_Ed575, id_Ed675
@@ -30,8 +30,8 @@ module ogs_bfm_light_spectral_inwater
       type (type_horizontal_dependency_id) :: id_zenithA
       type (type_surface_dependency_id), allocatable :: id_direct_sf(:), id_diffuse_sf(:)
       type (type_surface_dependency_id) :: id_costheta_r
-      integer :: nlambda
-      real(rk), dimension(:), allocatable :: lambda, lambda_bounds, par_weights, par_E_weights, swr_weights, uv_weights, F, lambda_out
+      integer :: nlambda_inwt, nlambda_atm
+      real(rk), dimension(:), allocatable :: lambda_inwt, lambda_atm, lambda_bounds, lambda_atm_weights, F, lambda_out
 ! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py ONLY used with p_useBIOPTIMOD
       type (type_horizontal_dependency_id) ::  id_Ed_0_0250, id_Ed_0_0325, id_Ed_0_0350, id_Ed_0_0375, id_Ed_0_0400
       type (type_horizontal_dependency_id) ::  id_Ed_0_0425, id_Ed_0_0450, id_Ed_0_0475, id_Ed_0_0500, id_Ed_0_0525
@@ -52,7 +52,7 @@ module ogs_bfm_light_spectral_inwater
       type (type_horizontal_dependency_id) :: id_spm      
       
       ! Parameters
-      integer  :: nlt,nlt_atm,npft
+      integer  :: npft
       real(rk) :: rd, rs, ru, vs, vu
       real(rk) :: SdomX1, X1coeff, SdomX2, X2coeff, SdomX3, X3coeff, lambda_aCDOM, Xmincoeff
       real(rk) :: Sapar, lambda_aPart, aparcoeff
@@ -97,32 +97,32 @@ contains
       integer :: lambda_method
       integer :: n_iop, i_iop, iop_type
       real(rk) :: lambda_min, lambda_max
-      integer :: nlambda_out
+      integer :: nlambda_out, nlambda_atm_config
       character(len=8) :: strwavelength, strindex, strindex2
       real(rk) :: lambda_ref_iop, a_star_iop, S_iop, b_star_iop, eta_iop
-
+      ! Atmospheric wavelength grid; the in-water grid is read by lidata below.
       call self%get_parameter(lambda_method, 'lambda_method', '', 'choice of wavebands (0: custom range, 1: OASIM)', default=1)
       select case (lambda_method)
       case (0)
-         call self%get_parameter(self%nlambda, 'nlambda', '', 'number of wavebands')
+         call self%get_parameter(self%nlambda_atm, 'nlambda', '', 'number of wavebands')
          call self%get_parameter(lambda_min, 'lambda_min', 'nm', 'minimum wavelength', minimum=0._rk)
          call self%get_parameter(lambda_max, 'lambda_max', 'nm', 'maximum wavelength', minimum=0._rk)
-         allocate(self%lambda(self%nlambda), self%lambda_bounds(self%nlambda + 1))
-         do l = 1, self%nlambda + 1
-            self%lambda_bounds(l) = lambda_min + (l - 1) * (lambda_max - lambda_min) / self%nlambda
+         allocate(self%lambda_atm(self%nlambda_atm), self%lambda_bounds(self%nlambda_atm + 1))
+         do l = 1, self%nlambda_atm + 1
+            self%lambda_bounds(l) = lambda_min + (l - 1) * (lambda_max - lambda_min) / self%nlambda_atm
          end do
-         self%lambda = (self%lambda_bounds(1:self%nlambda) + self%lambda_bounds(2:self%nlambda + 1)) / 2
+         self%lambda_atm = (self%lambda_bounds(1:self%nlambda_atm) + self%lambda_bounds(2:self%nlambda_atm + 1)) / 2
       case (1)
-         self%nlambda = nlambda_oasim
-         allocate(self%lambda(self%nlambda), self%lambda_bounds(self%nlambda + 1))
-         self%lambda(:) = lambda_oasim
+         self%nlambda_atm = nlambda_oasim
+         allocate(self%lambda_atm(self%nlambda_atm), self%lambda_bounds(self%nlambda_atm + 1))
+         self%lambda_atm(:) = lambda_oasim
       end select
 
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-      call self%get_parameter(self%nlt_atm, 'nlt_atm', '-', 'number of wavelengths for atmospheric irradiance input', default=self%nlambda)
-      call self%get_parameter(self%nlt,    'nlt',  '-',   'number of wavelengths for inwater optical model', default=self%nlt_atm)
+      call self%get_parameter(nlambda_atm_config, 'nlt_atm', '-', 'number of wavelengths for atmospheric irradiance input', default=self%nlambda_atm)
+      call self%get_parameter(self%nlambda_inwt,    'nlt',  '-',   'number of wavelengths for inwater optical model', default=self%nlambda_atm)
       call self%get_parameter(self%npft,   'npft', '-',   'number of PFT', default=-1)
       call self%get_parameter(self%rd,     'rd',   '-',   ' ', default=1.0_rk)
       call self%get_parameter(self%rs,     'rs',   '-',   ' ', default=1.5_rk)
@@ -184,34 +184,36 @@ contains
       call self%get_parameter(self%p_spmb,      'p_spmb',  'm2 g-1',    'non-spectral scattering ',default=0.7_rk)
       call self%get_parameter(self%p_spmbb,     'p_spmbb', 'm2 g-1',    'non-spectral backscattering',default=0.008_rk)
       call self%get_parameter(self%p_useBIOPTIMOD,     'p_useBIOPTIMOD', '[T or F]',    'logical flag to use BIOPTIMOD',default=.False.)
-      if (self%nlt_atm /= self%nlambda) then
+      if (nlambda_atm_config /= self%nlambda_atm) then
          call self%fatal_error('initialize', 'nlt_atm must match the atmospheric wavelength setup (nlambda).')
       end if
       
-      if (self%nlt>0) then
-          allocate(lam(self%nlt));             lam(:)=huge(lam(1))
-          allocate(lam1(self%nlt));            lam1(:)=huge(lam1(1))
-          allocate(lam2(self%nlt));            lam2(:)=huge(lam2(1))
-          allocate(aw(self%nlt));              aw(:)=huge(aw(1))
-          allocate(bw(self%nlt));              bw(:)=huge(bw(1))
-          allocate(bbw(self%nlt));             bbw(:)=huge(bbw(1))
-          allocate(ac(self%npft,self%nlt));    ac(:,:)=huge(ac(1,1))
-          allocate(ac_ps(self%npft,self%nlt)); ac_ps(:,:)=huge(ac_ps(1,1))
-          allocate(bc(self%npft,self%nlt));    bc(:,:)=huge(bc(1,1))
-          allocate(bbc(self%npft,self%nlt));   bbc(:,:)=huge(bbc(1,1))
-          allocate(apoc(self%nlt));            apoc(:)=huge(apoc(1))
-          allocate(bpoc(self%nlt));            bpoc(:)=huge(bpoc(1))
-          allocate(bbpoc(self%nlt));           bbpoc(:)=huge(bbpoc(1))
-          allocate(acdom_min(self%nlt));       acdom_min(:)=huge(acdom_min(1))
-          allocate(acdom(3,self%nlt));         acdom(:,:)=huge(acdom(1,1))
-          allocate(Ed_0(self%nlt));            Ed_0(:)=huge(Ed_0(1))
-          allocate(Es_0(self%nlt));            Es_0(:)=huge(Es_0(1))
-          allocate(WtoQ(self%nlt));            WtoQ(:)=huge(WtoQ(1))
+      if (self%nlambda_inwt>0) then
+          allocate(lam(self%nlambda_inwt));             lam(:)=huge(lam(1))
+          allocate(lam1(self%nlambda_inwt));            lam1(:)=huge(lam1(1))
+          allocate(lam2(self%nlambda_inwt));            lam2(:)=huge(lam2(1))
+          allocate(aw(self%nlambda_inwt));              aw(:)=huge(aw(1))
+          allocate(bw(self%nlambda_inwt));              bw(:)=huge(bw(1))
+          allocate(bbw(self%nlambda_inwt));             bbw(:)=huge(bbw(1))
+          allocate(ac(self%npft,self%nlambda_inwt));    ac(:,:)=huge(ac(1,1))
+          allocate(ac_ps(self%npft,self%nlambda_inwt)); ac_ps(:,:)=huge(ac_ps(1,1))
+          allocate(bc(self%npft,self%nlambda_inwt));    bc(:,:)=huge(bc(1,1))
+          allocate(bbc(self%npft,self%nlambda_inwt));   bbc(:,:)=huge(bbc(1,1))
+          allocate(apoc(self%nlambda_inwt));            apoc(:)=huge(apoc(1))
+          allocate(bpoc(self%nlambda_inwt));            bpoc(:)=huge(bpoc(1))
+          allocate(bbpoc(self%nlambda_inwt));           bbpoc(:)=huge(bbpoc(1))
+          allocate(acdom_min(self%nlambda_inwt));       acdom_min(:)=huge(acdom_min(1))
+          allocate(acdom(3,self%nlambda_inwt));         acdom(:,:)=huge(acdom(1,1))
+          allocate(Ed_0(self%nlambda_inwt));            Ed_0(:)=huge(Ed_0(1))
+          allocate(Es_0(self%nlambda_inwt));            Es_0(:)=huge(Es_0(1))
+          allocate(WtoQ(self%nlambda_inwt));            WtoQ(:)=huge(WtoQ(1))
 
 
           
 !         load the IOP for the biogeochemical variables considered
-          call lidata(self%nlt,self%npft)
+          call lidata(self%nlambda_inwt,self%npft)
+          allocate(self%lambda_inwt(self%nlambda_inwt))
+          self%lambda_inwt = lam
 
       endif 
 
@@ -219,14 +221,14 @@ contains
      hcoavo = hc*oavo
 
 
-      do nl = 1,self%nlt
-       rlamm = real(lam(nl),8)*1.0E-9      !lambda in m
+      do nl = 1,self%nlambda_inwt
+       rlamm = real(self%lambda_inwt(nl),8)*1.0E-9      !lambda in m
        WtoQ(nl) = rlamm*hcoavo*1000000.0D0 !Watts to micro mol quanta conversion
        acdom_min(nl)= 0.0_rk
       enddo
 
 !   with parameter in namelist     
-      do nl = 1,self%nlt
+      do nl = 1,self%nlambda_inwt
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
        acdom_min(nl) = self%Xmincoeff*(exp(-self%SdomX2*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX2*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX2*(rlamm2-rlamm1))
@@ -236,8 +238,8 @@ contains
       
  !   CDOM absorption coefficients
       if (self%compute_acdom) then     
-      do nl = 1,self%nlt
- !      rlamm = real(lam(nl),8)
+      do nl = 1,self%nlambda_inwt
+ !      rlamm = real(self%lambda_inwt(nl),8)
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
        acdom(1,nl) = self%X1coeff*(exp(-self%SdomX1*(rlamm2-self%lambda_aCDOM))-exp(-self%SdomX1*(rlamm1-self%lambda_aCDOM)))/(-self%SdomX1*(rlamm2-rlamm1))
@@ -248,8 +250,8 @@ contains
 
  !   POC absorption/scatter coefficients
       if (self%compute_anap) then
-      do nl = 1,self%nlt
-       rlamm = real(lam(nl),8)
+      do nl = 1,self%nlambda_inwt
+       rlamm = real(self%lambda_inwt(nl),8)
        rlamm1 = real(lam1(nl),8)
        rlamm2 = real(lam2(nl),8)
  !      apoc(nl) = self%aparcoeff * exp(-self%Sapar*(rlamm-self%lambda_aPart))
@@ -260,12 +262,12 @@ contains
       endif
 
 
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), acdom(1,nl), acdom(2,nl), acdom(3,nl)
+      do nl = 1,self%nlambda_inwt
+        write(*,*) real(self%lambda_inwt(nl),8), acdom(1,nl), acdom(2,nl), acdom(3,nl)
       enddo
 
-      do nl = 1,self%nlt
-        write(*,*) real(lam(nl),8), apoc(nl), bpoc(nl), bbpoc(nl)
+      do nl = 1,self%nlambda_inwt
+        write(*,*) real(self%lambda_inwt(nl),8), apoc(nl), bpoc(nl), bbpoc(nl)
       enddo
        
  !   PHYTO absorption coefficients
@@ -283,13 +285,13 @@ contains
             ! find mean
             cu_area = 0.0_rk
             do nl = 5,17   ! indexes for 400-700nm
-!                rlamm = real(lam(nl),8)
+!                rlamm = real(self%lambda_inwt(nl),8)
                 rlamm1 = real(lam1(nl),8)
                 rlamm2 = real(lam2(nl),8)
                 cu_area = cu_area + ((rlamm2-rlamm1) * ac(n,nl))
             enddo
             aph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
-            do nl = 1,self%nlt
+            do nl = 1,self%nlambda_inwt
                 ac(n,nl) = ac(n,nl) * (dummy_p/aph_mean)
             enddo 
          enddo
@@ -315,7 +317,7 @@ contains
                 cu_area = cu_area + ((rlamm2-rlamm1) * bc(n,nl))
             enddo
             bph_mean = cu_area / (real(lam2(17),8)-real(lam1(5),8)) ! total band width 400-700nm
-            do nl = 1,self%nlt
+            do nl = 1,self%nlambda_inwt
                 bc(n,nl) = bc(n,nl) * (dummy_p/bph_mean)
             enddo 
          enddo
@@ -349,7 +351,6 @@ contains
       if (self%npft .GT. 8) call self%register_diagnostic_variable(self%id_par_P9, 'PAR_P9', 'uE mgChl-1 d-1', 'PAR_synechococcus', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_tot, 'PAR_tot',  'uE m-2 d-1 [400-700]','PAR_total', source=source_do_column)
       call self%register_diagnostic_variable(self%id_PAR_W_tot, 'PAR_W_tot',  'W m-2 [400-700]','PAR_W_total', source=source_do_column)
-      call self%register_diagnostic_variable(self%id_SWR_tot, 'SWR_tot',  'W m-2 ','SWR_total', source=source_do_column)
       call self%register_diagnostic_variable(self%id_acdom450, 'acdom450', 'm-1', 'acdom in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_anap450, 'anap450',  'm-1', 'anap in 450 nm band', source=source_do_column)
       call self%register_diagnostic_variable(self%id_aph450,  'aph450',   'm-1', 'aph in 450 nm band', source=source_do_column)
@@ -417,30 +418,13 @@ contains
       call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
       if (self%p_useSPM)  call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
 
-      allocate(self%id_diffuse_sf(self%nlambda))
-      allocate(self%id_direct_sf(self%nlambda))
-      do l = 1, self%nlambda
 
-         write(strwavelength, '(I4.4)') int(self%lambda(l))
-         write(strindex, '(i0)') l
-         call self%register_dependency(self%id_direct_sf(l), 'direct_band' // trim(strindex), 'W/m2/nm', 'downward direct irradiance in water @ ' // trim(strwavelength) // ' nm')
-         call self%register_dependency(self%id_diffuse_sf(l), 'diffuse_band' // trim(strindex), 'W/m2/nm', 'downward diffuse irradiance in water @ ' // trim(strwavelength) // ' nm')
-         call self%request_coupling(self%id_direct_sf(l),  type_surface_standard_variable(name='downward_direct_irradiance_in_water_at_' // trim(strwavelength) // '_nm', units='W m-2 nm-1'))
-         call self%request_coupling(self%id_diffuse_sf(l), type_surface_standard_variable(name='downward_diffuse_irradiance_in_water_at_' // trim(strwavelength) // '_nm', units='W m-2 nm-1'))
-      end do
       call self%register_dependency(self%id_costheta_r, 'costheta_r', '-', 'cosine of zenith angle of underwater direct irradiance')
-      ! Find wavelength bounds of photosynthetically active radiation
-      allocate(self%par_weights(self%nlt))
-      allocate(self%swr_weights(self%nlt))
-      allocate(self%uv_weights(self%nlt))
-      allocate(self%par_E_weights(self%nlt))
-      call calculate_integral_weights(400._rk, 700._rk, self%nlt, lam, self%par_weights)
-      call calculate_integral_weights(300._rk, 4000._rk, self%nlt, lam, self%swr_weights)
-      call calculate_integral_weights(300._rk, 400._rk, self%nlt, lam, self%uv_weights)
-      ! h_planck      = 6.6256E-34   !Plancks constant J sec
-      ! c_light       = 2.998E8      !speed of light m/sec
-      ! oavo          = 1.0D0/6.023E23   ! 1/Avogadros number
-      self%par_E_weights(:) = self%par_weights * lam /(h_Planck*c_light)*oavo*1e-3_rk ! divide by 1e9 to go from nm to m, multiply by 1e6 to go from mol to umol
+      ! Integrate over the full atmospheric wavelength domain.
+      allocate(self%lambda_atm_weights(self%nlambda_atm))
+      call calculate_integral_weights(self%lambda_atm(1), self%lambda_atm(self%nlambda_atm), &
+                                      self%nlambda_atm, self%lambda_atm, self%lambda_atm_weights)
+
       if (self%p_useBIOPTIMOD) then
 ! BLOCK 2 python generate code see AUX_SCRIPTS/python_light_spectral.py
       call self%register_dependency(self%id_Ed_0_0250,type_surface_standard_variable(name='surf_direct_downward_irradiance_0250_nm'))
@@ -509,6 +493,18 @@ contains
       call self%register_dependency(self%id_Es_0_2200,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2200_nm'))
       call self%register_dependency(self%id_Es_0_2900,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_2900_nm'))
       call self%register_dependency(self%id_Es_0_3700,type_surface_standard_variable(name='surf_diffuse_downward_irradiance_3700_nm'))
+      else ! USE PML atmosfpheric model 
+               allocate(self%id_diffuse_sf(self%nlambda_atm))
+               allocate(self%id_direct_sf(self%nlambda_atm))
+               do l = 1, self%nlambda_atm
+
+                   write(strwavelength, '(I4.4)') int(self%lambda_atm(l))
+                   write(strindex, '(i0)') l
+                  call self%register_dependency(self%id_direct_sf(l), 'direct_band' // trim(strindex), 'W/m2/nm', 'downward direct irradiance in water @ ' // trim(strwavelength) // ' nm')
+                  call self%register_dependency(self%id_diffuse_sf(l), 'diffuse_band' // trim(strindex), 'W/m2/nm', 'downward diffuse irradiance in water @ ' // trim(strwavelength) // ' nm')
+                  call self%request_coupling(self%id_direct_sf(l),  type_surface_standard_variable(name='downward_direct_irradiance_in_water_at_' // trim(strwavelength) // '_nm', units='W m-2 nm-1'))
+                  call self%request_coupling(self%id_diffuse_sf(l), type_surface_standard_variable(name='downward_diffuse_irradiance_in_water_at_' // trim(strwavelength) // '_nm', units='W m-2 nm-1'))
+      end do
       end if
 ! END BLOCK2 python generated code
    end subroutine initialize
@@ -530,14 +526,14 @@ contains
       real(rk) :: Ed_dummy,Es_dummy
       real(rk) :: rlamm
       real(rk) :: zgrid(cache%n+1)
-      real(rk) :: a_array(cache%n, self%nlt)
-      real(rk) :: b_array(cache%n, self%nlt)
-      real(rk) :: bb_array(cache%n, self%nlt)
-      real(rk) :: vd(cache%n, self%nlt)
-      real(rk) :: E(3, cache%n+1, self%nlt)
-      real(rk) :: E_ave(3, cache%n, self%nlt)
+      real(rk) :: a_array(cache%n, self%nlambda_inwt)
+      real(rk) :: b_array(cache%n, self%nlambda_inwt)
+      real(rk) :: bb_array(cache%n, self%nlambda_inwt)
+      real(rk) :: vd(cache%n, self%nlambda_inwt)
+      real(rk) :: E(3, cache%n+1, self%nlambda_inwt)
+      real(rk) :: E_ave(3, cache%n, self%nlambda_inwt)
       real(rk) :: rd, rs, ru, vs, vu
-      real(rk) :: E_scalar(cache%n, self%nlt)
+      real(rk) :: E_scalar(cache%n, self%nlambda_inwt)
       real(rk) :: PAR_P1_array(cache%n)
       real(rk) :: PAR_P2_array(cache%n)
       real(rk) :: PAR_P3_array(cache%n)
@@ -549,13 +545,12 @@ contains
       real(rk) :: PAR_P9_array(cache%n)
       real(rk) :: PAR_scalar_array(cache%n)
       real(rk) :: PAR_scalar_array_W(cache%n)
-      real(rk) :: SWR_downward_array(cache%n)
       real(rk) :: PAR_P1,PAR_P4
       real(rk) :: PAR_P2,PAR_P5,PAR_P7,PAR_P8
       real(rk) :: PAR_P3,PAR_P6,PAR_P9
       real(rk) :: PAR_scalar
-      real(rk), dimension(max(self%nlambda,self%nlt)) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
-      real(rk), dimension(self%nlt) :: direct_inwater, diffuse_inwater
+      real(rk), dimension(self%nlambda_atm) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
+      real(rk), dimension(self%nlambda_inwt) :: direct_inwater, diffuse_inwater
       real(rk) :: costheta_r
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
@@ -566,7 +561,8 @@ contains
 ! set to zero chlorophyll concentrations in Phytoplankton
       Pchl(:)=0.0_rk
       if(self%p_useBIOPTIMOD) then
-       if (self%nlt /= 33) call self%fatal_error('do_column', 'nlt must be 33 when p_useBIOPTIMOD is true')
+       if (self%nlambda_atm /= 33) &
+          call self%fatal_error('do_column', 'atmospheric grid must have 33 bands when p_useBIOPTIMOD is true')
       !START BLOCK3
       _GET_SURFACE_(self%id_Ed_0_0250,direct(1))
       _GET_SURFACE_(self%id_Ed_0_0325,direct(2))
@@ -636,30 +632,34 @@ contains
       _GET_SURFACE_(self%id_Es_0_3700,diffuse(33))
 !END BLOCK3 python generated code
       else
-      do l = 1, self%nlambda
+      do l = 1, self%nlambda_atm
          _GET_SURFACE_(self%id_direct_sf(l), direct(l))
          _GET_SURFACE_(self%id_diffuse_sf(l), diffuse(l))
-         diffuse(l)=diffuse(l)*self%swr_weights(l)
-         direct(l)=direct(l)*self%swr_weights(l)
-!        write(*,*) ' weights', self%swr_weights(l)
-!        write(*,*) ' weights', self%swr_weights(l)
-!        write(*,*) ' dwl', self%swr_weights(l)*(4000._rk - 300._rk )
+         diffuse(l)=diffuse(l)*self%lambda_atm_weights(l)
+         direct(l)=direct(l)*self%lambda_atm_weights(l)
       end do
       endif
-      if (self%nlambda == self%nlt) then
-            do l = 1, self%nlt
-               Ed_0(l)=direct(l)
-               Es_0(l)=diffuse(l)
-            end do
+      ! Equal band counts can still describe different wavelength grids.
+      if (self%nlambda_atm == self%nlambda_inwt) then
+         if (all(self%lambda_atm == self%lambda_inwt)) then
+            Ed_0 = direct
+            Es_0 = diffuse
+         else
+            call interpolate_spectrum(self, self%nlambda_atm, self%lambda_atm, direct, &
+                                      self%nlambda_inwt, self%lambda_inwt, direct_inwater)
+            call interpolate_spectrum(self, self%nlambda_atm, self%lambda_atm, diffuse, &
+                                      self%nlambda_inwt, self%lambda_inwt, diffuse_inwater)
+            Ed_0 = direct_inwater
+            Es_0 = diffuse_inwater
+         end if
       else
-            call interpolate_spectrum(self, self%nlambda, self%lambda, direct,  self%nlt, lam, direct_inwater)
-            call interpolate_spectrum(self, self%nlambda, self%lambda, diffuse, self%nlt, lam, diffuse_inwater)
-            do l = 1, self%nlt
-               Ed_0(l)=direct_inwater(l)
-               Es_0(l)=diffuse_inwater(l)
-            end do
+         call interpolate_spectrum(self, self%nlambda_atm, self%lambda_atm, direct, &
+                                   self%nlambda_inwt, self%lambda_inwt, direct_inwater)
+         call interpolate_spectrum(self, self%nlambda_atm, self%lambda_atm, diffuse, &
+                                   self%nlambda_inwt, self%lambda_inwt, diffuse_inwater)
+         Ed_0 = direct_inwater
+         Es_0 = diffuse_inwater
       end if
-      
 
       _GET_SURFACE_(self%id_costheta_r, costheta_r)
 
@@ -746,7 +746,7 @@ contains
         endif
        
 ! Equations determining optical properties in relations to biogeochemical variables
-          do l=1,self%nlt
+          do l=1,self%nlambda_inwt
               phy_a = 0.0_rk
               phy_b = 0.0_rk
               phy_bb = 0.0_rk
@@ -759,7 +759,7 @@ contains
              cdom_a = acdom(1,l)*X1c  + acdom(2,l)*X2c  + acdom(3,l)*X3c 
              cdom_a = MAX(cdom_a, acdom_min(l))
 
-             rlamm = real(lam(l),8)
+             rlamm = real(self%lambda_inwt(l),8)
 !             rlamm1 = real(lam1(l),8)
 !             rlamm2 = real(lam2(l),8)
        if(self%p_useSPM) then
@@ -778,10 +778,7 @@ contains
           enddo
 
 !! IOPs observed for diagnostics
-!       acdom250 = MAX(acdom(1,1)*X1c + acdom(2,1)*X2c + acdom(3,1)*X3c, acdom_min(1))
-!       acdom325 = MAX(acdom(1,2)*X1c + acdom(2,2)*X2c + acdom(3,2)*X3c, acdom_min(2))
-!       acdom400 = MAX(acdom(1,5)*X1c + acdom(2,5)*X2c + acdom(3,5)*X3c, acdom_min(5))
-!       acdom425 = MAX(acdom(1,6)*X1c + acdom(2,6)*X2c + acdom(3,6)*X3c, acdom_min(6))
+
        acdom450 = MAX(acdom(1,7)*X1c + acdom(2,7)*X2c + acdom(3,7)*X3c, acdom_min(7))
        aph450   = 0.0_rk
        do  pp=1,self%npft
@@ -799,8 +796,8 @@ contains
        ! between 350 and 500 nm (Babin et al 2013, Organelli et al 2014) 
        ! Organelli 2014 uses non-linear least-squares fit!
        ! between 250 and 325 nm (Catal� et al 2018, Galletti et al 2019) 
-!          do l=1,self%nlt
-!             rlamm = real(lam(l),8)     
+!          do l=1,self%nlambda_inwt
+!             rlamm = real(self%lambda_inwt(l),8)     
 !             equis(l) = rlamm-self%lambda_aCDOM
 !             ies(l) = LOG(acdom(1,l)*X1c+acdom(2,l)*X2c+acdom(3,l)*X3c)
 !          enddo
@@ -819,7 +816,7 @@ contains
      vs      = self%vs
      vu      = self%vu
 
-     call solve_direct(cache%n+1, zgrid, cache%n, zgrid, self%nlt, a_array, b_array, bb_array, rd, rs, ru, vd, vs, vu, Ed_0, Es_0, E, E_ave)
+     call solve_direct(cache%n+1, zgrid, cache%n, zgrid, self%nlambda_inwt, a_array, b_array, bb_array, rd, rs, ru, vd, vs, vu, Ed_0, Es_0, E, E_ave)
 
 
 ! Scalar irradiance
@@ -835,12 +832,10 @@ contains
      if (self%npft .GT. 7) PAR_P8_array(:) = 0.0_rk
      if (self%npft .GT. 8) PAR_P9_array(:) = 0.0_rk
 
-     PAR_scalar_array(:)   = 0.0_rk
-     PAR_scalar_array_W(:) = 0.0_rk
-     SWR_downward_array(:)   = 0.0_rk
 
-!     do l=1,self%nlt
-     do l=5,17     
+
+     do l=1,self%nlambda_inwt
+  
          if (self%npft .GT. 0) PAR_P1_array(:) = PAR_P1_array(:) + (WtoQ(l) * ac_ps(1,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 1) PAR_P2_array(:) = PAR_P2_array(:) + (WtoQ(l) * ac_ps(2,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 2) PAR_P3_array(:) = PAR_P3_array(:) + (WtoQ(l) * ac_ps(3,l) * E_scalar(:,l)) * SEC_PER_DAY
@@ -850,14 +845,16 @@ contains
          if (self%npft .GT. 6) PAR_P7_array(:) = PAR_P7_array(:) + (WtoQ(l) * ac_ps(7,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 7) PAR_P8_array(:) = PAR_P8_array(:) + (WtoQ(l) * ac_ps(8,l) * E_scalar(:,l)) * SEC_PER_DAY
          if (self%npft .GT. 8) PAR_P9_array(:) = PAR_P9_array(:) + (WtoQ(l) * ac_ps(9,l) * E_scalar(:,l)) * SEC_PER_DAY         
+     
      enddo
 
-     do l=5,17
+     PAR_scalar_array(:)   = 0.0_rk
+     PAR_scalar_array_W(:) = 0.0_rk
+
+     do l=1,self%nlambda_inwt
+         if (self%lambda_inwt(l) < 400._rk .or. self%lambda_inwt(l) > 700._rk) cycle
          PAR_scalar_array(:)      = PAR_scalar_array(:) + (E_scalar(:,l) * WtoQ(l)) * SEC_PER_DAY 
          PAR_scalar_array_W(:)    = PAR_scalar_array_W(:) + E_scalar(:,l)
-     enddo
-     do l=1,self%nlt
-         SWR_downward_array(:)      = SWR_downward_array(:) + E_ave(1,:,l) + E_ave(2,:,l)
      enddo
 
 ! AOPs observed for diagnostics     
@@ -910,7 +907,6 @@ contains
 
          _SET_DIAGNOSTIC_(self%id_PAR_tot, max(p_small,PAR_scalar_array(kk)))          
          _SET_DIAGNOSTIC_(self%id_PAR_W_tot, max(p_small,PAR_scalar_array_W(kk)))          
-         _SET_DIAGNOSTIC_(self%id_SWR_tot, max(p_small,SWR_downward_array(kk)))          
 
          _SET_DIAGNOSTIC_(self%id_Ed400, max(p_small, (E(1,kk,5)+E(2,kk,5)) ))                 
          _SET_DIAGNOSTIC_(self%id_Ed425, max(p_small, (E(1,kk,6)+E(2,kk,6)) ))           
