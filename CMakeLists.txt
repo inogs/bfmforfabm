@@ -11,6 +11,7 @@ add_library(fabm_models_ogs OBJECT
             light.F90
             light_spectral.F90
 	    light_spectral_OASIM.F90
+            light_spectral_inwater.F90
             lidata.F90
             getrmud.F90 
             zenith_angle.F90
@@ -23,5 +24,4 @@ target_link_libraries(fabm_models_ogs PRIVATE fabm_base)
 add_subdirectory(Forward_Adjoint EXCLUDE_FROM_ALL)
 install(TARGETS adj EXPORT fabmConfig DESTINATION ${CMAKE_INSTALL_LIBDIR})
 target_link_libraries(fabm_models_ogs PUBLIC adj)
-
 
