@@ -100,7 +100,7 @@ contains
       integer :: nlambda_out, nlambda_atm_config
       character(len=8) :: strwavelength, strindex, strindex2
       real(rk) :: lambda_ref_iop, a_star_iop, S_iop, b_star_iop, eta_iop
-      ! Atmospheric wavelength grid; the in-water grid is read by lidata below.
+      ! Atmospheric wavelength discretization; the in-water discretization is read by lidata below.
       call self%get_parameter(lambda_method, 'lambda_method', '', 'choice of wavebands (0: custom range, 1: OASIM)', default=1)
       select case (lambda_method)
       case (0)
@@ -117,6 +117,12 @@ contains
          allocate(self%lambda_atm(self%nlambda_atm), self%lambda_bounds(self%nlambda_atm + 1))
          self%lambda_atm(:) = lambda_oasim
       end select
+
+      write(*,'(a,i0)') 'light_spectral_inwater.F90: atmospheric wavelength count = ', self%nlambda_atm
+      write(*,'(a)') 'Atmospheric wavelengths (nm): band, wavelength'
+      do l = 1, self%nlambda_atm
+         write(*,'(i6,1x,f12.3)') l, self%lambda_atm(l)
+      end do
 
 !EOP
 !-----------------------------------------------------------------------
@@ -214,6 +220,12 @@ contains
           call lidata(self%nlambda_inwt,self%npft)
           allocate(self%lambda_inwt(self%nlambda_inwt))
           self%lambda_inwt = lam
+
+          write(*,'(a,i0)') 'light_spectral_inwater: in-water wavelength count = ', self%nlambda_inwt
+          write(*,'(a)') 'In-water wavelengths (nm): band, wavelength'
+          do l = 1, self%nlambda_inwt
+             write(*,'(i6,1x,f12.3)') l, self%lambda_inwt(l)
+          end do
 
       endif 
 
@@ -420,7 +432,7 @@ contains
 
 
       call self%register_dependency(self%id_costheta_r, 'costheta_r', '-', 'cosine of zenith angle of underwater direct irradiance')
-      ! Integrate over the full atmospheric wavelength domain.
+
       allocate(self%lambda_atm_weights(self%nlambda_atm))
       call calculate_integral_weights(self%lambda_atm(1), self%lambda_atm(self%nlambda_atm), &
                                       self%nlambda_atm, self%lambda_atm, self%lambda_atm_weights)
@@ -635,8 +647,9 @@ contains
       do l = 1, self%nlambda_atm
          _GET_SURFACE_(self%id_direct_sf(l), direct(l))
          _GET_SURFACE_(self%id_diffuse_sf(l), diffuse(l))
-         diffuse(l)=diffuse(l)*self%lambda_atm_weights(l)
+         
          direct(l)=direct(l)*self%lambda_atm_weights(l)
+         diffuse(l)=diffuse(l)*self%lambda_atm_weights(l)
       end do
       endif
       ! Equal band counts can still describe different wavelength grids.
