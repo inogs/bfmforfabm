@@ -29,7 +29,7 @@ module ogs_bfm_light_spectral_inwater
       type (type_state_variable_id)        :: id_R6c, id_R8c, id_X1c, id_X2c, id_X3c
       type (type_horizontal_dependency_id) :: id_zenithA
       type (type_surface_dependency_id), allocatable :: id_direct_sf(:), id_diffuse_sf(:)
-      type (type_surface_dependency_id) :: id_costheta_r
+
       integer :: nlambda_inwt, nlambda_atm
       real(rk), dimension(:), allocatable :: lambda_inwt, lambda_atm, lambda_bounds, lambda_atm_weights, F, lambda_out
 ! BLOCK 1 python generated code see AUX_SCRIPTS/python_light_spectral.py ONLY used with p_useBIOPTIMOD
@@ -430,9 +430,6 @@ contains
       call self%register_horizontal_dependency(self%id_zenithA, type_horizontal_standard_variable(name='zenith_angle'))
       if (self%p_useSPM)  call self%register_horizontal_dependency(self%id_spm, type_horizontal_standard_variable(name='spm_from_satellite'))
 
-
-      call self%register_dependency(self%id_costheta_r, 'costheta_r', '-', 'cosine of zenith angle of underwater direct irradiance')
-
       allocate(self%lambda_atm_weights(self%nlambda_atm))
       call calculate_integral_weights(self%lambda_atm(1), self%lambda_atm(self%nlambda_atm), &
                                       self%nlambda_atm, self%lambda_atm, self%lambda_atm_weights)
@@ -563,7 +560,7 @@ contains
       real(rk) :: PAR_scalar
       real(rk), dimension(self%nlambda_atm) :: direct, diffuse, spectrum, Kd  ! Spectra at top of the water column (with refraction and reflecti
       real(rk), dimension(self%nlambda_inwt) :: direct_inwater, diffuse_inwater
-      real(rk) :: costheta_r
+
 
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
@@ -677,7 +674,6 @@ contains
          Es_0 = diffuse_inwater
       end if
 
-      _GET_SURFACE_(self%id_costheta_r, costheta_r)
 
       kk=0
       zgrid(1)=0.0_rk
