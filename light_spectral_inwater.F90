@@ -568,6 +568,9 @@ contains
       _GET_HORIZONTAL_(self%id_zenithA,zenithA)   ! Zenith angle
       call getrmud(zenithA,mud) ! average cosine direct component in the water
 
+      rmudl = 1.0D0/cos(mud)   !avg cosine direct (1 over)
+      rmud = min(rmudl,1.5D0)
+      rmud = max(rmud,0.0D0)
 ! set to zero carbon concentrations in Phytoplankton
       Pc(:)=0.0_rk
 ! set to zero chlorophyll concentrations in Phytoplankton
